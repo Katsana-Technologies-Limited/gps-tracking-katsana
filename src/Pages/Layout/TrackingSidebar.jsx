@@ -17,15 +17,15 @@ import {
 
 const sidebarLinks = [
   { to: "/dashboard", label: "Analytics & Summary", icon: BarChart2 },
-  { to: "/vehicles", label: "Vehicles", icon: Car },
-  { to: "/reports", label: "Reports", icon: FileText },
-  { to: "/drive-mark", label: "Drive Mark", icon: MapPin },
-  { to: "/alert", label: "Alert", icon: AlertTriangle },
-  { to: "/maintenance", label: "Maintenance", icon: Wrench },
-  { to: "/support", label: "Support", icon: LifeBuoy },
-  { to: "/payment", label: "Payment", icon: CreditCard },
-  { to: "/user-management", label: "User Management", icon: Users },
-  { to: "/ai-assistant", label: "AI Assistant", icon: Bot },
+  { to: "/dashboard/vehicles", label: "Vehicles", icon: Car },
+  { to: "/dashboard/reports", label: "Reports", icon: FileText },
+  { to: "/dashboard/drive-mark", label: "Drive Mark", icon: MapPin },
+  { to: "/dashboard/alert", label: "Alert", icon: AlertTriangle },
+  { to: "/dashboard/maintenance", label: "Maintenance", icon: Wrench },
+  { to: "/dashboard/support", label: "Support", icon: LifeBuoy },
+  { to: "/dashboard/payment", label: "Payment", icon: CreditCard },
+  { to: "/dashboard/user-management", label: "User Management", icon: Users },
+  { to: "/dashboard/ai-assistant", label: "AI Assistant", icon: Bot },
   { to: "/logout", label: "Log Out", icon: LogOut },
 ];
 
