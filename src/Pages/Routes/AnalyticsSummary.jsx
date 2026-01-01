@@ -52,8 +52,12 @@ const alertsTable = [
 ];
 
 // ---- Card Wrapper ----
-const Card = ({ children }) => (
-  <div className="bg-white rounded-2xl shadow-sm p-4 h-full min-h-32.5 flex flex-col">
+const Card = ({ children, className = "" }) => (
+  <div
+    className={
+      "bg-white rounded-2xl shadow p-4 flex flex-col h-full " + className
+    }
+  >
     {children}
   </div>
 );
@@ -86,9 +90,10 @@ const AnalyticsSummary = () => {
 
   return (
     <div className="rounded-xl">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-        {/* Card 1: Last 7 Days Distance Table */}
-        <Card>
+      {/* 4-tile top grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mb-5">
+        {/* 1: Last 7 Days Distance Table */}
+        <Card className="min-h-[240px]">
           <div className="flex items-center justify-between pb-2">
             <div className="font-semibold text-gray-600 text-base">
               Last 7 Days Traveled Distance
@@ -115,12 +120,13 @@ const AnalyticsSummary = () => {
           </table>
         </Card>
 
-        {/* Card 2: Vehicles Pie */}
-        <Card>
-          <div className="font-semibold text-gray-600 text-base mb-2">
+        {/* 2: Vehicles Pie */}
+        <Card className="items-center justify-center min-h-[240px]">
+          <div className="font-semibold text-gray-600 text-base mb-2 text-center">
             Total Number of Vehicles
           </div>
-          <ResponsiveContainer width="100%" height={120}>
+          <div className="font-extrabold text-2xl text-center mb-1">1</div>
+          <ResponsiveContainer width="100%" height={100}>
             <PieChart>
               <Pie
                 data={vehiclesPie}
@@ -128,11 +134,12 @@ const AnalyticsSummary = () => {
                 nameKey="name"
                 cx="50%"
                 cy="50%"
-                innerRadius={35}
-                outerRadius={50}
+                innerRadius={28}
+                outerRadius={40}
                 startAngle={90}
                 endAngle={-270}
                 label={false}
+                stroke="none"
               >
                 {vehiclesPie.map((entry) => (
                   <Cell key={entry.name} fill={entry.color} />
@@ -140,14 +147,14 @@ const AnalyticsSummary = () => {
               </Pie>
             </PieChart>
           </ResponsiveContainer>
-          <div className="flex justify-between pt-2 gap-1">
+          <div className="flex justify-center pt-2 gap-3">
             {vehiclesPie.map((entry) => (
               <span
                 key={entry.name}
-                className="flex items-center text-xs md:text-sm font-medium gap-1"
+                className="flex items-center text-xs font-medium gap-1"
               >
                 <span
-                  className="w-3 h-3 rounded-full"
+                  className="w-2.5 h-2.5 rounded-full"
                   style={{ background: entry.color }}
                 />
                 {entry.name}
@@ -156,10 +163,40 @@ const AnalyticsSummary = () => {
           </div>
         </Card>
 
-        {/* Card 3: Stats/Status */}
-        <Card>
-          <div className="flex justify-between items-center mb-1">
-            <div className="font-semibold text-base text-gray-600">Status</div>
+        {/* 3: Vehicle Status Counts */}
+        <Card className="min-h-[240px] justify-between">
+          <div className="font-semibold text-base text-gray-600 mb-1">
+            Status
+          </div>
+          {/* Status numbers header */}
+          <div className="flex flex-wrap gap-2 pb-4">
+            <span className="inline-block bg-[#f5f6fa] rounded-full px-3 py-1 text-xs mr-1 font-semibold text-gray-700">
+              <span
+                role="img"
+                aria-label="online"
+                className="mr-1 inline-block align-middle w-2 h-2 rounded-full bg-[#2ecc71]"
+              />{" "}
+              Online
+            </span>
+            <span className="inline-block bg-[#f5f6fa] rounded-full px-3 py-1 text-xs mr-1 font-semibold text-gray-700">
+              <span
+                role="img"
+                aria-label="offline"
+                className="mr-1 inline-block align-middle w-2 h-2 rounded-full bg-[#fbbc04]"
+              />{" "}
+              Offline
+            </span>
+            <span className="inline-block bg-[#f5f6fa] rounded-full px-3 py-1 text-xs font-semibold text-gray-700">
+              <span
+                role="img"
+                aria-label="suspended"
+                className="mr-1 inline-block align-middle w-2 h-2 rounded-full bg-[#fe3b56]"
+              />{" "}
+              Suspended
+            </span>
+          </div>
+          {/* Status select */}
+          <div className="flex justify-between items-center gap-2 mb-2">
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
@@ -171,35 +208,25 @@ const AnalyticsSummary = () => {
               <option>Online</option>
             </select>
           </div>
-          <div className="mb-2 text-gray-500 text-xs flex gap-2">
-            <span className="flex gap-1 items-center">
-              <span className="w-2 h-2 bg-[#2ecc71] rounded-full" /> Online
-            </span>
-            <span className="flex gap-1 items-center">
-              <span className="w-2 h-2 bg-[#fbbc04] rounded-full" /> Offline
-            </span>
-            <span className="flex gap-1 items-center">
-              <span className="w-2 h-2 bg-[#fe3b56] rounded-full" /> Suspended
-            </span>
-          </div>
-          <div className="flex gap-2 pt-2 justify-between">
+          {/* Status numbers */}
+          <div className="flex gap-4 justify-around mt-4">
             <div className="flex flex-col items-center">
-              <span className="text-lg font-bold text-[#2ecc71]">96</span>
+              <span className="text-xl font-bold text-[#2ecc71]">96</span>
               <span className="text-xs text-gray-400">Online</span>
             </div>
             <div className="flex flex-col items-center">
-              <span className="text-lg font-bold text-[#fbbc04]">3</span>
+              <span className="text-xl font-bold text-[#fbbc04]">3</span>
               <span className="text-xs text-gray-400">Offline</span>
             </div>
             <div className="flex flex-col items-center">
-              <span className="text-lg font-bold text-[#fe3b56]">1</span>
+              <span className="text-xl font-bold text-[#fe3b56]">1</span>
               <span className="text-xs text-gray-400">Suspended</span>
             </div>
           </div>
         </Card>
 
-        {/* Card 4: Dropdown UI */}
-        <Card>
+        {/* 4: Options card */}
+        <Card className="min-h-[240px] justify-between">
           <div className="flex items-center justify-between mb-2">
             <span className="font-semibold text-base text-gray-600">
               Options
@@ -208,8 +235,8 @@ const AnalyticsSummary = () => {
               Save
             </button>
           </div>
-          <div className="flex flex-col gap-3">
-            <div>
+          <div>
+            <div className="pb-2">
               <label
                 htmlFor="type"
                 className="block text-xs mb-1 text-gray-500"
@@ -224,7 +251,7 @@ const AnalyticsSummary = () => {
                 <option>Vehicle</option>
               </select>
             </div>
-            <div>
+            <div className="pb-2">
               <label
                 htmlFor="details"
                 className="block text-xs mb-1 text-gray-500"
@@ -237,14 +264,28 @@ const AnalyticsSummary = () => {
                 placeholder="Search..."
               />
             </div>
+            <div className="flex gap-2 pt-2">
+              <button className="flex-1 px-2 py-1 rounded-md border bg-white text-xs text-gray-700 shadow hover:bg-[#fd9642] hover:text-white transition">
+                Office
+              </button>
+              <button className="flex-1 px-2 py-1 rounded-md border bg-white text-xs text-gray-700 shadow hover:bg-[#fd9642] hover:text-white transition">
+                Online
+              </button>
+              <button className="flex-1 px-2 py-1 rounded-md border bg-white text-xs text-gray-700 shadow hover:bg-[#fd9642] hover:text-white transition">
+                Suspended
+              </button>
+            </div>
           </div>
         </Card>
       </div>
 
       {/* MAP Section */}
-      <div className="mb-4">
-        <Card>
-          <div className="w-full h-67.5 rounded-lg overflow-hidden">
+      <div className="mb-5">
+        <Card
+          className="p-0 md:p-0"
+          style={{ overflow: "hidden", height: 340 }}
+        >
+          <div className="w-full h-[340px] rounded-2xl overflow-hidden">
             <MapContainer
               center={[23.8103, 90.4125]}
               zoom={8}
@@ -262,9 +303,10 @@ const AnalyticsSummary = () => {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* 2-tile bottom grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {/* Alerts Table */}
-        <Card>
+        <Card className="min-h-[230px]">
           <div className="font-semibold text-base text-gray-600 mb-1">
             Last 7 Days Alerts, Summary
           </div>
@@ -291,11 +333,11 @@ const AnalyticsSummary = () => {
         </Card>
 
         {/* Chart for Alerts */}
-        <Card>
+        <Card className="min-h-[230px]">
           <div className="font-semibold text-base text-gray-600 mb-1">
             Last 7 Days Alerts, Summary
           </div>
-          <ResponsiveContainer width="100%" height={120}>
+          <ResponsiveContainer width="100%" height={160}>
             <AreaChart data={areaData}>
               <defs>
                 <linearGradient id="colorAlert" x1="0" y1="0" x2="0" y2="1">
