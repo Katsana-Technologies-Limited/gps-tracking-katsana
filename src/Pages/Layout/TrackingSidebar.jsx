@@ -26,7 +26,7 @@ const sidebarLinks = [
   { to: "/dashboard/payment", label: "Payment", icon: CreditCard },
   { to: "/dashboard/user-management", label: "User Management", icon: Users },
   { to: "/dashboard/ai-assistant", label: "AI Assistant", icon: Bot },
-  { to: "/logout", label: "Log Out", icon: LogOut },
+  // Removed logout link
 ];
 
 export default function TrackingSidebar() {
@@ -72,6 +72,18 @@ export default function TrackingSidebar() {
           );
         })}
       </nav>
+      <button
+        onClick={() => {
+          // Clear auth and redirect to login
+          localStorage.clear();
+          window.location.href = "/";
+        }}
+        className="flex items-center gap-3 px-4 py-2.5 rounded-lg transition font-medium text-[15px] mt-6 w-full bg-[#fe8e1c] text-white shadow-sm hover:opacity-90"
+        style={{ fontFamily: "Inter, Arial, Helvetica, sans-serif" }}
+      >
+        <LogOut size={20} className="text-white" />
+        <span className="truncate">Log Out</span>
+      </button>
     </aside>
   );
 }
