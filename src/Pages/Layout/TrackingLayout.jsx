@@ -54,7 +54,7 @@ export default function TrackingLayout() {
       <main className="flex-1 min-w-0 px-0 lg:px-3">
         <div className="sticky top-0 h-2 lg:h-3 w-full z-20 bg-primary-gray" />
         <TrackingTopBar onMenuClick={() => setIsMobileMenuOpen(true)} />
-        <div className="px-2 min-h-screen">
+        <div className="px-4 min-h-screen">
           <Outlet />
         </div>
       </main>

@@ -94,7 +94,7 @@ const TrackingTopBar = ({ onMenuClick }) => {
   }, [showSearch]);
 
   return (
-    <div className="bg-white rounded-xl p-2 shadow-sm mb-4 sticky top-2 lg:top-4 z-30">
+    <div className="bg-white rounded-xl p-2 shadow-sm mb-4 sticky top-2 lg:top-4 z-30 ml-3">
       <div className="flex items-center gap-2 lg:gap-4 px-2 lg:px-3 2xl:px-6">
         {/* Mobile Menu Button */}
         <button

@@ -86,12 +86,7 @@ const DashboardHomePage = () => {
   const [status, setStatus] = useState("All");
 
   return (
-    <div className="p-1 rounded-xl">
-      <div className="mb-3 pb-1">
-        <h2 className="font-semibold text-lg text-gray-700">
-          Analytics And Summary
-        </h2>
-      </div>
+    <div className="rounded-xl">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
         {/* Card 1: Last 7 Days Distance Table */}
         <Card>
