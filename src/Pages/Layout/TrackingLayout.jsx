@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Outlet } from "react-router-dom";
-import DealerSidebar from "./DealerSidebar";
-import DealerTopBar from "./DealerTopBar";
+import TrackingSidebar from "./TrackingSidebar";
+import TrackingTopBar from "./TrackingTopBar";
 
 const DashboardLayout = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -30,7 +30,7 @@ const DashboardLayout = () => {
     <div className="flex px-1 bg-[#f1f4f8] min-h-screen">
       <div className="hidden lg:block w-64 2xl:w-68" aria-hidden />
       <div className="hidden lg:block">
-        <DealerSidebar onClose={() => {}} />
+        <TrackingSidebar onClose={() => {}} />
       </div>
       {isMobileMenuOpen && (
         <>
@@ -47,13 +47,13 @@ const DashboardLayout = () => {
               isAnimating ? "translate-x-0" : "-translate-x-full"
             }`}
           >
-            <DealerSidebar onClose={handleClose} />
+            <TrackingSidebar onClose={handleClose} />
           </div>
         </>
       )}
       <main className="flex-1 min-w-0 px-0 lg:px-3">
         <div className="sticky top-0 h-3 lg:h-4 w-full z-20 bg-primary-gray" />
-        <DealerTopBar onMenuClick={() => setIsMobileMenuOpen(true)} />
+        <TrackingTopBar onMenuClick={() => setIsMobileMenuOpen(true)} />
         <div className="md:p-1.5 min-h-screen">
           <Outlet />
         </div>

@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const navigate = useNavigate();
-  const [username, setUsername] = useState("");
+  const [username, setUsername] = useState("admin@katsana.com.bd");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -15,11 +15,12 @@ const Login = () => {
     setLoading(true);
     setError(null);
     setTimeout(() => {
-      if (username === "admin" && password === "admin") {
+      if (username === "admin@katsana.com.bd" && password === "12345") {
         toast.success("Login successful!");
         navigate("/dashboard");
       } else {
-        setError("Invalid username or password");
+        setError("Auth error");
+        toast.error("Auth error");
       }
       setLoading(false);
     }, 1000);
@@ -27,7 +28,7 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-linear-to-br from-[#0f2027] to-[#2c5364] flex items-center justify-center font-sans">
-      <div className="bg-white/95 rounded-2xl shadow-2xl px-8 py-4 max-w-md flex flex-col items-center lg:max-w-sm lg:px-7 lg:py-5 xl:max-w-sm 2xl:max-w-sm">
+      <div className="bg-white/95 rounded-2xl shadow-2xl px-8 py-4 max-w-md flex flex-col items-center lg:max-w-sm lg:px-7 lg:py-5 xl:max-w-md">
         <img
           src="/katsana-logo.png"
           alt="Location Tracking Logo"
@@ -50,7 +51,6 @@ const Login = () => {
             <input
               id="username"
               type="text"
-              value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder="Enter your username"
               className="w-full px-4 py-2.5 rounded-lg border border-gray-300 mt-1.5 text-[15px] outline-none bg-[#f7fafd] focus:border-[#2c5364] lg:py-2.5 lg:text-sm xl:py-2.5 2xl:py-2.5"

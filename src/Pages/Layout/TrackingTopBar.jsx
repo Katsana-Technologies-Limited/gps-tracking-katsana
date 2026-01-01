@@ -1,52 +1,19 @@
-import { toast } from "sonner";
 import { useState, useRef, useEffect } from "react";
 import { FaBell } from "react-icons/fa6";
 import { HiMenu } from "react-icons/hi";
-import { Link, useNavigate } from "react-router-dom";
-import { useAxios } from "../../hooks/useAxios";
+import { Link } from "react-router-dom";
 import { RiArrowDownSLine } from "react-icons/ri";
-import { useDealer } from "../../hooks/useDealer";
 
 const TrackingTopBar = ({ onMenuClick }) => {
-  const { dealer } = useDealer();
   const [showProfile, setShowProfile] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const searchRef = useRef(null);
-  const axiosUrl = useAxios();
-  const navigate = useNavigate();
-  const [loggingOut, setLoggingOut] = useState(false);
-
-  const initials = dealer?.company
-    ? dealer.company.slice(0, 2).toUpperCase()
-    : "KS";
 
   useEffect(() => {
     if (showSearch && searchRef.current) {
       searchRef.current.focus();
     }
   }, [showSearch]);
-
-  const handleLogout = async () => {
-    if (loggingOut) return;
-    setLoggingOut(true);
-    try {
-      const res = await axiosUrl.post(
-        "/api/auth/dealer-logout",
-        {},
-        { withCredentials: true }
-      );
-      if (res.data?.logout) {
-        localStorage.removeItem("dealer-auth");
-        navigate("/");
-      } else {
-        toast.error(res.data?.message);
-      }
-    } catch (err) {
-      toast.error(err.message || "Logout failed");
-    } finally {
-      setLoggingOut(false);
-    }
-  };
 
   return (
     <div className="rounded-t-sm md:rounded-t-xl rounded-b-xl p-1.5 mb-2 sticky top-3 lg:top-4 z-30 transform-gpu bg-linear-to-b from-[#0B2B4C]/90 to-[#081C34]/95  backdrop-blur-xl border border-white/10 shadow-[0_2px_19px_rgba(0,0,0,0.4)]">
@@ -146,10 +113,10 @@ const TrackingTopBar = ({ onMenuClick }) => {
                   boxShadow: "0 6px 18px rgba(77,157,255,0.12)",
                 }}
               >
-                {initials}
+                {"initials"}
               </span>
               <span className="text-white/95 text-sm font-semibold hidden sm:inline">
-                {dealer?.company}
+                {"dealer?.company"}
               </span>
               <span className="text-white/70 text-xs hidden md:inline">
                 <RiArrowDownSLine />
@@ -167,20 +134,20 @@ const TrackingTopBar = ({ onMenuClick }) => {
                         boxShadow: "0 6px 18px rgba(77,157,255,0.12)",
                       }}
                     >
-                      {initials}
+                      {"initials"}
                     </div>
                     <div className="min-w-0 max-w-45 sm:max-w-50">
                       <div
                         className="text-white font-bold truncate"
-                        title={dealer?.company}
+                        title={"dealer?.company"}
                       >
-                        {dealer?.company}
+                        {"dealer?.company"}
                       </div>
                       <div
                         className="text-sm text-white/70 truncate"
-                        title={dealer?.email}
+                        title={"dealer?.email"}
                       >
-                        {dealer?.email}
+                        {"dealer?.email"}
                       </div>
                     </div>
                   </div>
@@ -198,12 +165,8 @@ const TrackingTopBar = ({ onMenuClick }) => {
                   >
                     Settings
                   </Link>
-                  <button
-                    disabled={loggingOut}
-                    onClick={handleLogout}
-                    className="text-left px-3 py-2 cursor-pointer rounded-lg font-semibold text-orange-400 hover:bg-white/10 transition disabled:opacity-60"
-                  >
-                    {loggingOut ? "Logging out..." : "Logout"}
+                  <button className="text-left px-3 py-2 cursor-pointer rounded-lg font-semibold text-orange-400 hover:bg-white/10 transition disabled:opacity-60">
+                    Logout
                   </button>
                 </div>
               </div>
