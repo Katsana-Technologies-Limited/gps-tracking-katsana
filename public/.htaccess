@@ -1,0 +1,53 @@
+# .htaccess for Single Page App (React / Vite)
+
+# Place this file in the webroot (where your `index.html` is served).
+
+# When using cPanel, place this in the folder you upload to (typically `public_html/` or the folder you point your domain/subdomain to).
+
+# Turn on rewrite engine
+
+RewriteEngine On
+
+# Base - change this if your app is served from a subdirectory, e.g. /myapp/
+
+# If your site is under a subfolder, set this to that path (with leading and trailing slash):
+
+# RewriteBase /myapp/
+
+RewriteBase /
+
+# Don't rewrite existing files or directories
+
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Rewrite all other requests to index.html
+
+RewriteRule ^ index.html [L]
+
+# Ensure 404s are handled by the SPA (index.html)
+
+ErrorDocument 404 /index.html
+
+# Disable directory listing
+
+Options -Indexes
+
+# Basic caching rules for static assets (optional)
+
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/html "access plus 0 seconds"
+  ExpiresByType text/css "access plus 1 week"
+  ExpiresByType application/javascript "access plus 1 week"
+  ExpiresByType image/* "access plus 1 month"
+</IfModule>
+
+# If you deploy into a subfolder, update RewriteBase and the ErrorDocument path.
+
+# Example for deployment to https://example.com/myapp/:
+
+# RewriteBase /myapp/
+
+# ErrorDocument 404 /myapp/index.html
