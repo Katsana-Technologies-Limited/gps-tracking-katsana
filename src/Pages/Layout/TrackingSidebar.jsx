@@ -76,11 +76,11 @@ export default function TrackingSidebar() {
           localStorage.clear();
           window.location.href = "/";
         }}
-        className="flex items-center gap-3 px-4 py-2.5 rounded-lg transition font-medium text-[15px] mt-6 w-full bg-[#fe8e1c] text-white shadow-sm hover:opacity-90"
+        className="flex items-center gap-3 cursor-pointer px-4 py-2.5 rounded-lg transition font-medium text-[15px] w-full text-primary-green hover:bg-[#f5f6fa]"
         style={{ fontFamily: "Inter, Arial, Helvetica, sans-serif" }}
         tabIndex={0}
       >
-        <LogOut size={20} className="text-white" />
+        <LogOut size={20} className="text-[#fe8e1c]" />
         <span className="truncate">Log Out</span>
       </button>
     </aside>
