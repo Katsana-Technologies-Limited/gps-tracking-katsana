@@ -80,8 +80,7 @@ function Toggle({ enabled, setEnabled, label }) {
   );
 }
 
-// ---- Main Page ----
-const DashboardHomePage = () => {
+const AnalyticsSummary = () => {
   const [alertsOnly, setAlertsOnly] = useState(true);
   const [status, setStatus] = useState("All");
 
@@ -323,4 +322,4 @@ const DashboardHomePage = () => {
   );
 };
 
-export default DashboardHomePage;
+export default AnalyticsSummary;

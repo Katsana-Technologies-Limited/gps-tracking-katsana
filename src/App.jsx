@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./components/utils/Login";
 import TrackingLayout from "./Pages/Layout/TrackingLayout";
-import DashboardHomePage from "./Pages/Routes/DashboardHomePage";
+import AnalyticsSummary from "./Pages/Routes/AnalyticsSummary";
 
 const App = () => {
   return (
@@ -9,7 +9,7 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/dashboard" element={<TrackingLayout />}>
-          <Route index element={<DashboardHomePage />} />
+          <Route index element={<AnalyticsSummary />} />
         </Route>
       </Routes>
     </BrowserRouter>
