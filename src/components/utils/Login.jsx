@@ -26,8 +26,8 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0f2027] to-[#2c5364] flex items-center justify-center font-sans">
-      <div className="bg-white/95 rounded-2xl shadow-2xl px-8 py-4 w-[440px] max-w-xl flex flex-col items-center">
+    <div className="min-h-screen bg-linear-to-br from-[#0f2027] to-[#2c5364] flex items-center justify-center font-sans">
+      <div className="bg-white/95 rounded-2xl shadow-2xl px-8 py-4 w-110 max-w-xl flex flex-col items-center">
         <img
           src="/katsana-logo.png"
           alt="Location Tracking Logo"
