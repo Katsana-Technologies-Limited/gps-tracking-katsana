@@ -113,7 +113,7 @@ const TrackingTopBar = ({ onMenuClick }) => {
             <input
               type="search"
               placeholder="Search"
-              className="hidden sm:block w-full pl-10 pr-4 py-[3px] border border-slate-100 rounded-lg bg-slate-50 text-slate-700 placeholder-slate-400 focus:outline-none focus:border-yellow-500"
+              className="hidden sm:block w-full pl-10 pr-4 py-0.75 border border-slate-100 rounded-lg bg-slate-50 text-slate-700 placeholder-slate-400 focus:outline-none focus:border-yellow-500"
             />
             <div
               className={`sm:hidden flex items-center transition-all duration-500 ease-out ${

@@ -2,6 +2,10 @@
 
 @import "tailwindcss";
 
+body {
+  background-color: #eff2f8;
+}
+
 @theme {
   --color-primary-green: #234452;
   --font-Inter: "Inter", Arial, Helvetica, sans-serif;

@@ -14,7 +14,6 @@ import {
   Handshake,
 } from "lucide-react";
 import { MdOutlineSimCard } from "react-icons/md";
-import { ProfileMenu } from "./ProfileMenu";
 
 const links = [
   { to: "/admin", label: "Dashboard", icon: Home },
@@ -105,7 +104,7 @@ export default function TrackingSidebar({ onClose }) {
     <aside className="w-full h-full lg:w-52 2xl:w-60 bg-white p-3 rounded-xl lg:shadow-sm flex flex-col lg:fixed lg:top-5 lg:left-5 lg:h-[calc(100vh-2.5rem)]">
       <div className="text-primary font-bold mb-6">
         <Link to="/admin" onClick={handleLinkClick}>
-          <div className="relative w-24 2xl:w-[125px] h-8 2xl:h-10">
+          <div className="relative w-24 2xl:w-31.25 h-8 2xl:h-10">
             <img
               src="/katsana-logo.png"
               alt="logo"
@@ -287,7 +286,7 @@ export default function TrackingSidebar({ onClose }) {
         })}
       </nav>
       <div className="mt-auto pt-4 -mx-2 -mb-2">
-        <ProfileMenu />
+        {/* <ProfileMenu /> */}
       </div>
     </aside>
   );
