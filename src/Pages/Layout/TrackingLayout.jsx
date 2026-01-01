@@ -3,7 +3,7 @@ import { Outlet } from "react-router-dom";
 import TrackingSidebar from "./TrackingSidebar";
 import TrackingTopBar from "./TrackingTopBar";
 
-const DashboardLayout = () => {
+const TrackingLayout = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
 
@@ -62,4 +62,4 @@ const DashboardLayout = () => {
   );
 };
 
-export default DashboardLayout;
+export default TrackingLayout;
