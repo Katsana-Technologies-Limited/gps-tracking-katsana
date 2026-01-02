@@ -1,29 +1,51 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { useAxios } from "../../hooks/useAxios";
 
 const Login = () => {
+  const axiosUrl = useAxios();
   const navigate = useNavigate();
-  const [username, setUsername] = useState("admin@katsana.com.bd");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    setTimeout(() => {
-      if (username === "admin@katsana.com.bd" && password === "12345") {
+    try {
+      const payload = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(username)
+        ? { email: username, password }
+        : { mobile: username, password };
+      const res = await axiosUrl.post("/api/vts/auth/login", payload);
+      console.log(res);
+      if (res.data && res.data.loginStatus) {
+        const vtsAuth = {
+          token: res.data.token,
+          id: res.data.id,
+          company: res.data.company,
+          email: res.data.email,
+        };
+        try {
+          window.localStorage.setItem("vts_auth", JSON.stringify(vtsAuth));
+        } catch (error) {
+          console.log(error);
+        }
         toast.success("Login successful!");
         navigate("/dashboard");
       } else {
-        setError("Auth error");
-        toast.error("Auth error");
+        setError(res.data?.error || "Auth error");
+        toast.error(res.data?.error || "Auth error");
       }
+    } catch (err) {
+      setError(err?.response?.data?.error || "Auth error");
+      toast.error(err?.response?.data?.error || "Auth error");
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -46,13 +68,14 @@ const Login = () => {
               htmlFor="username"
               className="text-[#2c5364] font-medium text-[15px] lg:text-sm xl:text-sm 2xl:text-sm"
             >
-              Username
+              Email or Mobile
             </label>
             <input
               id="username"
               type="text"
+              value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="Enter your username"
+              placeholder="Enter your email or mobile"
               className="w-full px-4 py-2.5 rounded-lg border border-gray-300 mt-1.5 text-[15px] outline-none bg-[#f7fafd] focus:border-[#2c5364] lg:py-2.5 lg:text-sm xl:py-2.5 2xl:py-2.5"
               autoFocus
             />
