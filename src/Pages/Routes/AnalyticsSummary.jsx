@@ -1,4 +1,3 @@
-import React from "react";
 import "leaflet/dist/leaflet.css";
 import TraveledDistance from "../../components/AnalyticsSummaryPage/TraveledDistance";
 import CounterVehicles from "../../components/AnalyticsSummaryPage/CounterVehicles";
@@ -7,7 +6,6 @@ import VehiclesStatusMap from "../../components/AnalyticsSummaryPage/VehiclesSta
 import AlertsSummaryNumberChart from "../../components/AnalyticsSummaryPage/AlertsSummaryNumberChart";
 import AlertsSummaryBarChart from "../../components/AnalyticsSummaryPage/AlertsSummaryBarChart";
 
-// ---- Card Wrapper ----
 const Card = ({ children, className = "" }) => (
   <div
     className={`
@@ -37,7 +35,7 @@ const AnalyticsSummary = () => {
         <Card className="col-span-4">
           <CounterVehicles />
         </Card>
-        <Card className="col-span-3 h-[340px]">
+        <Card className="col-span-3 h-85">
           <VehiclesStatusOption />
         </Card>
       </div>
