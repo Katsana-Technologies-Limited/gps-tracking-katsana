@@ -10,3 +10,6 @@ body {
   --color-primary-green: #234452;
   --font-Inter: "Inter", Arial, Helvetica, sans-serif;
 }
+.leaflet-control-container {
+  display: none;
+}
