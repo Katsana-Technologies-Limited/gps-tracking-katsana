@@ -62,7 +62,7 @@ const TrackingTopBar = () => {
   }, [showSearch]);
 
   return (
-    <div className="bg-white rounded-2xl px-4 shadow-[0_2px_8px_0_rgba(16,30,54,0.08)] py-2 mb-4 sticky top-2 lg:top-4 w-2/3 ml-auto flex items-center">
+    <div className="bg-white rounded-2xl px-4 shadow-[0_2px_8px_0_rgba(16,30,54,0.08)] py-2 mb-4 sticky top-2 lg:top-4 w-2/3 ml-auto flex items-center z-2000">
       <button className="flex cursor-pointer items-center gap-2 text-gray-600 border border-gray-200 py-1.5 px-3 rounded-lg bg-white transition text-sm font-medium mr-3">
         <CarFront size={19} className="text-orange-500" />
         Assign Vehicle
