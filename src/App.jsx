@@ -14,6 +14,7 @@ import UserManagement from "./Pages/Routes/UserManagement";
 import AIAssistant from "./Pages/Routes/AIAssistant";
 import ProtectedRoute from "./services/ProtectedRoute";
 import VtsProfile from "./components/Profile/VtsProfile";
+import GetTracker from "./components/Tracker/GetTracker";
 
 const App = () => {
   return (
@@ -21,6 +22,7 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/login-guest" element={<LoginGuest />} />
+        <Route path="/get-tracker" element={<GetTracker />} />
         <Route
           path="/dashboard"
           element={

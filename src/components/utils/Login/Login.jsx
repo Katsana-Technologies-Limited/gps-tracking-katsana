@@ -94,7 +94,7 @@ const Login = () => {
                   <div className="relative">
                     <input
                       type={showPassword ? "text" : "password"}
-                      placeholder="**************"
+                      placeholder="Password"
                       {...register("password", {
                         required: "Password is required",
                       })}
