@@ -16,7 +16,7 @@ const TraveledDistance = () => {
   ];
 
   return (
-    <div className="min-h-65">
+    <div className="min-h-65 p-2">
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-sm font-medium text-gray-700">
           Last 7 Days Traveled Distance

@@ -9,7 +9,7 @@ const CounterVehicles = () => {
   ];
 
   return (
-    <div className="relative min-h-65 flex flex-col items-center justify-between">
+    <div className="relative min-h-65 flex flex-col items-center justify-between p-2">
       <div className="w-full flex items-start justify-between">
         <h2 className="text-sm font-semibold text-gray-700">
           Total Number of Vehicles

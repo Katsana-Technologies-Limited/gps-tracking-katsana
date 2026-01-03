@@ -78,7 +78,7 @@ const VehiclesStatusOption = () => {
   };
 
   return (
-    <div className="h-full max-h-80 flex flex-col gap-3">
+    <div className="h-full max-h-80 flex flex-col gap-3 p-2">
       <div className="flex gap-2">
         {TABS.map((tab) => (
           <button
