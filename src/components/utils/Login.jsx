@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useAxios } from "../../hooks/useAxios";
@@ -6,37 +7,46 @@ import { useAxios } from "../../hooks/useAxios";
 const Login = () => {
   const axiosUrl = useAxios();
   const navigate = useNavigate();
-
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: { username: "", password: "", remember: false },
+  });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const onSubmit = async (data) => {
     setLoading(true);
-
     try {
-      const payload = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(username)
-        ? { email: username, password }
-        : { mobile: username, password };
-
+      const isEmail = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(data.username);
+      const payload = isEmail
+        ? {
+            email: data.username,
+            password: data.password,
+            remember: data.remember,
+          }
+        : {
+            mobile: data.username,
+            password: data.password,
+            remember: data.remember,
+          };
       const res = await axiosUrl.post("/api/vts/auth/login", payload);
-
       if (res.data?.loginStatus) {
         localStorage.setItem(
           "vts_auth",
           JSON.stringify({
-            token: res.data.token,
-            id: res.data.id,
-            company: res.data.company,
-            email: res.data.email,
+            id: res.data.vtsInfo?.id,
+            company: res.data.vtsInfo?.company,
+            email: res.data.vtsInfo?.email,
+            remember_me: res.data.vtsInfo?.remember_me,
           })
         );
         toast.success("Login successful");
         navigate("/dashboard");
       } else {
-        throw new Error(res.data?.error || "Auth error");
+        throw new Error(res.data?.message || "Auth error");
       }
     } catch (err) {
       toast.error(err.message);
@@ -67,21 +77,28 @@ const Login = () => {
                 alt="Katsana"
                 className="w-64 mb-6 mx-auto"
               />
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="space-y-4">
                   <input
                     type="text"
                     placeholder="Email or mobile"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    {...register("username", {
+                      required: "Email or mobile is required",
+                    })}
                     className="w-full px-4 py-2.5 rounded-xl border border-gray-300 bg-white focus:outline-none focus:ring focus:ring-orange-400"
                   />
+                  {errors.username && (
+                    <div className="text-red-500 text-xs mt-1">
+                      {errors.username.message}
+                    </div>
+                  )}
                   <div className="relative">
                     <input
                       type={showPassword ? "text" : "password"}
                       placeholder="**************"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      {...register("password", {
+                        required: "Password is required",
+                      })}
                       className="w-full px-4 py-2.5 rounded-xl border border-gray-300 bg-white focus:outline-none focus:ring focus:ring-orange-400"
                     />
                     <button
@@ -92,9 +109,18 @@ const Login = () => {
                       {showPassword ? "🙈" : "👁️"}
                     </button>
                   </div>
+                  {errors.password && (
+                    <div className="text-red-500 text-xs mt-1">
+                      {errors.password.message}
+                    </div>
+                  )}
                   <div className="flex items-center justify-center gap-3 text-sm text-gray-600">
                     <label className="relative inline-flex items-center cursor-pointer">
-                      <input type="checkbox" className="sr-only peer" />
+                      <input
+                        type="checkbox"
+                        {...register("remember")}
+                        className="sr-only peer"
+                      />
                       <div className="w-10 h-5 bg-gray-300 rounded-full peer-checked:bg-orange-500" />
                       <span className="absolute left-1 top-0.5 w-4 h-4 bg-white rounded-full transition peer-checked:translate-x-5" />
                     </label>
@@ -106,7 +132,6 @@ const Login = () => {
                   >
                     {loading ? "Signing in..." : "Login"}
                   </button>
-
                   {/* Guest */}
                   <button
                     type="button"
@@ -115,7 +140,6 @@ const Login = () => {
                   >
                     Login as Guest
                   </button>
-
                   <div className="text-center text-sm text-gray-600">
                     Forget Password?
                     <a
@@ -125,7 +149,6 @@ const Login = () => {
                       Reset
                     </a>
                   </div>
-
                   <div className="text-center text-sm text-gray-600">
                     Don&apos;t have an account?
                     <a
