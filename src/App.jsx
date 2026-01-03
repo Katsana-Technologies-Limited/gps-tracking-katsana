@@ -13,12 +13,14 @@ import UserManagement from "./Pages/Routes/UserManagement";
 import AIAssistant from "./Pages/Routes/AIAssistant";
 import ProtectedRoute from "./services/ProtectedRoute";
 import VtsProfile from "./components/Profile/VtsProfile";
+import LoginGest from "./components/LoginGest";
 
 const App = () => {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Login />} />
+        <Route path="/login-gest" element={<LoginGest />} />
         <Route
           path="/dashboard"
           element={

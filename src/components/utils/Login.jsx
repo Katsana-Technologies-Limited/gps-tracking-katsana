@@ -6,125 +6,205 @@ import { useAxios } from "../../hooks/useAxios";
 const Login = () => {
   const axiosUrl = useAxios();
   const navigate = useNavigate();
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [remember, setRemember] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
     try {
       const payload = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(username)
-        ? { email: username, password, remember }
-        : { mobile: username, password, remember };
+        ? { email: username, password }
+        : { mobile: username, password };
+
       const res = await axiosUrl.post("/api/vts/auth/login", payload);
-      console.log(res);
-      if (res.data && res.data.loginStatus) {
-        const { id, email, company } = res.data.vtsInfo || {};
-        const vtsAuth = { id, email, company };
-        try {
-          window.localStorage.setItem("vts_auth", JSON.stringify(vtsAuth));
-        } catch (error) {
-          console.log(error);
-        }
-        toast.success("Login successful!");
+
+      if (res.data?.loginStatus) {
+        localStorage.setItem(
+          "vts_auth",
+          JSON.stringify({
+            token: res.data.token,
+            id: res.data.id,
+            company: res.data.company,
+            email: res.data.email,
+          })
+        );
+        toast.success("Login successful");
         navigate("/dashboard");
       } else {
-        toast.error(res.data?.error || "Auth error");
+        throw new Error(res.data?.error || "Auth error");
       }
+    } catch (err) {
+      toast.error(err.message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-[#0f2027] to-[#2c5364] flex items-center justify-center font-sans">
-      <div className="bg-white/95 rounded-2xl shadow-2xl px-8 py-4 max-w-md flex flex-col items-center lg:max-w-sm lg:px-7 lg:py-5 xl:max-w-md">
-        <img
-          src="/katsana-logo.png"
-          alt="Location Tracking Logo"
-          className="w-48 h-20 mb-2 object-contain lg:w-44 lg:h-18 xl:w-40 xl:h-16 2xl:w-40 2xl:h-16"
-        />
-        <h2 className="font-bold text-2xl text-[#2c5364] mb-1 tracking-wide lg:text-xl xl:text-xl 2xl:text-xl">
-          Location Tracking Login
-        </h2>
-        <p className="text-[#4b6584] mb-4 text-[15px] lg:text-sm lg:mb-3.5 xl:text-sm 2xl:text-sm">
-          Sign in to access your real-time tracking dashboard
-        </p>
-        <form className="w-full" onSubmit={handleSubmit} autoComplete="off">
-          <div className="mb-4 lg:mb-3.5 xl:mb-3.5 2xl:mb-3.5">
-            <label
-              htmlFor="username"
-              className="text-[#2c5364] font-medium text-[15px] lg:text-sm xl:text-sm 2xl:text-sm"
-            >
-              Email or Mobile
-            </label>
-            <input
-              id="username"
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Enter your email or mobile"
-              className="w-full px-4 py-2.5 rounded-lg border border-gray-300 mt-1.5 text-[15px] outline-none bg-[#f7fafd] focus:border-[#2c5364] lg:py-2.5 lg:text-sm xl:py-2.5 2xl:py-2.5"
-              autoFocus
-            />
+    <div className="relative min-h-screen lg:h-screen bg-[#f6f9fc] overflow-x-hidden overflow-y-auto lg:overflow-hidden font-sans">
+      {/* ===== Background Shapes desgin 1===== */}
+      {/* <div className="absolute inset-0 z-0 pointer-events-none">
+        <div className="absolute right-[-120px] top-[-260px] w-[820px] h-[520px] rounded-full bg-orange-400/90 blur-xl" />
+        <div className="absolute right-[40px] top-[-300px] w-[760px] h-[520px] rounded-full bg-white blur-xl" />
+      </div> */}
+      {/* ===== Background Shapes desgin 2 ===== */}{" "}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        {" "}
+        <div className="absolute right-[-24px] top-[-268px] translate-x-10 w-[876px] h-[580px] rounded-full bg-orange-400/90 blur-xl"></div>{" "}
+        <div className="absolute right-[20px] top-[-310px] w-[806px] h-[584px] rounded-full bg-white blur-xl"></div>{" "}
+      </div>
+      {/* ===== Main Layout ===== */}
+      <div className="relative z-10 h-full max-w-[92%] mx-auto flex flex-col">
+        {/* ===== Top Section ===== */}
+        <div className="flex flex-1 items-center">
+          <div className="flex w-full flex-col lg:flex-row items-center gap-16">
+            {/* Part 1: Image */}
+            <div className="w-full lg:w-1/2 flex justify-center">
+              <img
+                src="/login-hero.png"
+                alt="Tracking visual"
+                className="max-w-lg w-full object-contain"
+              />
+            </div>
+
+            {/* Part 2: Login */}
+            <div className="w-full lg:w-1/2 max-w-md">
+              <img
+                src="/katsana-logo.png"
+                alt="Katsana"
+                className="w-64 mb-6 mx-auto"
+              />
+
+              <form onSubmit={handleSubmit}>
+                <div className="space-y-4">
+                  <input
+                    type="text"
+                    placeholder="username@email.com"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-orange-400"
+                  />
+
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      placeholder="**************"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-xl border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-orange-400"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                    >
+                      {showPassword ? "🙈" : "👁️"}
+                    </button>
+                  </div>
+
+                  {/* Keep me logged in */}
+                  <div className="flex items-center justify-center gap-3 text-sm text-gray-600">
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" className="sr-only peer" />
+                      <div className="w-10 h-5 bg-gray-300 rounded-full peer-checked:bg-orange-500" />
+                      <span className="absolute left-1 top-0.5 w-4 h-4 bg-white rounded-full transition peer-checked:translate-x-5" />
+                    </label>
+                    Keep me logged in
+                  </div>
+
+                  {/* Login */}
+                  <button
+                    disabled={loading}
+                    className="w-full py-2.5 rounded-xl text-white font-semibold bg-linear-to-r from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-400 transition disabled:opacity-60"
+                  >
+                    {loading ? "Signing in..." : "Login"}
+                  </button>
+
+                  {/* Guest */}
+                  <button
+                    type="button"
+                    onClick={() => navigate("/login-gest")}
+                    className="w-full py-2.5 rounded-xl font-semibold bg-white text-gray-700 border-2 border-orange-500 hover:bg-linear-to-r hover:from-orange-400 hover:to-orange-500 hover:text-white transition cursor-pointer"
+                  >
+                    Login as Guest
+                  </button>
+
+                  <div className="text-center text-sm text-gray-600">
+                    Forget Password?
+                    <a
+                      href="/forgot-password"
+                      className="ml-1 text-orange-500 font-medium hover:underline"
+                    >
+                      Reset
+                    </a>
+                  </div>
+
+                  <div className="text-center text-sm text-gray-600">
+                    Don&apos;t have an account?
+                    <a
+                      href="/signup"
+                      className="ml-1 text-orange-500 font-medium hover:underline"
+                    >
+                      Sign Up
+                    </a>
+                  </div>
+                </div>
+              </form>
+
+              {/* Stores */}
+              <div className="mt-3 flex justify-center gap-4">
+                <div className="bg-white p-2 rounded-md">
+                  <img src="/icons/google-play.svg" className="h-9" />
+                </div>
+                <div className="bg-white p-2 rounded-md">
+                  <img src="/icons/app-store.svg" className="h-9" />
+                </div>
+              </div>
+
+              {/* Support */}
+              <div className="mt-3 text-center">
+                <p className="text-sm text-gray-600 font-semibold">
+                  Call for any assistance
+                </p>
+                <div className="flex justify-center items-center gap-2">
+                  <img src="/icons/loginSupport.svg" className="h-7" />
+                  <span className="text-gray-800 font-bold">09600000000</span>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="mb-4 relative lg:mb-3.5 xl:mb-3.5 2xl:mb-3.5">
-            <label
-              htmlFor="password"
-              className="text-[#2c5364] font-medium text-[15px] lg:text-sm xl:text-sm 2xl:text-sm"
-            >
-              Password
-            </label>
-            <input
-              id="password"
-              type={showPassword ? "text" : "password"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
-              className="w-full px-4 py-2.5 pr-10 rounded-lg border border-gray-300 mt-1.5 text-[15px] outline-none bg-[#f7fafd] focus:border-[#2c5364] lg:py-2.5 lg:text-sm xl:py-2.5 2xl:py-2.5"
-              autoComplete="current-password"
-            />
-            <button
-              type="button"
-              aria-label={showPassword ? "Hide password" : "Show password"}
-              onClick={() => setShowPassword((v) => !v)}
-              className="absolute right-2 top-9 bg-transparent border-none p-0 m-0 cursor-pointer text-[#2c5364] text-lg lg:top-9 lg:text-base xl:top-9 2xl:top-9"
-              tabIndex={-1}
-            >
-              {showPassword ? "🙈" : "👁️"}
-            </button>
-          </div>
-          <div className="mb-3 flex items-center">
-            <input
-              id="remember"
-              type="checkbox"
-              checked={remember}
-              onChange={(e) => setRemember(e.target.checked)}
-              className="mr-2"
-            />
-            <label
-              htmlFor="remember"
-              className="text-[#2c5364] text-[14px] select-none cursor-pointer"
-            >
-              Remember me
-            </label>
-          </div>
-          <button
-            type="submit"
-            className={`w-full bg-primary-green cursor-pointer text-white font-semibold text-[16px] border-none rounded-lg py-3 mt-1 shadow-md transition-opacity duration-200 lg:text-sm lg:py-2.5 xl:text-sm 2xl:text-sm ${
-              loading ? "opacity-70 cursor-not-allowed" : "hover:opacity-90"
-            }`}
-            disabled={loading}
-          >
-            {loading ? "Signing in..." : "Sign In"}
-          </button>
-        </form>
-        <div className="mt-7 text-[#8395a7] text-[13px] text-center lg:mt-6 lg:text-xs xl:mt-6 2xl:mt-6">
-          © {new Date().getFullYear()} Location Tracker. All rights reserved.
         </div>
+
+        {/* ===== Footer ===== */}
+        <footer className="py-4 bg-[#eef6fb]">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-4 text-sm text-gray-600">
+            <div className="flex items-center gap-6">
+              <img src="/katsana-logo.png" className="h-7" />
+              <div className="flex gap-6">
+                <a href="/terms">Terms</a>
+                <a href="/company">Company</a>
+                <a href="/refund">Refund</a>
+              </div>
+            </div>
+
+            <div>
+              A Product of Katsana Technologies Ltd. ©{" "}
+              {new Date().getFullYear()}
+            </div>
+
+            <div>
+              Don’t have a tracker yet?{" "}
+              <a href="/get-tracker" className="text-orange-500 font-semibold">
+                Click here
+              </a>
+            </div>
+          </div>
+        </footer>
       </div>
     </div>
   );
