@@ -63,11 +63,11 @@ const TrackingTopBar = () => {
 
   return (
     <div className="bg-white rounded-2xl px-4 shadow-[0_2px_8px_0_rgba(16,30,54,0.08)] py-2 mb-4 sticky top-2 lg:top-4 w-2/3 ml-auto flex items-center">
-      <button className="flex items-center gap-2 text-gray-600 border border-gray-200 py-1 px-3 rounded-md bg-white hover:bg-orange-50 transition text-sm font-medium mr-2">
+      <button className="flex cursor-pointer items-center gap-2 text-gray-600 border border-gray-200 py-1.5 px-3 rounded-lg bg-white transition text-sm font-medium mr-3">
         <CarFront size={19} className="text-orange-500" />
         Assign Vehicle
       </button>
-      <button className="flex items-center gap-2 text-gray-600 border border-gray-200 py-1 px-3 rounded-md bg-white hover:bg-orange-50 transition text-sm font-medium mr-2">
+      <button className="flex cursor-pointer items-center gap-2 text-gray-600 border border-gray-200 py-1.5 px-3 rounded-lg bg-white transition text-sm font-medium mr-2">
         <Archive size={19} className="text-orange-500" />
         My Favorites
       </button>
@@ -76,25 +76,27 @@ const TrackingTopBar = () => {
           <input
             type="search"
             placeholder="Search Here"
-            className="w-full pl-9 pr-3 py-1 border border-slate-200 rounded-md bg-slate-50 text-slate-700 placeholder-slate-400 focus:outline-none focus:border-orange-400 text-sm"
+            className="w-full pl-9 pr-3 py-1.5 border border-slate-200 rounded-lg bg-slate-50 text-slate-700 placeholder-slate-400 focus:outline-none focus:border-orange-400 text-sm"
           />
           <span className="absolute left-2 top-1/2 -translate-y-1/2">
             <IconSearch />
           </span>
         </div>
       </div>
-      <div className="border-l border-slate-200 h-8 mx-4" />
-      <button className="rounded-full hover:bg-orange-50 text-orange-500 mr-2 p-1.5 transition">
+      <div className="border-l border-slate-200 h-6 mx-4" />
+      <button className="rounded-full cursor-pointer hover:bg-orange-50 text-orange-500 p-1.5 transition">
         <IconBell />
       </button>
-      <button className="rounded-full hover:bg-orange-50 text-orange-500 mr-2 p-1.5 transition">
+      <div className="border-l border-slate-200 h-6 mx-4" />
+      <button className="rounded-full cursor-pointer hover:bg-orange-50 text-orange-500 p-1.5 transition">
         <Headset />
       </button>
+      <div className="border-l border-slate-200 h-6 mx-4" />
       <div className="ml-2">
         <img
           src="https://randomuser.me/api/portraits/men/32.jpg"
           alt="User Avatar"
-          className="w-8 h-8 rounded-full border border-slate-200 shadow-sm"
+          className="w-8 h-8 cursor-pointer rounded-full border border-slate-200 shadow-sm"
         />
       </div>
     </div>
