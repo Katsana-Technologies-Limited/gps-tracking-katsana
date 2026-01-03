@@ -1,6 +1,6 @@
+/* eslint-disable no-unused-vars */
 import React, { useState, useRef, useEffect } from "react";
-import { CiClock2 } from "react-icons/ci";
-import { HiMenu } from "react-icons/hi";
+import { Car, BookMarked } from "lucide-react";
 
 const IconSearch = () => (
   <svg
@@ -52,7 +52,7 @@ const IconMail = () => (
 
 const IconBell = () => (
   <svg
-    className="h-5 w-5 text-slate-500"
+    className="h-5 w-5 text-orange-500"
     fill="none"
     viewBox="0 0 24 24"
     stroke="currentColor"
@@ -66,7 +66,7 @@ const IconBell = () => (
   </svg>
 );
 
-const TrackingTopBar = ({ onMenuClick }) => {
+const TrackingTopBar = () => {
   const [showActions, setShowActions] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const actionsRef = useRef(null);
@@ -94,149 +94,56 @@ const TrackingTopBar = ({ onMenuClick }) => {
   }, [showSearch]);
 
   return (
-    <div className="bg-white rounded-xl p-2 shadow-sm mb-4 sticky top-2 lg:top-4 z-[3000] ml-3">
-      <div className="flex items-center gap-2 lg:gap-4 px-2 lg:px-3 2xl:px-6">
-        {/* Mobile Menu Button */}
-        <button
-          onClick={onMenuClick}
-          className="lg:hidden p-2 cursor-pointer rounded-md hover:bg-slate-100"
-          aria-label="Open menu"
-        >
-          <HiMenu className="h-6 w-6 text-slate-700" />
+    <div className="bg-white rounded-xl p-2 shadow-sm mb-4 sticky top-2 lg:top-4 w-2/3 ml-auto">
+      <div className="flex items-center gap-2 px-4 py-1">
+        <button className="flex items-center gap-1 text-orange-500 border border-orange-200 rounded-md px-3 text-sm font-medium hover:bg-orange-100">
+          <Car size={18} className="text-orange-500" />
+          Assign Vehicle
         </button>
-
-        <div className="flex-1">
-          <div className="relative max-w-sm">
-            <div className="hidden sm:flex absolute inset-y-0 left-0 pl-3 items-center pointer-events-none">
-              <IconSearch />
-            </div>
+        <button className="flex items-center gap-1 text-orange-500 border border-orange-200 rounded-md px-3 text-sm font-medium hover:bg-orange-100">
+          <BookMarked size={18} className="text-orange-500" />
+          My Favorites
+        </button>
+        {/* Search Input */}
+        <div className="flex-1 flex items-center mx-2">
+          <div className="relative w-full max-w-xs">
             <input
               type="search"
-              placeholder="Search"
-              className="hidden sm:block w-full pl-10 pr-4 py-0.75 border border-slate-100 rounded-lg bg-slate-50 text-slate-700 placeholder-slate-400 focus:outline-none focus:border-yellow-500"
+              placeholder="Search Here"
+              className="w-full pl-9 pr-3 py-1 border border-slate-200 rounded-lg bg-slate-50 text-slate-700 placeholder-slate-400 focus:outline-none focus:border-orange-400 text-sm"
             />
-            <div
-              className={`sm:hidden flex items-center transition-all duration-500 ease-out ${
-                showSearch ? "w-full" : "w-10"
-              }`}
-            >
-              {!showSearch ? (
-                <button
-                  aria-label="Open search"
-                  className="p-2 rounded-md hover:bg-slate-100"
-                  onClick={() => {
-                    setShowActions(false);
-                    setShowSearch(true);
-                  }}
-                >
-                  <IconSearch />
-                </button>
-              ) : (
-                <div className="w-full">
-                  <input
-                    ref={searchRef}
-                    type="search"
-                    placeholder="Search"
-                    className="w-full pl-3 pr-3 py-2 border border-slate-200 rounded-lg bg-white text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-300"
-                  />
-                </div>
-              )}
-            </div>
+            <span className="absolute left-2 top-1.5 text-slate-400">
+              <IconSearch />
+            </span>
           </div>
         </div>
-
-        <div className="flex items-center">
-          {/* Desktop icons */}
-          <button
-            className="hidden sm:block p-2 cursor-pointer rounded-md hover:bg-slate-100"
-            aria-label="Upload"
+        {/* Bell Icon */}
+        <button className="rounded-full hover:bg-orange-50 text-orange-500">
+          <IconBell />
+        </button>
+        {/* Mic Icon */}
+        <button className="rounded-full hover:bg-orange-50 text-orange-500">
+          <svg
+            className="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
           >
-            <IconUpload />
-          </button>
-          <button
-            className="hidden sm:block p-2 cursor-pointer rounded-md hover:bg-slate-100"
-            aria-label="Mail"
-          >
-            <IconMail />
-          </button>
-          <button
-            className="hidden md:block p-2 cursor-pointer rounded-md hover:bg-slate-100"
-            aria-label="Clock"
-          >
-            <CiClock2 className="h-5 w-5" />
-          </button>
-
-          {/* Mobile actions: expand icons inline inside topbar and animate */}
-          <div className="sm:hidden flex items-center gap-2" ref={actionsRef}>
-            {!showActions ? (
-              <button
-                aria-label="More"
-                onClick={() => {
-                  setShowSearch(false);
-                  setShowActions(true);
-                }}
-                className="p-2 rounded-md hover:bg-slate-100"
-              >
-                <svg
-                  className="w-5 h-5 text-slate-600"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                >
-                  <circle cx="12" cy="5" r="1.5" />
-                  <circle cx="12" cy="12" r="1.5" />
-                  <circle cx="12" cy="19" r="1.5" />
-                </svg>
-              </button>
-            ) : (
-              <div className="flex items-center gap-2 transition-all duration-500">
-                <button
-                  className="p-2 rounded-md hover:bg-slate-100"
-                  onClick={() => {
-                    // open upload modal (placeholder)
-                  }}
-                  aria-label="Open upload modal"
-                >
-                  <IconUpload />
-                </button>
-                <button
-                  className="p-2 rounded-md hover:bg-slate-100"
-                  onClick={() => {
-                    // open mail modal (placeholder)
-                  }}
-                  aria-label="Open mail modal"
-                >
-                  <IconMail />
-                </button>
-                <button
-                  className="p-2 rounded-md hover:bg-slate-100"
-                  onClick={() => {
-                    // open clock modal (placeholder)
-                  }}
-                  aria-label="Open clock modal"
-                >
-                  <CiClock2 className="h-5 w-5" />
-                </button>
-                <button
-                  className="p-2 rounded-md hover:bg-slate-100"
-                  onClick={() => {
-                    // open notifications modal (placeholder)
-                  }}
-                  aria-label="Open notifications modal"
-                >
-                  <IconBell />
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Bell always visible on sm+ */}
-          <button
-            className="hidden sm:block p-2 cursor-pointer rounded-md hover:bg-slate-100"
-            aria-label="Notifications"
-          >
-            <IconBell />
-          </button>
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 18v2m0 0a4 4 0 01-4-4h8a4 4 0 01-4 4zm0-2V6a4 4 0 018 0v6a4 4 0 01-8 0z"
+            />
+          </svg>
+        </button>
+        {/* Avatar */}
+        <div className="ml-2">
+          <img
+            src="https://randomuser.me/api/portraits/men/32.jpg"
+            alt="User Avatar"
+            className="w-8 h-8 rounded-full border border-slate-200 shadow-sm"
+          />
         </div>
       </div>
     </div>
