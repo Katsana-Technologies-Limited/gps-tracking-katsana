@@ -52,7 +52,7 @@ const Login = () => {
         <div className="absolute right-5 -top-77.5 w-201.5 h-146 rounded-full bg-white blur-xl"></div>
       </div>
       <div className="relative z-10 h-full max-w-[92%] mx-auto flex flex-col">
-        <div className="flex flex-1 items-center">
+        <div className="flex flex-1 items-center 2xl:mt-10">
           <div className="flex w-full flex-col lg:flex-row items-center gap-16">
             <div className="w-full lg:w-1/2 flex justify-center">
               <img
@@ -174,8 +174,6 @@ const Login = () => {
             </div>
           </div>
         </div>
-
-        {/* ===== Footer ===== */}
         <footer className="py-4 bg-[#eef6fb]">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-4 text-sm text-gray-600">
             <div className="flex items-center gap-6">
@@ -186,12 +184,10 @@ const Login = () => {
                 <a href="/refund">Refund</a>
               </div>
             </div>
-
             <div>
               A Product of Katsana Technologies Ltd. ©{" "}
               {new Date().getFullYear()}
             </div>
-
             <div>
               Don’t have a tracker yet?{" "}
               <a href="/get-tracker" className="text-orange-500 font-semibold">
