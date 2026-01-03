@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
+import { Archive, CarFront, Headphones } from "lucide-react";
 import React, { useState, useRef, useEffect } from "react";
-import { Car, BookMarked } from "lucide-react";
 
 const IconSearch = () => (
   <svg
@@ -18,41 +18,9 @@ const IconSearch = () => (
   </svg>
 );
 
-const IconUpload = () => (
-  <svg
-    className="h-5 w-5 text-slate-500"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5 5 5M12 5v12"
-    />
-  </svg>
-);
-
-const IconMail = () => (
-  <svg
-    className="h-5 w-5 text-slate-500"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-    />
-  </svg>
-);
-
 const IconBell = () => (
   <svg
-    className="h-5 w-5 text-orange-500"
+    className="h-7 w-7 text-orange-500"
     fill="none"
     viewBox="0 0 24 24"
     stroke="currentColor"
@@ -94,50 +62,34 @@ const TrackingTopBar = () => {
   }, [showSearch]);
 
   return (
-    <div className="bg-white rounded-xl p-2 shadow-sm mb-4 sticky top-2 lg:top-4 w-2/3 ml-auto">
-      <div className="flex items-center gap-2 px-4 py-1">
-        <button className="flex items-center gap-1 text-orange-500 border border-orange-200 rounded-md px-3 text-sm font-medium hover:bg-orange-100">
-          <Car size={18} className="text-orange-500" />
+    <div className="bg-white rounded-xl p-2.5 shadow-sm mb-4 sticky top-2 lg:top-4 w-2/3 ml-auto">
+      <div className="flex items-center gap-2 px-4">
+        <button className="flex items-center gap-2 text-gray-500 border py-1 border-gray-200 rounded-md px-3 text-sm font-medium hover:bg-orange-100">
+          <CarFront size={18} className="text-orange-500" />
           Assign Vehicle
         </button>
-        <button className="flex items-center gap-1 text-orange-500 border border-orange-200 rounded-md px-3 text-sm font-medium hover:bg-orange-100">
-          <BookMarked size={18} className="text-orange-500" />
+        <button className="flex items-center gap-2 text-gray-500 border py-1 border-gray-200 rounded-md px-3 text-sm font-medium hover:bg-orange-100">
+          <Archive size={18} className="text-orange-500" />
           My Favorites
         </button>
-        {/* Search Input */}
         <div className="flex-1 flex items-center mx-2">
           <div className="relative w-full max-w-xs">
             <input
               type="search"
               placeholder="Search Here"
-              className="w-full pl-9 pr-3 py-1 border border-slate-200 rounded-lg bg-slate-50 text-slate-700 placeholder-slate-400 focus:outline-none focus:border-orange-400 text-sm"
+              className="w-full pl-9 pr-3 py-1 border border-slate-200 rounded-lg text-slate-700 placeholder-slate-400 focus:outline-none focus:border-orange-400 text-sm"
             />
             <span className="absolute left-2 top-1.5 text-slate-400">
               <IconSearch />
             </span>
           </div>
         </div>
-        {/* Bell Icon */}
         <button className="rounded-full hover:bg-orange-50 text-orange-500">
-          <IconBell />
+          <IconBell size={20} />
         </button>
-        {/* Mic Icon */}
         <button className="rounded-full hover:bg-orange-50 text-orange-500">
-          <svg
-            className="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 18v2m0 0a4 4 0 01-4-4h8a4 4 0 01-4 4zm0-2V6a4 4 0 018 0v6a4 4 0 01-8 0z"
-            />
-          </svg>
+          <Headphones size={22} className="text-orange-500" />
         </button>
-        {/* Avatar */}
         <div className="ml-2">
           <img
             src="https://randomuser.me/api/portraits/men/32.jpg"
