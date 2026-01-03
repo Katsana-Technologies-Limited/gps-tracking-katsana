@@ -10,13 +10,11 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [remember, setRemember] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
     try {
       const payload = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(username)
         ? { email: username, password, remember }
@@ -38,11 +36,9 @@ const Login = () => {
         toast.success("Login successful!");
         navigate("/dashboard");
       } else {
-        setError(res.data?.error || "Auth error");
         toast.error(res.data?.error || "Auth error");
       }
     } catch (err) {
-      setError(err?.response?.data?.error || "Auth error");
       toast.error(err?.response?.data?.error || "Auth error");
     } finally {
       setLoading(false);
@@ -122,11 +118,6 @@ const Login = () => {
               Remember me
             </label>
           </div>
-          {error && (
-            <div className="text-red-500 text-[13px] mb-2 text-center lg:text-xs xl:text-xs 2xl:text-xs">
-              {error}
-            </div>
-          )}
           <button
             type="submit"
             className={`w-full bg-primary-green cursor-pointer text-white font-semibold text-[16px] border-none rounded-lg py-3 mt-1 shadow-md transition-opacity duration-200 lg:text-sm lg:py-2.5 xl:text-sm 2xl:text-sm ${
