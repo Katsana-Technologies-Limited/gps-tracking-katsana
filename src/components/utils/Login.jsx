@@ -11,6 +11,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [remember, setRemember] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -18,8 +19,8 @@ const Login = () => {
     setError(null);
     try {
       const payload = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(username)
-        ? { email: username, password }
-        : { mobile: username, password };
+        ? { email: username, password, remember }
+        : { mobile: username, password, remember };
       const res = await axiosUrl.post("/api/vts/auth/login", payload);
       console.log(res);
       if (res.data && res.data.loginStatus) {
@@ -105,6 +106,21 @@ const Login = () => {
             >
               {showPassword ? "🙈" : "👁️"}
             </button>
+          </div>
+          <div className="mb-3 flex items-center">
+            <input
+              id="remember"
+              type="checkbox"
+              checked={remember}
+              onChange={(e) => setRemember(e.target.checked)}
+              className="mr-2"
+            />
+            <label
+              htmlFor="remember"
+              className="text-[#2c5364] text-[14px] select-none cursor-pointer"
+            >
+              Remember me
+            </label>
           </div>
           {error && (
             <div className="text-red-500 text-[13px] mb-2 text-center lg:text-xs xl:text-xs 2xl:text-xs">

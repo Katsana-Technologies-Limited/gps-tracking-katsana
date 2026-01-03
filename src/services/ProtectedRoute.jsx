@@ -1,11 +1,11 @@
 import { Navigate } from "react-router-dom";
 import useDataQuery from "../hooks/useDataQuery";
-import GlobalLoading from "../utils/GlobalLoading";
+import GlobalLoading from "../components/utils/GlobalLoading";
 
 const ProtectedRoute = ({ children }) => {
   const { data, isLoading, error } = useDataQuery(
     ["verifyAuthVts"],
-    "/api/auth/vts-verify",
+    "/api/vts/auth/verify",
     true
   );
 
