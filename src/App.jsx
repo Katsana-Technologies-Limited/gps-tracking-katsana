@@ -11,12 +11,14 @@ import Support from "./Pages/Routes/Support";
 import Payment from "./Pages/Routes/Payment";
 import UserManagement from "./Pages/Routes/UserManagement";
 import AIAssistant from "./Pages/Routes/AIAssistant";
+import LoginGest from "./components/LoginGest";
 
 const App = () => {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Login />} />
+        <Route path="/login-gest" element={<LoginGest />} />
         <Route path="/dashboard" element={<TrackingLayout />}>
           <Route index element={<AnalyticsSummary />} />
           <Route path="vehicles" element={<Vehicles />} />
