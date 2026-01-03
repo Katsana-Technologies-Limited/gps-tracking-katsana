@@ -47,23 +47,13 @@ const Login = () => {
 
   return (
     <div className="relative min-h-screen lg:h-screen bg-[#f6f9fc] overflow-x-hidden overflow-y-auto lg:overflow-hidden font-sans">
-      {/* ===== Background Shapes desgin 1===== */}
-      {/* <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute right-[-120px] top-[-260px] w-[820px] h-[520px] rounded-full bg-orange-400/90 blur-xl" />
-        <div className="absolute right-[40px] top-[-300px] w-[760px] h-[520px] rounded-full bg-white blur-xl" />
-      </div> */}
-      {/* ===== Background Shapes desgin 2 ===== */}{" "}
       <div className="absolute inset-0 z-0 pointer-events-none">
-        {" "}
-        <div className="absolute right-[-24px] top-[-268px] translate-x-10 w-[876px] h-[580px] rounded-full bg-orange-400/90 blur-xl"></div>{" "}
-        <div className="absolute right-[20px] top-[-310px] w-[806px] h-[584px] rounded-full bg-white blur-xl"></div>{" "}
+        <div className="absolute -right-6 -top-67 translate-x-10 w-219 h-145 rounded-full bg-orange-400/90 blur-xl"></div>
+        <div className="absolute right-5 -top-77.5 w-201.5 h-146 rounded-full bg-white blur-xl"></div>
       </div>
-      {/* ===== Main Layout ===== */}
       <div className="relative z-10 h-full max-w-[92%] mx-auto flex flex-col">
-        {/* ===== Top Section ===== */}
         <div className="flex flex-1 items-center">
           <div className="flex w-full flex-col lg:flex-row items-center gap-16">
-            {/* Part 1: Image */}
             <div className="w-full lg:w-1/2 flex justify-center">
               <img
                 src="/login-hero.png"
@@ -71,32 +61,28 @@ const Login = () => {
                 className="max-w-lg w-full object-contain"
               />
             </div>
-
-            {/* Part 2: Login */}
             <div className="w-full lg:w-1/2 max-w-md">
               <img
                 src="/katsana-logo.png"
                 alt="Katsana"
                 className="w-64 mb-6 mx-auto"
               />
-
               <form onSubmit={handleSubmit}>
                 <div className="space-y-4">
                   <input
                     type="text"
-                    placeholder="username@email.com"
+                    placeholder="Email or mobile"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-orange-400"
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-300 bg-white focus:outline-none focus:ring focus:ring-orange-400"
                   />
-
                   <div className="relative">
                     <input
                       type={showPassword ? "text" : "password"}
                       placeholder="**************"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-orange-400"
+                      className="w-full px-4 py-2.5 rounded-xl border border-gray-300 bg-white focus:outline-none focus:ring focus:ring-orange-400"
                     />
                     <button
                       type="button"
@@ -106,8 +92,6 @@ const Login = () => {
                       {showPassword ? "🙈" : "👁️"}
                     </button>
                   </div>
-
-                  {/* Keep me logged in */}
                   <div className="flex items-center justify-center gap-3 text-sm text-gray-600">
                     <label className="relative inline-flex items-center cursor-pointer">
                       <input type="checkbox" className="sr-only peer" />
@@ -116,11 +100,9 @@ const Login = () => {
                     </label>
                     Keep me logged in
                   </div>
-
-                  {/* Login */}
                   <button
                     disabled={loading}
-                    className="w-full py-2.5 rounded-xl text-white font-semibold bg-linear-to-r from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-400 transition disabled:opacity-60"
+                    className="w-full py-2.5 cursor-pointer rounded-xl text-white font-semibold bg-linear-to-r from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-400 transition disabled:opacity-60"
                   >
                     {loading ? "Signing in..." : "Login"}
                   </button>
