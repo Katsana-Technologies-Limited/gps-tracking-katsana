@@ -2,7 +2,8 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import { useAxios } from "../../hooks/useAxios";
+import { useAxios } from "../../../hooks/useAxios";
+import FooterLogin from "./FooterLogin";
 
 const Login = () => {
   const axiosUrl = useAxios();
@@ -130,10 +131,9 @@ const Login = () => {
                   >
                     {loading ? "Signing in..." : "Login"}
                   </button>
-                  {/* Guest */}
                   <button
                     type="button"
-                    onClick={() => navigate("/login-gest")}
+                    onClick={() => navigate("/login-guest")}
                     className="w-full py-2.5 rounded-xl font-semibold bg-white text-gray-700 border-2 border-orange-500 hover:bg-linear-to-r hover:from-orange-400 hover:to-orange-500 hover:text-white transition cursor-pointer"
                   >
                     Login as Guest
@@ -158,8 +158,6 @@ const Login = () => {
                   </div>
                 </div>
               </form>
-
-              {/* Stores */}
               <div className="mt-3 flex justify-center gap-4">
                 <div className="bg-white p-2 rounded-md">
                   <img src="/icons/google-play.svg" className="h-9" />
@@ -168,8 +166,6 @@ const Login = () => {
                   <img src="/icons/app-store.svg" className="h-9" />
                 </div>
               </div>
-
-              {/* Support */}
               <div className="mt-3 text-center">
                 <p className="text-sm text-gray-600 font-semibold">
                   Call for any assistance
@@ -182,28 +178,7 @@ const Login = () => {
             </div>
           </div>
         </div>
-        <footer className="py-4 bg-[#eef6fb]">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-4 text-sm text-gray-600">
-            <div className="flex items-center gap-6">
-              <img src="/katsana-logo.png" className="h-7" />
-              <div className="flex gap-6">
-                <a href="/terms">Terms</a>
-                <a href="/company">Company</a>
-                <a href="/refund">Refund</a>
-              </div>
-            </div>
-            <div>
-              A Product of Katsana Technologies Ltd. ©{" "}
-              {new Date().getFullYear()}
-            </div>
-            <div>
-              Don’t have a tracker yet?{" "}
-              <a href="/get-tracker" className="text-orange-500 font-semibold">
-                Click here
-              </a>
-            </div>
-          </div>
-        </footer>
+        <FooterLogin />
       </div>
     </div>
   );

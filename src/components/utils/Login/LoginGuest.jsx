@@ -1,63 +1,51 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { IoIosArrowBack } from "react-icons/io";
+import FooterLogin from "./FooterLogin";
 
-const LoginGest = () => {
+const LoginGuest = () => {
   const navigate = useNavigate();
-
   const [userId, setUserId] = useState("");
   const [email, setEmail] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // TODO: guest submit logic here
     console.log({ userId, email });
   };
 
   return (
     <div className="relative min-h-screen lg:h-screen bg-[#f6f9fc] overflow-x-hidden overflow-y-auto lg:overflow-hidden font-sans">
-      {/* ===== Background Shapes ===== */}
       <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute right-[-24px] top-[-268px] translate-x-10 w-[876px] h-[580px] rounded-full bg-orange-400/90 blur-xl" />
-        <div className="absolute right-[20px] top-[-310px] w-[806px] h-[584px] rounded-full bg-white blur-xl" />
+        <div className="absolute -right-6 -top-67 translate-x-10 w-219 h-145 rounded-full bg-orange-400/90 blur-xl" />
+        <div className="absolute right-5 -top-77.5 w-201.5 h-146 rounded-full bg-white blur-xl" />
       </div>
-
-      {/* ===== Main Layout ===== */}
       <div className="relative z-10 h-full max-w-[92%] mx-auto flex flex-col">
-        {/* ===== Top Section ===== */}
-        <div className="flex flex-1 items-center">
+        <div className="flex flex-1 items-center 2xl:mt-10">
           <div className="flex w-full flex-col lg:flex-row items-center gap-16">
-            {/* Part 1: Image */}
             <div className="w-full lg:w-1/2 flex justify-center">
               <img
-                src="/login-hero.png"
+                src="/login/login-hero.png"
                 alt="Tracking visual"
                 className="max-w-lg w-full object-contain"
               />
             </div>
-
-            {/* Part 2: Guest Login */}
             <div className="w-full lg:w-1/2 max-w-md">
               <img
                 src="/katsana-logo.png"
                 alt="Katsana"
                 className="w-64 mb-4 mx-auto"
               />
-
-              {/* Back Button */}
               <button
                 onClick={() => navigate(-1)}
-                className="mb-4 px-1 py-[0.5px] inline-flex items-center gap-2 bg-orange-400 rounded-[5px] text-white font-medium hover:underline"
+                className="mb-4 px-2 py-1.5 cursor-pointer text-xs inline-flex items-center gap-2 bg-orange-400 rounded-[5px] text-white font-medium"
               >
-                <span className="bg-white text-orange-400 rounded-[5px] ">
+                <span className="bg-white text-orange-400 rounded-[5px]">
                   <IoIosArrowBack size={16} />
                 </span>{" "}
                 Back
               </button>
-
               <form onSubmit={handleSubmit}>
                 <div className="space-y-4">
-                  {/* User ID */}
                   <input
                     type="text"
                     placeholder="USERID123"
@@ -65,8 +53,6 @@ const LoginGest = () => {
                     onChange={(e) => setUserId(e.target.value)}
                     className="w-full px-4 py-2.5 rounded-xl border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-orange-400"
                   />
-
-                  {/* Email */}
                   <input
                     type="email"
                     placeholder="username@email.com"
@@ -74,18 +60,14 @@ const LoginGest = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full px-4 py-2.5 rounded-xl border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-orange-400"
                   />
-
-                  {/* Submit */}
                   <button
                     type="submit"
-                    className="w-full py-2.5 rounded-xl text-white font-semibold bg-linear-to-r from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-400 transition"
+                    className="w-full py-2.5 cursor-pointer rounded-xl text-white font-semibold bg-linear-to-r from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-400 transition"
                   >
                     Submit
                   </button>
                 </div>
               </form>
-
-              {/* Stores */}
               <div className="mt-4 flex justify-center gap-4">
                 <div className="bg-white p-2 rounded-md">
                   <img src="/icons/google-play.svg" className="h-9" />
@@ -94,8 +76,6 @@ const LoginGest = () => {
                   <img src="/icons/app-store.svg" className="h-9" />
                 </div>
               </div>
-
-              {/* Support */}
               <div className="mt-4 text-center">
                 <p className="text-sm text-gray-600 font-semibold">
                   Call for any assistance
@@ -108,35 +88,10 @@ const LoginGest = () => {
             </div>
           </div>
         </div>
-
-        {/* ===== Footer ===== */}
-        <footer className="py-4 bg-[#eef6fb]">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-4 text-sm text-gray-600">
-            <div className="flex items-center gap-6">
-              <img src="/katsana-logo.png" className="h-7" />
-              <div className="flex gap-6">
-                <a href="/terms">Terms</a>
-                <a href="/company">Company</a>
-                <a href="/refund">Refund</a>
-              </div>
-            </div>
-
-            <div>
-              A Product of Katsana Technologies Ltd. ©{" "}
-              {new Date().getFullYear()}
-            </div>
-
-            <div>
-              Don’t have a tracker yet?{" "}
-              <a href="/get-tracker" className="text-orange-500 font-semibold">
-                Click here
-              </a>
-            </div>
-          </div>
-        </footer>
+        <FooterLogin />
       </div>
     </div>
   );
 };
 
-export default LoginGest;
+export default LoginGuest;

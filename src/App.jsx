@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Login from "./components/utils/Login";
+import Login from "./components/utils/Login/Login";
+import LoginGuest from "./components/utils/Login/LoginGuest";
 import TrackingLayout from "./Pages/Layout/TrackingLayout";
 import AnalyticsSummary from "./Pages/Routes/AnalyticsSummary";
 import Vehicles from "./Pages/Routes/Vehicles";
@@ -13,14 +14,13 @@ import UserManagement from "./Pages/Routes/UserManagement";
 import AIAssistant from "./Pages/Routes/AIAssistant";
 import ProtectedRoute from "./services/ProtectedRoute";
 import VtsProfile from "./components/Profile/VtsProfile";
-import LoginGest from "./components/LoginGest";
 
 const App = () => {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Login />} />
-        <Route path="/login-gest" element={<LoginGest />} />
+        <Route path="/login-guest" element={<LoginGuest />} />
         <Route
           path="/dashboard"
           element={
