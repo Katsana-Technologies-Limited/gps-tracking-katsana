@@ -20,36 +20,26 @@ const Login = () => {
   const onSubmit = async (data) => {
     setLoading(true);
     try {
-      const isEmail = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(data.username);
-      const payload = isEmail
-        ? {
-            email: data.username,
-            password: data.password,
-            remember: data.remember,
-          }
-        : {
-            mobile: data.username,
-            password: data.password,
-            remember: data.remember,
-          };
+      const payload = {
+        email: data.username,
+        mobile: data.username,
+        password: data.password,
+        remember: data.remember,
+      };
       const res = await axiosUrl.post("/api/vts/auth/login", payload);
-      if (res.data?.loginStatus) {
-        localStorage.setItem(
-          "vts_auth",
-          JSON.stringify({
-            id: res.data.vtsInfo?.id,
-            company: res.data.vtsInfo?.company,
-            email: res.data.vtsInfo?.email,
-            remember_me: res.data.vtsInfo?.remember_me,
-          })
-        );
-        toast.success("Login successful");
+      if (res.data && res.data.loginStatus) {
+        const { id, email, company } = res.data.vtsInfo || {};
+        const vtsAuth = { id, email, company };
+        try {
+          window.localStorage.setItem("vts_auth", JSON.stringify(vtsAuth));
+        } catch (error) {
+          console.log(error);
+        }
+        toast.success("Login successful!");
         navigate("/dashboard");
       } else {
-        throw new Error(res.data?.message || "Auth error");
+        toast.error(res.data?.error || "Auth error");
       }
-    } catch (err) {
-      toast.error(err.message);
     } finally {
       setLoading(false);
     }
@@ -85,7 +75,7 @@ const Login = () => {
                     {...register("username", {
                       required: "Email or mobile is required",
                     })}
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-300 bg-white focus:outline-none focus:ring focus:ring-orange-400"
+                    className="w-full px-3 py-2.5 rounded-xl border border-gray-300 bg-white focus:outline-none focus:ring focus:ring-orange-400"
                   />
                   {errors.username && (
                     <div className="text-red-500 text-xs mt-1">
@@ -99,7 +89,7 @@ const Login = () => {
                       {...register("password", {
                         required: "Password is required",
                       })}
-                      className="w-full px-4 py-2.5 rounded-xl border border-gray-300 bg-white focus:outline-none focus:ring focus:ring-orange-400"
+                      className="w-full px-3 py-2.5 rounded-xl border border-gray-300 bg-white focus:outline-none focus:ring focus:ring-orange-400"
                     />
                     <button
                       type="button"
