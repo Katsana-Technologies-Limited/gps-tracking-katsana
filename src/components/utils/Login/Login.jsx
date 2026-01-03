@@ -68,6 +68,9 @@ const Login = () => {
                 src="/login/login-hero.png"
                 alt="Tracking visual"
                 className="max-w-lg w-full object-contain"
+                draggable={false}
+                onContextMenu={(e) => e.preventDefault()}
+                style={{ userSelect: "none" }}
               />
             </div>
             <div className="w-full lg:w-1/2 max-w-md">
@@ -75,6 +78,9 @@ const Login = () => {
                 src="/katsana-logo.png"
                 alt="Katsana"
                 className="w-64 mb-6 mx-auto"
+                draggable={false}
+                onContextMenu={(e) => e.preventDefault()}
+                style={{ userSelect: "none" }}
               />
               <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="space-y-4">
