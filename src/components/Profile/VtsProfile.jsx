@@ -1,7 +1,8 @@
 import { useState } from "react";
+import { toast } from "sonner";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAxios } from "../../hooks/useAxios";
-import { toast } from "sonner";
+import { useForm } from "react-hook-form";
 
 const VtsProfile = () => {
   const axiosUrl = useAxios();
@@ -12,40 +13,37 @@ const VtsProfile = () => {
       return res.data.profile;
     },
   });
-  
-  const [oldPassword, setOldPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
 
+  const [showChangePass, setShowChangePass] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm();
   const mutation = useMutation({
-    mutationFn: async ({ oldPassword, newPassword }) => {
+    mutationFn: async (data) => {
       return axiosUrl.put("/api/vts/auth/change-password", {
-        oldPassword,
-        newPassword,
+        oldPassword: data.oldPassword,
+        newPassword: data.newPassword,
       });
     },
     onSuccess: () => {
       toast.success("Password changed successfully!");
-      setOldPassword("");
-      setNewPassword("");
-      setConfirmPassword("");
+      reset();
+      setShowChangePass(false);
     },
     onError: (err) => {
       toast.error(err?.response?.data?.message || "Failed to change password");
     },
   });
 
-  const handleChangePassword = (e) => {
-    e.preventDefault();
-    if (!oldPassword || !newPassword || !confirmPassword) {
-      toast.error("All fields are required");
-      return;
-    }
-    if (newPassword !== confirmPassword) {
+  const onSubmit = (formData) => {
+    if (formData.newPassword !== formData.confirmPassword) {
       toast.error("New passwords do not match");
       return;
     }
-    mutation.mutate({ oldPassword, newPassword });
+    mutation.mutate(formData);
   };
 
   if (isLoading) return <div className="p-6">Loading profile...</div>;
@@ -56,99 +54,132 @@ const VtsProfile = () => {
     <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow p-8 mt-6">
       <h2 className="text-2xl font-bold text-[#2c5364] mb-6">My Profile</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-        <div>
-          <div className="text-sm text-gray-500">Name</div>
-          <div className="font-semibold text-lg text-[#2c5364]">
-            {data?.company || "-"}
-          </div>
-        </div>
-        <div>
-          <div className="text-sm text-gray-500">Email</div>
-          <div className="font-semibold text-lg text-[#2c5364]">
-            {data?.email || "-"}
-          </div>
-        </div>
-        <div>
-          <div className="text-sm text-gray-500">Mobile</div>
-          <div className="font-semibold text-lg text-[#2c5364]">
-            {data?.mobile || "-"}
-          </div>
-        </div>
-        <div>
-          <div className="text-sm text-gray-500">Nationality</div>
-          <div className="font-semibold text-lg text-[#2c5364]">
-            {data?.nationality || "-"}
-          </div>
-        </div>
-        <div>
-          <div className="text-sm text-gray-500">City</div>
-          <div className="font-semibold text-lg text-[#2c5364]">
-            {data?.city || "-"}
-          </div>
-        </div>
-        <div>
-          <div className="text-sm text-gray-500">Country</div>
-          <div className="font-semibold text-lg text-[#2c5364]">
-            {data?.country || "-"}
-          </div>
-        </div>
+        <ProfileField label="Company" value={data?.company} />
+        <ProfileField label="Email" value={data?.email} />
+        <ProfileField label="Mobile" value={data?.mobile} />
+        <ProfileField label="Nationality" value={data?.nationality} />
+        <ProfileField label="National ID" value={data?.national_id} />
+        <ProfileField label="Occupation" value={data?.occupation} />
+        <ProfileField label="City" value={data?.city} />
+        <ProfileField label="Country" value={data?.country} />
+        <ProfileField
+          label="Permanent Address"
+          value={data?.permanent_address}
+        />
+        <ProfileField label="Present Address" value={data?.present_address} />
+        <ProfileField label="ZIP" value={data?.zip} />
+        <ProfileField label="Website" value={data?.website} />
+        <ProfileField
+          label="Created At"
+          value={data?.created_at && new Date(data.created_at).toLocaleString()}
+        />
+        <ProfileField
+          label="Updated At"
+          value={data?.updated_at && new Date(data.updated_at).toLocaleString()}
+        />
       </div>
-      <hr className="my-6" />
-      <h3 className="text-xl font-semibold text-[#2c5364] mb-4">
-        Change Password
-      </h3>
-      <form
-        className="grid grid-cols-1 md:grid-cols-2 gap-4"
-        onSubmit={handleChangePassword}
-      >
-        <div className="col-span-2">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Old Password
-          </label>
-          <input
-            type="password"
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#fe8e1c]"
-            value={oldPassword}
-            onChange={(e) => setOldPassword(e.target.value)}
-            autoComplete="current-password"
-          />
+      <div className="flex justify-end">
+        <button
+          className="bg-[#fe8e1c] cursor-pointer text-white font-semibold px-6 py-2 rounded-lg shadow hover:bg-[#e07c13] transition"
+          onClick={() => setShowChangePass(true)}
+        >
+          Change Password
+        </button>
+      </div>
+      {showChangePass && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+          <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md relative">
+            <button
+              className="absolute cursor-pointer top-2 right-2 text-gray-400 hover:text-gray-600 text-xl"
+              onClick={() => setShowChangePass(false)}
+              aria-label="Close"
+            >
+              ×
+            </button>
+            <h3 className="text-xl font-semibold text-[#2c5364] mb-4">
+              Change Password
+            </h3>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Old Password
+                </label>
+                <input
+                  type="password"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-[#fe8e1c]"
+                  autoComplete="current-password"
+                  {...register("oldPassword", {
+                    required: "Old password is required",
+                  })}
+                />
+                {errors.oldPassword && (
+                  <div className="text-red-500 text-xs mt-1">
+                    {errors.oldPassword.message}
+                  </div>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  New Password
+                </label>
+                <input
+                  type="password"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-[#fe8e1c]"
+                  autoComplete="new-password"
+                  {...register("newPassword", {
+                    required: "New password is required",
+                  })}
+                />
+                {errors.newPassword && (
+                  <div className="text-red-500 text-xs mt-1">
+                    {errors.newPassword.message}
+                  </div>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Confirm New Password
+                </label>
+                <input
+                  type="password"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-[#fe8e1c]"
+                  autoComplete="new-password"
+                  {...register("confirmPassword", {
+                    required: "Please confirm new password",
+                  })}
+                />
+                {errors.confirmPassword && (
+                  <div className="text-red-500 text-xs mt-1">
+                    {errors.confirmPassword.message}
+                  </div>
+                )}
+              </div>
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  className="bg-[#fe8e1c] cursor-pointer text-white font-semibold px-6 py-2 rounded-lg shadow hover:bg-[#e07c13] transition"
+                  disabled={isSubmitting || mutation.isLoading}
+                >
+                  {mutation.isLoading ? "Changing..." : "Change Password"}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            New Password
-          </label>
-          <input
-            type="password"
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#fe8e1c]"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            autoComplete="new-password"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Confirm New Password
-          </label>
-          <input
-            type="password"
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#fe8e1c]"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            autoComplete="new-password"
-          />
-        </div>
-        <div className="col-span-2 mt-2">
-          <button
-            type="submit"
-            className="bg-[#fe8e1c] text-white font-semibold px-6 py-2 rounded-lg shadow hover:bg-[#e07c13] transition"
-            disabled={mutation.isLoading}
-          >
-            {mutation.isLoading ? "Changing..." : "Change Password"}
-          </button>
-        </div>
-      </form>
+      )}
     </div>
   );
+
+  function ProfileField({ label, value }) {
+    return (
+      <div>
+        <div className="text-sm text-gray-500">{label}</div>
+        <div className="font-semibold text-lg text-[#2c5364]">
+          {value || "-"}
+        </div>
+      </div>
+    );
+  }
 };
 
 export default VtsProfile;
