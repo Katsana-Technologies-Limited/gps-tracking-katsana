@@ -8,13 +8,7 @@ import AlertsSummaryBarChart from "../../components/AnalyticsSummaryPage/AlertsS
 
 const Card = ({ children, className = "" }) => (
   <div
-    className={`
-      bg-white
-      rounded-2xl
-      shadow-[0_8px_30px_rgba(0,0,0,0.06)]
-      p-5
-      ${className}
-    `}
+    className={`${className} bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.06)] p-3`}
   >
     {children}
   </div>

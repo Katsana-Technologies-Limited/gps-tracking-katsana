@@ -10,7 +10,7 @@ const AlertsSummaryNumberChart = () => {
   ];
   return (
     <div className="min-h-57.5">
-      <div className="font-semibold text-base text-gray-600 mb-1">
+      <div className="font-semibold text-base text-gray-600 mb-8">
         Last 7 Days Alerts, Summary
       </div>
       <table className="text-xs w-full mt-3">
@@ -26,9 +26,9 @@ const AlertsSummaryNumberChart = () => {
           {alertsTable.map((row) => (
             <tr key={row.date}>
               <td className="p-1">{row.date}</td>
-              <td className="text-center p-1">{row.trips}</td>
-              <td className="text-center p-1">{row.over}</td>
-              <td className="text-center p-1">{row.out}</td>
+              <td className="text-center p-2">{row.trips}</td>
+              <td className="text-center p-2">{row.over}</td>
+              <td className="text-center p-2">{row.out}</td>
             </tr>
           ))}
         </tbody>
