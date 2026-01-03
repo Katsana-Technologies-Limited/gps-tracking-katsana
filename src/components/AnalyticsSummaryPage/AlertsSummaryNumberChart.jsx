@@ -1,5 +1,3 @@
-import React from "react";
-
 const AlertsSummaryNumberChart = () => {
   const alertsTable = [
     { date: "Sat, 25 Dec", trips: 12, over: 0, out: 0 },
@@ -11,7 +9,7 @@ const AlertsSummaryNumberChart = () => {
     { date: "Fri, 31 Dec", trips: 11, over: 0, out: 0 },
   ];
   return (
-    <div className="min-h-[230px]">
+    <div className="min-h-57.5">
       <div className="font-semibold text-base text-gray-600 mb-1">
         Last 7 Days Alerts, Summary
       </div>

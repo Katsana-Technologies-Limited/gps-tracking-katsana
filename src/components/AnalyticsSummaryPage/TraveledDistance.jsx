@@ -16,14 +16,11 @@ const TraveledDistance = () => {
   ];
 
   return (
-    <div className="min-h-[260px]">
-      {/* Header */}
+    <div className="min-h-65">
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-sm font-medium text-gray-700">
           Last 7 Days Traveled Distance
         </h2>
-
-        {/* Switch */}
         <Switch
           checked={chartMode}
           onChange={setChartMode}
@@ -36,17 +33,14 @@ const TraveledDistance = () => {
           `}
         >
           <span
-            className={`inline-block h-4 w-4 transform rounded-full bg-white transition
+            className={`inline-block cursor-pointer h-4 w-4 transform rounded-full bg-white transition
               ${chartMode ? "translate-x-6" : "translate-x-1"}
             `}
           />
         </Switch>
       </div>
-
-      {/* CONTENT */}
       <div className="flex justify-center items-center">
         {!chartMode ? (
-          /* ===== TABLE ===== */
           <table className="w-full text-sm text-gray-600 mt-7">
             <thead>
               <tr className="text-gray-400">
@@ -66,7 +60,6 @@ const TraveledDistance = () => {
             </tbody>
           </table>
         ) : (
-          /* ===== BAR CHART ===== */
           <ResponsiveContainer width="100%" height={250}>
             <BarChart data={data}>
               <defs>

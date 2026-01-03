@@ -21,44 +21,35 @@ const AlertsSummaryBarChart = () => {
   ];
 
   return (
-    <div className="min-h-[230px]">
+    <div className="min-h-57.5">
       <div className="font-semibold text-base text-gray-600 mb-2">
         Last 7 Days Alerts, Summary
       </div>
-
       <ResponsiveContainer width="100%" height={200}>
         <AreaChart data={areaData}>
-          {/* Gradient */}
           <defs>
             <linearGradient id="colorAlert" x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%" stopColor="#fd9642" stopOpacity={0.45} />
               <stop offset="95%" stopColor="#fd9642" stopOpacity={0.05} />
             </linearGradient>
           </defs>
-
-          {/* ✅ Grid lines (image like) */}
           <CartesianGrid
             stroke="#e5e7eb"
             strokeDasharray="3 3"
             vertical={false}
           />
-
-          {/* Bottom scale line */}
           <XAxis
             dataKey="name"
             axisLine={{ stroke: "#e5e7eb" }}
             tickLine={false}
             tick={{ fill: "#9ca3af", fontSize: 11 }}
           />
-
-          {/* Left scale line */}
           <YAxis
             axisLine={{ stroke: "#e5e7eb" }}
             tickLine={false}
             tick={{ fill: "#9ca3af", fontSize: 11 }}
             width={30}
           />
-
           <Tooltip
             cursor={{ stroke: "#fd9642", strokeWidth: 1 }}
             contentStyle={{
@@ -67,7 +58,6 @@ const AlertsSummaryBarChart = () => {
               boxShadow: "0 4px 12px rgba(0,0,0,0.12)",
             }}
           />
-
           <Area
             type="monotone"
             dataKey="value"

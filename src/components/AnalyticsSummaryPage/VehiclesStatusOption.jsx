@@ -78,14 +78,13 @@ const VehiclesStatusOption = () => {
   };
 
   return (
-    <div className="h-full max-h-[320px] flex flex-col gap-3">
-      {/* Tabs */}
+    <div className="h-full max-h-80 flex flex-col gap-3">
       <div className="flex gap-2">
         {TABS.map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-3 py-1.5 text-xs rounded-lg font-medium transition
+            className={`px-3 py-1.5 cursor-pointer text-xs rounded-lg font-medium transition
               ${
                 activeTab === tab
                   ? "bg-linear-to-r from-orange-400 to-orange-500 text-white"
@@ -97,8 +96,6 @@ const VehiclesStatusOption = () => {
           </button>
         ))}
       </div>
-
-      {/* Search */}
       <div className="relative">
         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-orange-500">
           <img
@@ -117,8 +114,6 @@ const VehiclesStatusOption = () => {
           className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
         />
       </div>
-
-      {/* Select All */}
       <div className="flex items-center justify-between text-sm text-gray-600">
         <label className="flex items-center gap-2 cursor-pointer">
           <input
@@ -128,27 +123,14 @@ const VehiclesStatusOption = () => {
               filteredVehicles.length > 0
             }
             onChange={toggleAll}
+            className="cursor-pointer"
           />
           Select All
         </label>
         <span>Total Vehicles: {selected.length}</span>
       </div>
-
-      {/* Group */}
       <div className="text-xs text-gray-500">Group</div>
-
-      {/* Vehicle List */}
-      <div
-        className="
-    flex flex-col gap-2
-    max-h-[200px]
-    overflow-y-auto
-    pr-1
-    scrollbar-thin
-    scrollbar-thumb-gray-300
-    scrollbar-track-transparent
-  "
-      >
+      <div className="flex flex-col gap-2 max-h-50 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
         {filteredVehicles.map((v) => {
           const isSelected = selected.includes(v.id);
           const style = statusStyle[v.status];
@@ -157,16 +139,15 @@ const VehiclesStatusOption = () => {
             <div
               key={v.id}
               onClick={() => toggleVehicle(v.id)}
-              className={`flex items-center justify-between gap-3 p-3 rounded-xl border cursor-pointer transition
-          ${style.bg}
-          ${isSelected ? style.border : "border-gray-200"}
+              className={`flex items-center justify-between gap-3 p-3 rounded-xl border cursor-pointer transition ${
+                style.bg
+              } ${isSelected ? style.border : "border-gray-200"}
         `}
             >
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded bg-gray-100 flex items-center justify-center">
                   <img src="/icons/vehicle.svg" alt="vehicle" />
                 </div>
-
                 <div>
                   <div className="text-sm font-medium text-gray-800">
                     {v.number}
@@ -174,7 +155,6 @@ const VehiclesStatusOption = () => {
                   <div className="text-xs text-gray-500">{v.reg}</div>
                 </div>
               </div>
-
               {isSelected && <Check className="text-green-500" size={18} />}
             </div>
           );
