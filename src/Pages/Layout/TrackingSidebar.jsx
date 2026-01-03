@@ -11,7 +11,6 @@ import {
   CreditCard,
   Users,
   Bot,
-  LogOut,
 } from "lucide-react";
 import LogoutButton from "./LogoutButton";
 
@@ -29,12 +28,10 @@ const sidebarLinks = [
 ];
 
 export default function TrackingSidebar() {
-  const location = useLocation();
-  const pathname = location.pathname;
-
+  const { pathname } = useLocation();
   return (
     <aside
-      className="fixed left-0 top-0 h-[calc(100vh-32px)] w-64 bg-white rounded-2xl shadow-lg flex flex-col items-center py-8 px-2 mt-4 mb-4 ml-4 font-['Inter','Arial','Helvetica',sans-serif'] z-30"
+      className="fixed left-0 top-0 h-[calc(100vh-32px)] w-64 bg-white rounded-2xl shadow-lg flex flex-col items-center py-8 px-2 mt-4 mb-4 ml-4 z-30 font-['Inter','Arial','Helvetica',sans-serif']"
       style={{ minWidth: 220, maxWidth: 260 }}
     >
       <div className="flex flex-col items-center mb-8 w-full">
