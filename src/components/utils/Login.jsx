@@ -56,7 +56,7 @@ const Login = () => {
           <div className="flex w-full flex-col lg:flex-row items-center gap-16">
             <div className="w-full lg:w-1/2 flex justify-center">
               <img
-                src="/login-hero.png"
+                src="/login/login-hero.png"
                 alt="Tracking visual"
                 className="max-w-lg w-full object-contain"
               />
