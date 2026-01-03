@@ -12,6 +12,7 @@ import Payment from "./Pages/Routes/Payment";
 import UserManagement from "./Pages/Routes/UserManagement";
 import AIAssistant from "./Pages/Routes/AIAssistant";
 import ProtectedRoute from "./services/ProtectedRoute";
+import VtsProfile from "./components/Profile/VtsProfile";
 
 const App = () => {
   return (
@@ -27,6 +28,7 @@ const App = () => {
           }
         >
           <Route index element={<AnalyticsSummary />} />
+          <Route path="profile" element={<VtsProfile />} />
           <Route path="vehicles" element={<Vehicles />} />
           <Route path="reports" element={<Reports />} />
           <Route path="drive-mark" element={<DriveMark />} />
