@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAxios } from "../../../hooks/useAxios";
 import FooterLogin from "./FooterLogin";
 
@@ -140,21 +140,12 @@ const Login = () => {
                   </button>
                   <div className="text-center text-sm text-gray-600">
                     Forget Password?
-                    <a
-                      href="/forgot-password"
+                    <Link
+                      to="/forgot-password"
                       className="ml-1 text-orange-500 font-medium hover:underline"
                     >
                       Reset
-                    </a>
-                  </div>
-                  <div className="text-center text-sm text-gray-600">
-                    Don&apos;t have an account?
-                    <a
-                      href="/signup"
-                      className="ml-1 text-orange-500 font-medium hover:underline"
-                    >
-                      Sign Up
-                    </a>
+                    </Link>
                   </div>
                 </div>
               </form>
