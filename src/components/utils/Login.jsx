@@ -22,12 +22,8 @@ const Login = () => {
       const res = await axiosUrl.post("/api/vts/auth/login", payload);
       console.log(res);
       if (res.data && res.data.loginStatus) {
-        const vtsAuth = {
-          token: res.data.token,
-          id: res.data.id,
-          company: res.data.company,
-          email: res.data.email,
-        };
+        const { id, email, company } = res.data.vtsInfo || {};
+        const vtsAuth = { id, email, company };
         try {
           window.localStorage.setItem("vts_auth", JSON.stringify(vtsAuth));
         } catch (error) {
@@ -38,8 +34,6 @@ const Login = () => {
       } else {
         toast.error(res.data?.error || "Auth error");
       }
-    } catch (err) {
-      toast.error(err?.response?.data?.error || "Auth error");
     } finally {
       setLoading(false);
     }
