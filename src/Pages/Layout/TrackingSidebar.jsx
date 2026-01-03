@@ -1,5 +1,4 @@
 /* eslint-disable no-unused-vars */
-import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   BarChart2,
@@ -14,6 +13,7 @@ import {
   Bot,
   LogOut,
 } from "lucide-react";
+import LogoutButton from "./LogoutButton";
 
 const sidebarLinks = [
   { to: "/dashboard", label: "Analytics & Summary", icon: BarChart2 },
@@ -71,18 +71,7 @@ export default function TrackingSidebar() {
           );
         })}
       </nav>
-      <button
-        onClick={() => {
-          localStorage.clear();
-          window.location.href = "/";
-        }}
-        className="flex items-center gap-3 cursor-pointer px-4 py-2.5 rounded-lg transition font-medium text-[15px] w-full text-primary-green hover:bg-[#f5f6fa]"
-        style={{ fontFamily: "Inter, Arial, Helvetica, sans-serif" }}
-        tabIndex={0}
-      >
-        <LogOut size={20} className="text-[#fe8e1c]" />
-        <span className="truncate">Log Out</span>
-      </button>
+      <LogoutButton />
     </aside>
   );
 }
