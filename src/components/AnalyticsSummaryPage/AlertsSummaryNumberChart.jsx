@@ -9,7 +9,7 @@ const AlertsSummaryNumberChart = () => {
     { date: "Fri, 31 Dec", trips: 11, over: 0, out: 0 },
   ];
   return (
-    <div className="min-h-57.5">
+    <div className="min-h-57.5 p-2">
       <div className="font-semibold text-base text-gray-600 mb-8">
         Last 7 Days Alerts, Summary
       </div>

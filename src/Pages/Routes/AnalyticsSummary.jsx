@@ -17,7 +17,7 @@ const Card = ({ children, className = "" }) => (
 const AnalyticsSummary = () => {
   return (
     <div className=" min-h-screen">
-      <h1 className="text-lg font-medium text-gray-700 mb-4">
+      <h1 className="text-lg font-semibold text-gray-700 mb-3">
         Analytics And Summary
       </h1>
 
