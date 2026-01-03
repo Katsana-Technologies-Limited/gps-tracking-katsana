@@ -40,6 +40,14 @@ const Login = () => {
       } else {
         toast.error(res.data?.error || "Auth error");
       }
+    } catch (error) {
+      const backendMsg =
+        error?.response?.data?.error ||
+        error?.response?.data?.message ||
+        error?.response?.data?.msg;
+      toast.error(
+        backendMsg || error?.message || "Login failed. Please try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -94,7 +102,7 @@ const Login = () => {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                      className="absolute cursor-pointer right-3 top-1/2 -translate-y-1/2 text-gray-500"
                     >
                       {showPassword ? "🙈" : "👁️"}
                     </button>
