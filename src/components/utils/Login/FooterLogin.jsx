@@ -2,7 +2,7 @@ import React from "react";
 
 const FooterLogin = () => {
   return (
-    <footer className="py-4 bg-[#eef6fb]">
+    <footer className="py-4">
       <div className="flex flex-col lg:flex-row items-center justify-between gap-4 text-sm text-gray-600">
         <div className="flex items-center gap-6">
           <img
@@ -32,7 +32,11 @@ const FooterLogin = () => {
         </div>
         <div>
           Don’t have a tracker yet?{" "}
-          <a href="/get-tracker" className="text-orange-500 font-semibold">
+          <a
+            href="https://www.katsana.com.bd"
+            target="_blank"
+            className="text-orange-500 font-semibold"
+          >
             Click here
           </a>
         </div>
