@@ -28,7 +28,7 @@ export default function TrackingLayout() {
 
   return (
     <div className="min-h-screen flex px-2 lg:px-5 bg-primary-gray mb-8">
-      <div className="hidden lg:block w-68 2xl:w-80" aria-hidden />
+      <div className="hidden lg:block w-68 lg:w-60 2xl:w-80" aria-hidden />
       <div className="hidden lg:block">
         <TrackingSidebar onClose={() => {}} />
       </div>
