@@ -73,8 +73,8 @@ export default function TrackingSidebar() {
 
   return (
     <aside
-      className="fixed left-0 top-0 h-[calc(100vh-32px)] w-64 bg-white rounded-2xl shadow-lg flex flex-col items-center py-8 pl-2 mt-4 mb-4 ml-4 z-30 font-['Inter','Arial','Helvetica',sans-serif']"
-      style={{ minWidth: 220, maxWidth: 260 }}
+      className="fixed left-0 top-0 h-[calc(100vh-32px)] w-80 lg:w-68 2xl:w-80 bg-white rounded-2xl shadow-lg flex flex-col items-center py-8 px-2 mt-4 mb-4 ml-4 z-30 font-['Inter','Arial','Helvetica',sans-serif']"
+      style={{ minWidth: 240, maxWidth: 340 }}
     >
       <div className="flex flex-col items-center mb-8 w-full">
         <img
@@ -95,9 +95,7 @@ export default function TrackingSidebar() {
           const isActive =
             pathname === to || (to === "/dashboard" && pathname === "/");
           if (subroutes) {
-            // Vehicles with subroutes
             const isExpanded = expanded[to];
-            // Highlight if any subroute is active
             const isSubActive = subroutes.some((sub) =>
               pathname.startsWith(sub.to)
             );
