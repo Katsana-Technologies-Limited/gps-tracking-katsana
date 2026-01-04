@@ -28,10 +28,10 @@ export default function VehiclecurrentLocation() {
           <button className="px-4 py-2 rounded-lg bg-linear-to-r from-orange-400 to-orange-500 text-white font-bold flex gap-2 items-center">
             <img
               src="/icons/vehicel/VirtualWatchmansvg.svg"
-              alt="export"
+              alt="Virtual Watchman image"
               className="w-4 h-4"
             />
-            Export
+            Virtual Watchman
           </button>
 
           {/* Traffic Toggle (NEW) */}
