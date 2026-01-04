@@ -5,6 +5,7 @@ import "leaflet/dist/leaflet.css";
 import { CiLink } from "react-icons/ci";
 import { IoMdPrint } from "react-icons/io";
 
+/* ---------------- FIX LEAFLET ICON ---------------- */
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
@@ -13,6 +14,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
 });
 
+/* ---------------- CAR ICON WITH WAVE ---------------- */
 const carIcon = new L.DivIcon({
   className: "",
   html: `
@@ -25,6 +27,7 @@ const carIcon = new L.DivIcon({
   iconAnchor: [20, 20],
 });
 
+/* ---------------- VEHICLES ---------------- */
 const vehicles = [
   {
     id: 1,
@@ -49,13 +52,14 @@ const vehicles = [
   },
 ];
 
-// eslint-disable-next-line no-unused-vars
+/* ---------------- MAP CONTROLS ---------------- */
 const MapActions = ({ setSatellite }) => {
   const map = useMap();
 
   return (
     <>
-      <div className="absolute bottom-6 right-3 flex flex-col gap-2">
+      {/* Zoom group */}
+      <div className="absolute bottom-6 right-3 z-[1000] flex flex-col gap-2">
         <button onClick={() => map.zoomIn()} className="map-btn">
           ＋
         </button>
@@ -69,7 +73,9 @@ const MapActions = ({ setSatellite }) => {
           →
         </button>
       </div>
-      <div className="absolute top-16 left-1/2 -translate-x-1/2 bg-white px-4 py-2 rounded-xl shadow flex items-center gap-2 text-sm font-medium">
+
+      {/* Wifi / focus */}
+      <div className="absolute top-16 left-1/2 -translate-x-1/2 z-[1000] bg-white px-4 py-2 rounded-xl shadow flex items-center gap-2 text-sm font-medium">
         <span className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse" />
         Online Vehicles: {vehicles.length}
       </div>
@@ -81,6 +87,7 @@ const VehiclesStatusMap = () => {
   const mapRef = useRef(null);
   const [satellite, setSatellite] = useState(false);
 
+  /* ---------- Fullscreen ---------- */
   const handleFullscreen = () => {
     const el = mapRef.current;
     if (!document.fullscreenElement) {
@@ -90,11 +97,13 @@ const VehiclesStatusMap = () => {
     }
   };
 
+  /* ---------- Share ---------- */
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
     alert("Map link copied");
   };
 
+  /* ---------- Print ---------- */
   const handlePrint = () => {
     window.print();
   };
@@ -102,9 +111,10 @@ const VehiclesStatusMap = () => {
   return (
     <div
       ref={mapRef}
-      className="relative w-full h-140 rounded-2xl overflow-hidden bg-white shadow-[0_8px_30px_rgba(0,0,0,0.06)] z-10"
+      className="relative w-full h-[560px] rounded-2xl overflow-hidden bg-white shadow-[0_8px_30px_rgba(0,0,0,0.06)]"
     >
-      <div className="absolute top-3 left-3 flex bg-white rounded-lg shadow overflow-hidden">
+      {/* Map / Satellite */}
+      <div className="absolute top-3 left-3 z-[1000] flex bg-white rounded-lg shadow overflow-hidden">
         <button
           onClick={() => setSatellite(false)}
           className={`px-4 py-1 text-sm ${
@@ -122,20 +132,24 @@ const VehiclesStatusMap = () => {
           Satellite
         </button>
       </div>
-      <div className="absolute top-3 right-3">
+
+      {/* Fullscreen */}
+      <div className="absolute top-3 right-3 z-[1000]">
         <button onClick={handleFullscreen} className="map-btn">
           ⛶
         </button>
       </div>
+
+      {/* Bottom left */}
       <div>
-        <div className="absolute bottom-6 left-3 flex flex-col gap-2">
+        <div className="absolute bottom-6 left-3 z-[1000]  flex flex-col gap-2">
           <div className="w-8 h-8 rounded-xl bg-[#95F0B3]" />
           <div className="w-8 h-8 rounded-xl bg-[#95D8F0]" />
           <div className="w-8 h-8 rounded-xl bg-[#F0C695]" />
           <div className="w-8 h-8 rounded-xl bg-[#F09D95]" />
           <div className="w-8 h-8 rounded-xl bg-[#787878]" />
         </div>
-        <div className="absolute bottom-6 left-15 flex gap-2 ">
+        <div className="absolute bottom-6 left-15 z-[1000] flex gap-2 ">
           <button onClick={handleShare} className="map-btn">
             <CiLink />
           </button>
@@ -144,6 +158,8 @@ const VehiclesStatusMap = () => {
           </button>
         </div>
       </div>
+
+      {/* MAP */}
       <MapContainer
         center={[23.685, 90.3563]}
         zoom={7}
@@ -162,7 +178,7 @@ const VehiclesStatusMap = () => {
         {vehicles.map((v) => (
           <Marker key={v.id} position={[v.lat, v.lng]} icon={carIcon}>
             <Popup>
-              <div className="w-65">
+              <div className="w-[260px]">
                 <div className="bg-yellow-400 px-3 py-2 rounded font-semibold flex justify-between">
                   {v.number}
                   <img src="/icons/vehicle.svg" className="w-6 h-6" />
@@ -177,6 +193,8 @@ const VehiclesStatusMap = () => {
           </Marker>
         ))}
       </MapContainer>
+
+      {/* STYLES */}
       <style>{`
         .map-btn{
           background:white;
@@ -193,6 +211,7 @@ const VehiclesStatusMap = () => {
           width:32px;
           height:32px;
           position:relative;
+          z-index:2;
         }
         .car-wave{
           position:absolute;
