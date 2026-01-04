@@ -31,7 +31,7 @@ const App = () => {
         >
           <Route index element={<AnalyticsSummary />} />
           <Route path="profile" element={<VtsProfile />} />
-          <Route path="vehicles" element={<Vehicles />} />
+          <Route path="vehicles/dashboard" element={<Vehicles />} />
           <Route path="reports" element={<Reports />} />
           <Route path="drive-mark" element={<DriveMark />} />
           <Route path="alert" element={<Alert />} />

@@ -20,24 +20,27 @@ const AnalyticsSummary = () => {
       <h1 className="text-lg font-semibold text-gray-700 mb-3">
         Analytics And Summary
       </h1>
+
       {/* Top cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-12 gap-4 mb-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-11 gap-5 mb-5">
         <Card className="col-span-4">
           <TraveledDistance />
         </Card>
         <Card className="col-span-4">
           <CounterVehicles />
         </Card>
-        <Card className="col-span-4">
+        <Card className="col-span-3 h-85">
           <VehiclesStatusOption />
         </Card>
       </div>
+
       {/* Map */}
       <Card className="mb-5 p-0 overflow-hidden">
         <VehiclesStatusMap />
       </Card>
+
       {/* Bottom cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <Card>
           <AlertsSummaryNumberChart />
         </Card>

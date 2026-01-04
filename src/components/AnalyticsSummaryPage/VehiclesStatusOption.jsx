@@ -19,6 +19,34 @@ const VEHICLES = [
     status: "Offline",
   },
   {
+    id: 2,
+    type: "truck",
+    number: "DHK 77881",
+    reg: "DHK TA 11-9988",
+    status: "Offline",
+  },
+  {
+    id: 2,
+    type: "truck",
+    number: "DHK 77881",
+    reg: "DHK TA 11-9988",
+    status: "Offline",
+  },
+  {
+    id: 2,
+    type: "truck",
+    number: "DHK 77881",
+    reg: "DHK TA 11-9988",
+    status: "Offline",
+  },
+  {
+    id: 2,
+    type: "truck",
+    number: "DHK 77881",
+    reg: "DHK TA 11-9988",
+    status: "Offline",
+  },
+  {
     id: 3,
     type: "car",
     number: "CTG 33210",
@@ -42,7 +70,7 @@ const statusStyle = {
   },
 };
 
-const VehiclesStatusOption = () => {
+const VehiclesStatusOption = ({ divhight = 80 }) => {
   const [activeTab, setActiveTab] = useState("All");
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState([]);
@@ -78,7 +106,7 @@ const VehiclesStatusOption = () => {
   };
 
   return (
-    <div className="h-full max-h-80 flex flex-col gap-3 p-2">
+    <div className={`h-full max-h-[${divhight}px] flex flex-col gap-3 p-2 `}>
       <div className="flex gap-2">
         {TABS.map((tab) => (
           <button
@@ -130,7 +158,7 @@ const VehiclesStatusOption = () => {
         <span>Total Vehicles: {selected.length}</span>
       </div>
       <div className="text-xs text-gray-500">Group</div>
-      <div className="flex flex-col gap-2 max-h-50 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+      <div className="flex flex-col gap-2 max-h-[500px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
         {filteredVehicles.map((v) => {
           const isSelected = selected.includes(v.id);
           const style = statusStyle[v.status];
