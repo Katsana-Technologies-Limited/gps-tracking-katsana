@@ -28,7 +28,7 @@ export default function TrackingLayout() {
 
   return (
     <div className="min-h-screen flex px-2 lg:px-5 bg-primary-gray mb-8">
-      <div className="hidden lg:block w-68 lg:w-60 2xl:w-80" aria-hidden />
+      <div className="hidden lg:block w-68 2xl:w-80" aria-hidden />
       <div className="hidden lg:block">
         <TrackingSidebar onClose={() => {}} />
       </div>
@@ -54,7 +54,7 @@ export default function TrackingLayout() {
       <main className="flex-1 min-w-0 px-0 lg:px-3">
         <div className="sticky top-0 h-2 lg:h-3 w-full z-20 bg-primary-gray" />
         <TrackingTopBar onMenuClick={() => setIsMobileMenuOpen(true)} />
-        <div className="2xl:px-3 py-1 min-h-screen">
+        <div className="px-1 2xl:px-3 py-1 min-h-screen">
           <Outlet />
         </div>
       </main>
