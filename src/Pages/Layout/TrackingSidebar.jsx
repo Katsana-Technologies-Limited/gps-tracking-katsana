@@ -163,7 +163,7 @@ export default function TrackingSidebar() {
   const [expanded, setExpanded] = useState({});
   const navRef = useRef(null);
 
-  // Expand Vehicles if a subroute is active
+  // Only one expanded at a time
   useEffect(() => {
     sidebarLinks.forEach((link) => {
       if (link.subroutes) {
@@ -171,14 +171,17 @@ export default function TrackingSidebar() {
           link.subroutes.some((sub) => pathname.startsWith(sub.to)) ||
           pathname === link.to
         ) {
-          setExpanded((prev) => ({ ...prev, [link.to]: true }));
+          setExpanded({ [link.to]: true });
         }
       }
     });
   }, [pathname]);
 
   const handleExpand = (to) => {
-    setExpanded((prev) => ({ ...prev, [to]: !prev[to] }));
+    setExpanded((prev) => {
+      if (prev[to]) return {};
+      return { [to]: true };
+    });
   };
 
   return (
