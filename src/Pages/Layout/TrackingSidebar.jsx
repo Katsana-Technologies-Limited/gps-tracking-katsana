@@ -73,7 +73,7 @@ export default function TrackingSidebar() {
 
   return (
     <aside
-      className="fixed lg:left-4 top-0 bottom-0 h-auto w-68 lg:w-60 2xl:w-80 bg-white rounded-2xl flex flex-col items-center py-8 pl-2 mt-4 mb-4 z-30 font-['Inter','Arial','Helvetica',sans-serif']"
+      className="fixed lg:left-4 top-0 bottom-0 h-auto w-68 lg:w-60 2xl:w-80 bg-white rounded-2xl flex flex-col items-center py-8 pl-2 mr-2 mt-4 mb-4 z-30 font-['Inter','Arial','Helvetica',sans-serif']"
       style={{ minWidth: 240, maxWidth: 340 }}
     >
       <div className="flex flex-col items-center mb-8 w-full">
