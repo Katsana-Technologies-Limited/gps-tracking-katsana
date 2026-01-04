@@ -103,7 +103,7 @@ export default function TrackingSidebar() {
               <div key={to} className="w-full">
                 <button
                   type="button"
-                  className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition font-medium text-[15px] w-full ${
+                  className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition font-medium text-[15px] w-full cursor-pointer ${
                     isSubActive || isExpanded
                       ? "bg-[#fff7e6] text-[#222] shadow-sm"
                       : "text-primary-green hover:bg-[#f5f6fa]"
@@ -134,18 +134,25 @@ export default function TrackingSidebar() {
                     opacity: isExpanded ? 1 : 0,
                   }}
                 >
-                  <ul className="pl-8 py-2 flex flex-col gap-1">
+                  <ul className="pl-10 py-2 flex flex-col gap-1">
                     {subroutes.map((sub) => {
                       const isSubRouteActive = pathname.startsWith(sub.to);
                       return (
-                        <li key={sub.to}>
+                        <li key={sub.to} className="flex items-center">
+                          <span
+                            className="text-[#fe8e1c] text-lg mr-2"
+                            style={{ lineHeight: "1" }}
+                          >
+                            &#8226;
+                          </span>
                           <Link
                             to={sub.to}
-                            className={`block px-2 py-1.5 rounded-md text-[15px] transition font-medium ${
+                            className={`block px-0 py-1.5 rounded-md text-[15px] transition font-medium ${
                               isSubRouteActive
                                 ? "text-[#fe8e1c] font-bold bg-transparent"
                                 : "text-gray-700 hover:text-[#fe8e1c]"
                             }`}
+                            style={{ minWidth: 0 }}
                           >
                             {sub.label}
                           </Link>
