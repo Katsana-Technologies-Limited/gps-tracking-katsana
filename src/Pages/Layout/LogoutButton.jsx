@@ -15,7 +15,7 @@ export default function LogoutButton() {
   return (
     <button
       onClick={handleLogout}
-      className="flex items-center gap-3 cursor-pointer px-4 py-2.5 rounded-lg transition font-medium text-[15px] w-full text-primary-green hover:bg-[#f5f6fa]"
+      className="flex mt-1 items-center gap-3 cursor-pointer px-4 py-2.5 rounded-lg transition font-medium text-[15px] w-full text-primary-green hover:bg-[#f5f6fa]"
       style={{ fontFamily: "Inter, Arial, Helvetica, sans-serif" }}
       tabIndex={0}
     >

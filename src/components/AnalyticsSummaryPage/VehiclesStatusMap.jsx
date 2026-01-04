@@ -102,7 +102,7 @@ const VehiclesStatusMap = () => {
   return (
     <div
       ref={mapRef}
-      className="relative w-full h-140 rounded-2xl overflow-hidden bg-white shadow-[0_8px_30px_rgba(0,0,0,0.06)]"
+      className="relative w-full h-140 rounded-2xl overflow-hidden bg-white shadow-[0_8px_30px_rgba(0,0,0,0.06)] z-10"
     >
       <div className="absolute top-3 left-3 flex bg-white rounded-lg shadow overflow-hidden">
         <button
@@ -193,7 +193,6 @@ const VehiclesStatusMap = () => {
           width:32px;
           height:32px;
           position:relative;
-          z-index:2;
         }
         .car-wave{
           position:absolute;
