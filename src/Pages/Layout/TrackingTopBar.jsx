@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { useState, useRef, useEffect } from "react";
-import { Archive, CarFront, Headset } from "lucide-react";
+import { Archive, CarFront, Headset, Menu } from "lucide-react";
 
 const IconBell = () => (
   <svg
@@ -34,7 +34,7 @@ const IconSearch = () => (
   </svg>
 );
 
-const TrackingTopBar = () => {
+const TrackingTopBar = ({ onMenuClick }) => {
   const [showActions, setShowActions] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const actionsRef = useRef(null);
@@ -62,17 +62,28 @@ const TrackingTopBar = () => {
   }, [showSearch]);
 
   return (
-    <div className="bg-white rounded-2xl px-4 shadow-[0_2px_8px_0_rgba(16,30,54,0.08)] py-2 mb-4 w-2/3 ml-auto flex items-center">
-      <button className="flex cursor-pointer items-center gap-2 text-gray-600 border border-gray-200 py-1.5 px-3 rounded-lg bg-white transition text-sm font-medium mr-3">
-        <CarFront size={19} className="text-orange-500" />
-        Assign Vehicle
-      </button>
-      <button className="flex cursor-pointer items-center gap-2 text-gray-600 border border-gray-200 py-1.5 px-3 rounded-lg bg-white transition text-sm font-medium mr-2">
-        <Archive size={19} className="text-orange-500" />
-        My Favorites
-      </button>
+    <div className="bg-white rounded-2xl px-2 sm:px-4 shadow-[0_2px_8px_0_rgba(16,30,54,0.08)] py-2 mb-4 w-full lg:w-2/3 ml-auto flex items-center justify-between">
+      <div className="flex items-center">
+        <button
+          className="lg:hidden mr-2 p-2 rounded-md hover:bg-orange-50 text-orange-500 focus:outline-none"
+          onClick={onMenuClick}
+          aria-label="Open sidebar menu"
+        >
+          <Menu size={26} />
+        </button>
+        <div className="hidden md:flex items-center gap-2">
+          <button className="flex cursor-pointer items-center gap-2 text-gray-600 border border-gray-200 py-1.5 px-3 rounded-lg bg-white transition text-sm font-medium mr-2">
+            <CarFront size={19} className="text-orange-500" />
+            Assign Vehicle
+          </button>
+          <button className="flex cursor-pointer items-center gap-2 text-gray-600 border border-gray-200 py-1.5 px-3 rounded-lg bg-white transition text-sm font-medium">
+            <Archive size={19} className="text-orange-500" />
+            My Favorites
+          </button>
+        </div>
+      </div>
       <div className="flex-1 flex items-center mx-2">
-        <div className="relative w-full max-w-xs">
+        <div className="relative w-full max-w-xs hidden sm:block">
           <input
             type="search"
             placeholder="Search Here"
@@ -83,21 +94,20 @@ const TrackingTopBar = () => {
           </span>
         </div>
       </div>
-      <div className="border-l border-slate-200 h-6 mx-4" />
-      <button className="rounded-full cursor-pointer hover:bg-orange-50 text-orange-500 p-1.5 transition">
-        <IconBell />
-      </button>
-      <div className="border-l border-slate-200 h-6 mx-4" />
-      <button className="rounded-full cursor-pointer hover:bg-orange-50 text-orange-500 p-1.5 transition">
-        <Headset />
-      </button>
-      <div className="border-l border-slate-200 h-6 mx-4" />
-      <div className="ml-2">
-        <img
-          src="https://randomuser.me/api/portraits/men/32.jpg"
-          alt="User Avatar"
-          className="w-8 h-8 cursor-pointer rounded-full border border-slate-200 shadow-sm"
-        />
+      <div className="flex items-center gap-2 ml-auto">
+        <button className="rounded-full cursor-pointer hover:bg-orange-50 text-orange-500 p-1.5 transition">
+          <IconBell />
+        </button>
+        <button className="rounded-full cursor-pointer hover:bg-orange-50 text-orange-500 p-1.5 transition">
+          <Headset />
+        </button>
+        <div className="ml-1">
+          <img
+            src="https://randomuser.me/api/portraits/men/32.jpg"
+            alt="User Avatar"
+            className="w-8 h-8 cursor-pointer rounded-full border border-slate-200 shadow-sm"
+          />
+        </div>
       </div>
     </div>
   );

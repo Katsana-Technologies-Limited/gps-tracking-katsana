@@ -43,7 +43,7 @@ export default function TrackingLayout() {
             <div className="absolute inset-0 bg-white/10 backdrop-blur-xs" />
           </div>
           <div
-            className={`fixed top-0 left-0 h-full w-80 bg-white z-50 lg:hidden shadow-xl transform transition-transform duration-300 ease-in-out ${
+            className={`fixed top-0 left-0 h-full w-60 bg-white z-50 lg:hidden shadow-xl transform transition-transform duration-300 ease-in-out ${
               isAnimating ? "translate-x-0" : "-translate-x-full"
             }`}
           >
