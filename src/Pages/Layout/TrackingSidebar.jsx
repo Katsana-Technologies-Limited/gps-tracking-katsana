@@ -11,12 +11,31 @@ import {
   CreditCard,
   Users,
   Bot,
+  ChevronRight,
+  ChevronDown,
 } from "lucide-react";
 import LogoutButton from "./LogoutButton";
 
 const sidebarLinks = [
   { to: "/dashboard", label: "Analytics & Summary", icon: BarChart2 },
-  { to: "/dashboard/vehicles", label: "Vehicles", icon: Car },
+  {
+    to: "/dashboard/vehicles",
+    label: "Vehicles",
+    icon: Car,
+    subroutes: [
+      { to: "/dashboard/vehicles/dashboard", label: "Dashboard" },
+      { to: "/dashboard/vehicles/current-location", label: "Current Location" },
+      { to: "/dashboard/vehicles/vehicle-route", label: "Vehicle Route" },
+      { to: "/dashboard/vehicles/vehicle-alerts", label: "Vehicle Alerts" },
+      { to: "/dashboard/vehicles/find-help", label: "Find Help" },
+      {
+        to: "/dashboard/vehicles/location-share-list",
+        label: "Location Share List",
+      },
+      { to: "/dashboard/vehicles/route-share-list", label: "Route Share List" },
+      { to: "/dashboard/vehicles/geo-fence", label: "Geo Fence" },
+    ],
+  },
   { to: "/dashboard/reports", label: "Reports", icon: FileText },
   { to: "/dashboard/drive-mark", label: "Drive Mark", icon: MapPin },
   { to: "/dashboard/alert", label: "Alert", icon: AlertTriangle },
@@ -27,12 +46,35 @@ const sidebarLinks = [
   { to: "/dashboard/ai-assistant", label: "AI Assistant", icon: Bot },
 ];
 
+import React, { useState, useRef, useEffect } from "react";
+
 export default function TrackingSidebar() {
   const { pathname } = useLocation();
+  const [expanded, setExpanded] = useState({});
+  const navRef = useRef(null);
+
+  // Expand Vehicles if a subroute is active
+  useEffect(() => {
+    sidebarLinks.forEach((link) => {
+      if (link.subroutes) {
+        if (
+          link.subroutes.some((sub) => pathname.startsWith(sub.to)) ||
+          pathname === link.to
+        ) {
+          setExpanded((prev) => ({ ...prev, [link.to]: true }));
+        }
+      }
+    });
+  }, [pathname]);
+
+  const handleExpand = (to) => {
+    setExpanded((prev) => ({ ...prev, [to]: !prev[to] }));
+  };
+
   return (
     <aside
-      className="fixed left-0 top-0 h-[calc(100vh-32px)] w-64 bg-white rounded-2xl shadow-lg flex flex-col items-center py-8 px-2 mt-4 mb-4 ml-4 z-30 font-['Inter','Arial','Helvetica',sans-serif']"
-      style={{ minWidth: 220, maxWidth: 260 }}
+      className="fixed lg:left-4 top-0 bottom-0 h-auto w-68 lg:w-60 2xl:w-80 bg-white rounded-2xl flex flex-col items-center py-8 pl-2 mt-4 mb-4 z-30 font-['Inter','Arial','Helvetica',sans-serif']"
+      style={{ minWidth: 240, maxWidth: 340 }}
     >
       <div className="flex flex-col items-center mb-8 w-full">
         <img
@@ -44,10 +86,85 @@ export default function TrackingSidebar() {
           Nidal Nabi Chowdhury
         </div>
       </div>
-      <nav className="flex flex-col gap-1 w-full">
-        {sidebarLinks.map(({ to, label, icon: Icon }) => {
+      <nav
+        className="flex flex-col gap-1 w-full overflow-y-auto scrollbar-thin pr-1"
+        style={{ maxHeight: "calc(100vh - 220px)", scrollbarGutter: "stable" }}
+        ref={navRef}
+      >
+        {sidebarLinks.map(({ to, label, icon: Icon, subroutes }) => {
           const isActive =
             pathname === to || (to === "/dashboard" && pathname === "/");
+          if (subroutes) {
+            const isExpanded = expanded[to];
+            const isSubActive = subroutes.some((sub) =>
+              pathname.startsWith(sub.to)
+            );
+            return (
+              <div key={to} className="w-full">
+                <button
+                  type="button"
+                  className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition font-medium text-[15px] w-full cursor-pointer ${
+                    isSubActive || isExpanded
+                      ? "bg-[#fff7e6] text-[#222] shadow-sm"
+                      : "text-primary-green hover:bg-[#f5f6fa]"
+                  }`}
+                  style={{ fontFamily: "Inter, Arial, Helvetica, sans-serif" }}
+                  onClick={() => handleExpand(to)}
+                  aria-expanded={isExpanded}
+                >
+                  <Icon
+                    size={20}
+                    className={
+                      isSubActive ? "text-[#fe8e1c]" : "text-[#fe8e1c]"
+                    }
+                  />
+                  <span className="truncate font-semibold">{label}</span>
+                  <span className="ml-auto">
+                    {isExpanded ? (
+                      <ChevronDown size={18} />
+                    ) : (
+                      <ChevronRight size={18} />
+                    )}
+                  </span>
+                </button>
+                <div
+                  className="overflow-hidden transition-all duration-300"
+                  style={{
+                    maxHeight: isExpanded ? subroutes.length * 38 + 16 : 0,
+                    opacity: isExpanded ? 1 : 0,
+                  }}
+                >
+                  <ul className="pl-10 py-2 flex flex-col gap-1">
+                    {subroutes.map((sub) => {
+                      const isSubRouteActive = pathname.startsWith(sub.to);
+                      return (
+                        <li key={sub.to} className="flex items-center">
+                          <span
+                            className="text-[#fe8e1c] text-lg mr-2"
+                            style={{ lineHeight: "1" }}
+                          >
+                            &#8226;
+                          </span>
+                          <Link
+                            to={sub.to}
+                            className={`block px-0 py-1.5 rounded-md text-[15px] transition font-medium ${
+                              isSubRouteActive
+                                ? "text-[#fe8e1c] font-bold bg-transparent"
+                                : "text-gray-700 hover:text-[#fe8e1c]"
+                            }`}
+                            style={{ minWidth: 0 }}
+                          >
+                            {sub.label}
+                          </Link>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              </div>
+            );
+          }
+          // Normal sidebar link
           return (
             <Link
               key={to}
