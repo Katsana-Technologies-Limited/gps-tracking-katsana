@@ -1,59 +1,8 @@
 import React, { useMemo, useState } from "react";
 import { Check, Search } from "lucide-react";
+import useDataQuery from "../../hooks/useDataQuery";
 
 const TABS = ["All", "Offline", "Online", "Suspended"];
-
-const VEHICLES = [
-  {
-    id: 1,
-    type: "car",
-    number: "TMV 42555",
-    reg: "DM GA 45-8256",
-    status: "Online",
-  },
-  {
-    id: 2,
-    type: "truck",
-    number: "DHK 77881",
-    reg: "DHK TA 11-9988",
-    status: "Offline",
-  },
-  {
-    id: 2,
-    type: "truck",
-    number: "DHK 77881",
-    reg: "DHK TA 11-9988",
-    status: "Offline",
-  },
-  {
-    id: 2,
-    type: "truck",
-    number: "DHK 77881",
-    reg: "DHK TA 11-9988",
-    status: "Offline",
-  },
-  {
-    id: 2,
-    type: "truck",
-    number: "DHK 77881",
-    reg: "DHK TA 11-9988",
-    status: "Offline",
-  },
-  {
-    id: 2,
-    type: "truck",
-    number: "DHK 77881",
-    reg: "DHK TA 11-9988",
-    status: "Offline",
-  },
-  {
-    id: 3,
-    type: "car",
-    number: "CTG 33210",
-    reg: "CTG BA 77-1023",
-    status: "Suspended",
-  },
-];
 
 const statusStyle = {
   Online: {
@@ -75,6 +24,21 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState([]);
 
+  // Fetch vehicle data from backend
+  const { data: vehiclesData, isLoading } = useDataQuery(
+    ["customer-vehicles"],
+    "/api/vts/customer/subscriptions"
+  );
+  
+  // Map backend data to expected format for UI
+  const VEHICLES = (vehiclesData || []).map((v) => ({
+    id: v.id,
+    number: v.vehicle_name || "-",
+    reg: v.subscription_number || "-",
+    status: "Online", // Default, update if you have status info
+    imei: v.imei,
+  }));
+
   const filteredVehicles = useMemo(() => {
     let list =
       activeTab === "All"
@@ -89,7 +53,7 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
       );
     }
     return list;
-  }, [activeTab, query]);
+  }, [activeTab, query, VEHICLES]);
 
   const toggleVehicle = (id) => {
     setSelected((prev) =>
@@ -105,8 +69,14 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="p-4 text-center text-gray-500">Loading vehicles...</div>
+    );
+  }
+
   return (
-    <div className={`h-full max-h-[${divhight}px] flex flex-col gap-3 p-2 `}>
+    <div className={`h-full max-h-[${divhight}px] flex flex-col gap-3 p-2`}>
       <div className="flex gap-2">
         {TABS.map((tab) => (
           <button
