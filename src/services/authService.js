@@ -1,17 +1,12 @@
 import { useAxios } from "../hooks/useAxios";
 
-export const useVtsAuthService = () => {
+export const useVtsAuth = () => {
   const axiosUrl = useAxios();
   const login = async (data) => {
     const res = await axiosUrl.post("/api/vts/auth/login", data);
     return res.data;
   };
 
-  return { login };
-};
-
-export const useCheckVtsAuth = () => {
-  const axiosUrl = useAxios();
   const checkVtsAuth = async () => {
     try {
       const res = await axiosUrl.get("/api/vts/verify-auth", {
@@ -22,5 +17,6 @@ export const useCheckVtsAuth = () => {
       return false;
     }
   };
-  return { checkVtsAuth };
+
+  return { login, checkVtsAuth };
 };

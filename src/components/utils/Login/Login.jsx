@@ -2,15 +2,11 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  useVtsAuthService,
-  useCheckVtsAuth,
-} from "../../../services/authService";
+import { useVtsAuth } from "../../../services/authService";
 import FooterLogin from "./FooterLogin";
 
 const Login = () => {
-  const { login } = useVtsAuthService();
-  const { checkVtsAuth } = useCheckVtsAuth();
+  const { login, checkVtsAuth } = useVtsAuth();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
