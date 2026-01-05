@@ -52,7 +52,7 @@ const BackupLogin = () => {
     <div className="min-h-screen bg-linear-to-br from-[#0f2027] to-[#2c5364] flex items-center justify-center font-sans">
       <div className="bg-white/95 rounded-2xl shadow-2xl px-8 py-4 max-w-md flex flex-col items-center lg:max-w-sm lg:px-7 lg:py-5 xl:max-w-md">
         <img
-          src="/katsana-logo.png"
+          src="/logo.png"
           alt="Location Tracking Logo"
           className="w-48 h-20 mb-2 object-contain lg:w-44 lg:h-18 xl:w-40 xl:h-16 2xl:w-40 2xl:h-16"
         />
