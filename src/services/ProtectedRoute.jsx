@@ -5,7 +5,7 @@ import GlobalLoading from "../components/utils/GlobalLoading";
 const ProtectedRoute = ({ children }) => {
   const { data, isLoading, error } = useDataQuery(
     ["verifyAuthVts"],
-    "/api/vts/auth/verify",
+    "/api/vts/verify-auth",
     true
   );
 

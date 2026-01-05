@@ -1,12 +1,16 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Link, useNavigate } from "react-router-dom";
-import { useAxios } from "../../../hooks/useAxios";
+import {
+  useVtsAuthService,
+  useCheckVtsAuth,
+} from "../../../services/authService";
 import FooterLogin from "./FooterLogin";
 
 const Login = () => {
-  const axiosUrl = useAxios();
+  const { login } = useVtsAuthService();
+  const { checkVtsAuth } = useCheckVtsAuth();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -18,6 +22,15 @@ const Login = () => {
     defaultValues: { username: "", password: "", remember: false },
   });
 
+  useEffect(() => {
+    (async () => {
+      const isAuthenticated = await checkVtsAuth();
+      if (isAuthenticated) {
+        navigate("/dashboard");
+      }
+    })();
+  }, [checkVtsAuth, navigate]);
+
   const onSubmit = async (data) => {
     setLoading(true);
     try {
@@ -27,9 +40,9 @@ const Login = () => {
         password: data.password,
         remember: data.remember,
       };
-      const res = await axiosUrl.post("/api/vts/auth/login", payload);
-      if (res.data && res.data.loginStatus) {
-        const { id, email, company } = res.data.vtsInfo || {};
+      const res = await login(payload);
+      if (res && res.loginStatus) {
+        const { id, email, company } = res.vtsInfo || {};
         const vtsAuth = { id, email, company };
         try {
           window.localStorage.setItem("vts_auth", JSON.stringify(vtsAuth));
@@ -39,7 +52,7 @@ const Login = () => {
         toast.success("Login successful!");
         navigate("/dashboard");
       } else {
-        toast.error(res.data?.error || "Auth error");
+        toast.error(res?.error || "Auth error");
       }
     } catch (error) {
       const backendMsg =
