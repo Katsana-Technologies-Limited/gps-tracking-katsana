@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { Check, Search } from "lucide-react";
 import useDataQuery from "../../hooks/useDataQuery";
+import GlobalLoading from "../utils/GlobalLoading";
 
 const TABS = ["All", "Offline", "Online", "Suspended"];
 
@@ -27,9 +28,9 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
   // Fetch vehicle data from backend
   const { data: vehiclesData, isLoading } = useDataQuery(
     ["customer-vehicles"],
-    "/api/vts/customer/subscriptions"
+    "/api/vts/customersubscriptionget"
   );
-  
+
   // Map backend data to expected format for UI
   const VEHICLES = (vehiclesData || []).map((v) => ({
     id: v.id,
@@ -70,9 +71,7 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
   };
 
   if (isLoading) {
-    return (
-      <div className="p-4 text-center text-gray-500">Loading vehicles...</div>
-    );
+    return <GlobalLoading message="Loading vehicles..." />;
   }
 
   return (

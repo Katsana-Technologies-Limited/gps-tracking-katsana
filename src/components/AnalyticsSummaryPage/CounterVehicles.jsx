@@ -1,12 +1,24 @@
-import React from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import useDataQuery from "../../hooks/useDataQuery";
+import GlobalLoading from "../utils/GlobalLoading";
 
 const CounterVehicles = () => {
+  const { data: vehiclesData, isLoading } = useDataQuery(
+    ["customer-vehicles"],
+    "/api/vts/customersubscriptionget"
+  );
+
+  // For now, all vehicles are "Online" (no status info from API)
+  const total = vehiclesData ? vehiclesData.length : 0;
   const vehiclesPie = [
-    { name: "Online", value: 90, color: "#1ED760" },
-    { name: "Suspended", value: 11, color: "#FF4D4F" },
-    { name: "Offline", value: 30, color: "#B0BEC5" },
+    { name: "Online", value: total, color: "#1ED760" },
+    { name: "Suspended", value: 0, color: "#FF4D4F" },
+    { name: "Offline", value: 0, color: "#B0BEC5" },
   ];
+
+  if (isLoading) {
+    return <GlobalLoading message="Loading vehicles..." />;
+  }
 
   return (
     <div className="relative min-h-65 flex flex-col items-center justify-between p-2">
@@ -15,9 +27,9 @@ const CounterVehicles = () => {
           Total Number of Vehicles
         </h2>
         <div className="bg-orange-50 text-xs px-2 py-1 rounded-lg flex flex-col justify-center items-center">
-          <span className="text-2xl text-orange-500   font-bold">1</span>
+          <span className="text-2xl text-orange-500   font-bold">{total}</span>
           <span className="text-[11px] text-gray-600  font-semibold">
-            Vehicle
+            Vehicle{total !== 1 ? "s" : ""}
           </span>
         </div>
       </div>
