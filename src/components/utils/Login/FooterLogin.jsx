@@ -1,5 +1,3 @@
-import React from "react";
-
 const FooterLogin = () => {
   return (
     <footer className="py-4">

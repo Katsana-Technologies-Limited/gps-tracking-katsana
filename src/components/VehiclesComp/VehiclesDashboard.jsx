@@ -217,7 +217,7 @@ export default function VehiclesDashboard() {
         <div className="xl:col-span-5">
           {/* 📋 TABLE */}
           <div className=" bg-white rounded-xl shadow-sm relative overflow-x-auto">
-            <table className="min-w-[900px] w-full text-sm">
+            <table className="min-w-225 w-full text-sm">
               <thead className="bg-orange-50 text-gray-600">
                 <tr>
                   <th className="p-3 text-left">Customer</th>

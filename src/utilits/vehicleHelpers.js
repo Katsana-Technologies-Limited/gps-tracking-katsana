@@ -1,6 +1,4 @@
-// utilits/vehicleHelpers.js
-
-export const mockReverseGeocode = async (lat, lng) => {
+export const mockReverseGeocode = async () => {
   return "Bashundhara City Shopping Complex (0.17km)";
 };
 
