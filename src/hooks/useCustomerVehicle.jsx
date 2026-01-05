@@ -3,7 +3,7 @@ import useDataQuery from "./useDataQuery";
 const useCustomerVehicle = () => {
   return useDataQuery(
     ["customer-vehicles"],
-    "/api/vts/customersubscriptionget"
+    "/api/vts/customer/subscriptions"
   );
 };
 
