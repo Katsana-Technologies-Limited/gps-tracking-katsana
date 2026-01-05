@@ -1,14 +1,10 @@
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
-import useDataQuery from "../../hooks/useDataQuery";
+import useCustomerVehicle from "../../hooks/useCustomerVehicle";
 import GlobalLoading from "../utils/GlobalLoading";
 
 const CounterVehicles = () => {
-  const { data: vehiclesData, isLoading } = useDataQuery(
-    ["customer-vehicles"],
-    "/api/vts/customersubscriptionget"
-  );
+  const { data: vehiclesData, isLoading } = useCustomerVehicle();
 
-  // For now, all vehicles are "Online" (no status info from API)
   const total = vehiclesData ? vehiclesData.length : 0;
   const vehiclesPie = [
     { name: "Online", value: total, color: "#1ED760" },

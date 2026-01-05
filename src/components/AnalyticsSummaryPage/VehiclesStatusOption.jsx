@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { Check, Search } from "lucide-react";
-import useDataQuery from "../../hooks/useDataQuery";
 import GlobalLoading from "../utils/GlobalLoading";
+import useCustomerVehicle from "../../hooks/useCustomerVehicle";
 
 const TABS = ["All", "Offline", "Online", "Suspended"];
 
@@ -24,19 +24,13 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
   const [activeTab, setActiveTab] = useState("All");
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState([]);
+  const { data: vehiclesData, isLoading } = useCustomerVehicle();
 
-  // Fetch vehicle data from backend
-  const { data: vehiclesData, isLoading } = useDataQuery(
-    ["customer-vehicles"],
-    "/api/vts/customersubscriptionget"
-  );
-
-  // Map backend data to expected format for UI
   const VEHICLES = (vehiclesData || []).map((v) => ({
     id: v.id,
     number: v.vehicle_name || "-",
     reg: v.subscription_number || "-",
-    status: "Online", // Default, update if you have status info
+    status: "Online",
     imei: v.imei,
   }));
 
