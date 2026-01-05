@@ -158,7 +158,7 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
         <span>Total Vehicles: {selected.length}</span>
       </div>
       <div className="text-xs text-gray-500">Group</div>
-      <div className="flex flex-col gap-2 max-h-[500px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+      <div className="flex flex-col gap-2 max-h-125 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
         {filteredVehicles.map((v) => {
           const isSelected = selected.includes(v.id);
           const style = statusStyle[v.status];

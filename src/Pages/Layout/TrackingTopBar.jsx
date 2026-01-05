@@ -62,7 +62,7 @@ const TrackingTopBar = ({ onMenuClick }) => {
   }, [showSearch]);
 
   return (
-    <div className="bg-white rounded-2xl px-2 sm:px-4 shadow-[0_2px_8px_0_rgba(16,30,54,0.08)] py-2 mb-4 w-full lg:w-2/3 ml-auto flex items-center justify-between">
+    <div className="bg-white rounded-xl px-2 sm:px-4 shadow-[0_2px_8px_0_rgba(16,30,54,0.08)] py-1.5 mb-4 w-full lg:w-2/3 ml-auto flex items-center justify-between">
       <div className="flex items-center">
         <button
           className="lg:hidden mr-2 p-2 rounded-md hover:bg-orange-50 text-orange-500 focus:outline-none"

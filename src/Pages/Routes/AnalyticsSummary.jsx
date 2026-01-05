@@ -22,14 +22,14 @@ const AnalyticsSummary = () => {
       </h1>
 
       {/* Top cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-11 gap-5 mb-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 2xl:grid-cols-11 gap-5 mb-5">
         <Card className="col-span-4">
           <TraveledDistance />
         </Card>
         <Card className="col-span-4">
           <CounterVehicles />
         </Card>
-        <Card className="col-span-3 h-85">
+        <Card className="col-span-4 2xl:col-span-3 h-85">
           <VehiclesStatusOption />
         </Card>
       </div>
