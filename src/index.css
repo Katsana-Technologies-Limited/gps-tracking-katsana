@@ -33,3 +33,11 @@ body {
   background: #fff7e6;
   border-radius: 4px;
 }
+
+/* map style  */
+
+.maplibregl-ctrl-bottom-right,
+.maplibregl-ctrl-bottom-left,
+.maplibregl-ctrl-top-right {
+  display: none;
+}

@@ -26,8 +26,9 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
   const [selected, setSelected] = useState([]);
   const { data: vehiclesData, isLoading } = useCustomerVehicle();
 
+  console.log(vehiclesData);
   const VEHICLES = (vehiclesData || []).map((v) => ({
-    id: v.id,
+    id: v.id || 1,
     number: v.vehicle_name || "-",
     reg: v.subscription_number || "-",
     status: "Online",
