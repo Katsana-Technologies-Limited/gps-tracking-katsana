@@ -27,11 +27,23 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
   const { data: vehiclesData, isLoading } = useCustomerVehicle();
 
   console.log(vehiclesData);
-  const VEHICLES = (vehiclesData || []).map((v) => ({
-    id: v.id || 1,
+  // const VEHICLES = (vehiclesData || []).map((v) => ({
+  //   id: v.id || 1,
+  //   number: v.vehicle_name || "-",
+  //   reg: v.subscription_number || "-",
+  //   status: "Online",
+  //   imei: v.imei,
+  // }));
+
+  const rawVehicles = Array.isArray(vehiclesData)
+    ? vehiclesData
+    : vehiclesData?.data || vehiclesData?.vehicles || [];
+
+  const VEHICLES = rawVehicles.map((v, index) => ({
+    id: v.id ?? index + 1,
     number: v.vehicle_name || "-",
     reg: v.subscription_number || "-",
-    status: "Online",
+    status: v.status || "Online",
     imei: v.imei,
   }));
 
