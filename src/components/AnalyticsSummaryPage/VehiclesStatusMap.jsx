@@ -1,7 +1,52 @@
-import { useEffect, useRef, useState } from "react";
+import axios from "axios";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { Share2, Printer, Scan } from "lucide-react";
 import jsPDF from "jspdf";
 import useCustomerVehicle from "../../hooks/useCustomerVehicle";
+import useVtsDevices from "../../hooks/useVtsDevices";
+
+const BARIKOI_KEY = import.meta.env.VITE_BARIKOI_API_KEY;
+function useBarikoiAddresses(vehicleCoords) {
+  const [addresses, setAddresses] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const fetchAddresses = useCallback(async () => {
+    if (!BARIKOI_KEY) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const results = await Promise.all(
+        Object.entries(vehicleCoords).map(async ([imei, { lat, lng }]) => {
+          if (!lat || !lng) return [imei, null];
+          try {
+            const res = await axios.get(
+              `https://barikoi.xyz/v1/api/search/reverse/geocode/${BARIKOI_KEY}/place`,
+              { params: { longitude: lng, latitude: lat } }
+            );
+            return [imei, res.data.place || res.data];
+          } catch {
+            return [imei, null];
+          }
+        })
+      );
+      setAddresses(Object.fromEntries(results));
+    } catch (err) {
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
+  }, [vehicleCoords]);
+
+  useEffect(() => {
+    if (Object.keys(vehicleCoords).length) {
+      fetchAddresses();
+    }
+    // eslint-disable-next-line
+  }, [fetchAddresses]);
+
+  return { addresses, loading, error };
+}
 
 const barikoiAPiKey = import.meta.env.VITE_BARIKOI_API_KEY;
 const MAP_STYLE = "https://map.barikoi.com/styles/barikoi-light/style.json";
@@ -34,9 +79,33 @@ const VehiclesStatusMap = () => {
 
   const [satellite, setSatellite] = useState(false);
   const [moveHandel, setMoveHandel] = useState(false);
-  const { data: vehiclesData, isLoading } = useCustomerVehicle();
+  const { data: vehiclesData } = useCustomerVehicle();
 
-  console.log(vehiclesData);
+  // Extract IMEIs from vehiclesData
+  const imeis = useMemo(() => {
+    if (!vehiclesData || !Array.isArray(vehiclesData)) return [];
+    return vehiclesData.map((v) => v.imei).filter(Boolean);
+  }, [vehiclesData]);
+
+  // Fetch VTS data for all IMEIs every 10 seconds
+  const { data: vtsData } = useVtsDevices(imeis);
+
+  // Prepare Barikoi reverse geocode hooks for each vehicle
+  const vehicleAddresses = useMemo(() => {
+    if (!imeis.length || !vtsData) return {};
+    const result = {};
+    imeis.forEach((imei) => {
+      const vts = vtsData[imei]?.[0]?.items?.[0];
+      if (vts && vts.lat && vts.lng) {
+        result[imei] = { lat: vts.lat, lng: vts.lng };
+      }
+    });
+    return result;
+  }, [imeis, vtsData]);
+
+  // Use the custom hook to get all addresses
+  const { addresses: barikoiAddresses, loading: barikoiLoading } =
+    useBarikoiAddresses(vehicleAddresses);
 
   useEffect(() => {
     if (!window.bkoigl) return;
@@ -52,13 +121,10 @@ const VehiclesStatusMap = () => {
 
     mapRef.current = map;
 
-    // ✅ Barikoi official controls
     map.on("load", async () => {
       map.addControl(new window.bkoigl.FullscreenControl(), "top-right");
       map.addControl(
-        new window.bkoigl.NavigationControl({
-          showCompass: false,
-        }),
+        new window.bkoigl.NavigationControl({ showCompass: false }),
         "top-right"
       );
       map.addControl(
@@ -72,56 +138,56 @@ const VehiclesStatusMap = () => {
       );
       map.addImage("vehicle", img.data, { pixelRatio: 2 });
 
-      map.addSource("vehicle", {
-        type: "geojson",
-        data: {
-          type: "Feature",
-          geometry: {
-            type: "Point",
-            coordinates: [90.3994, 23.7925],
-          },
-        },
-      });
-
-      map.addLayer({
-        id: "vehicle-layer",
-        type: "symbol",
-        source: "vehicle",
-        layout: {
-          "icon-image": "vehicle",
-          "icon-size": 0.4,
-          "icon-allow-overlap": true,
-        },
-      });
+      // Add a source and layer for each vehicle
+      if (imeis.length) {
+        imeis.forEach((imei) => {
+          map.addSource(`vehicle-${imei}`, {
+            type: "geojson",
+            data: {
+              type: "Feature",
+              geometry: {
+                type: "Point",
+                coordinates: [90.3994, 23.7925],
+              },
+            },
+          });
+          map.addLayer({
+            id: `vehicle-layer-${imei}`,
+            type: "symbol",
+            source: `vehicle-${imei}`,
+            layout: {
+              "icon-image": "vehicle",
+              "icon-size": 0.4,
+              "icon-allow-overlap": true,
+            },
+          });
+        });
+      }
     });
 
-    // 🔁 Simulated live movement
-    let lng = 90.3994;
-    let lat = 23.7925;
-
-    const interval = setInterval(() => {
-      lng += (Math.random() - 0.5) * 0.01;
-      lat += (Math.random() - 0.5) * 0.008;
-
-      map.getSource("vehicle")?.setData({
-        type: "Feature",
-        geometry: { type: "Point", coordinates: [lng, lat] },
-      });
-
-      map.easeTo({ center: [lng, lat], duration: 1500 });
-
-      const el = document.getElementById("coords");
-      if (el)
-        el.innerText = `Lng: ${lng.toFixed(5)}, Lat: ${lat.toFixed(
-          5
-        )} • ${new Date().toLocaleTimeString()}`;
-    }, 2000);
-
     return () => {
-      clearInterval(interval);
       map.remove();
     };
-  }, [satellite]);
+    // eslint-disable-next-line
+  }, [satellite, imeis.join(",")]);
+
+  // Update vehicle positions on the map when vtsData changes
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !vtsData) return;
+    imeis.forEach((imei) => {
+      const vts = vtsData[imei]?.[0]?.items?.[0];
+      if (vts && vts.lat && vts.lng) {
+        const source = map.getSource(`vehicle-${imei}`);
+        if (source) {
+          source.setData({
+            type: "Feature",
+            geometry: { type: "Point", coordinates: [vts.lng, vts.lat] },
+          });
+        }
+      }
+    });
+  }, [vtsData, imeis]);
 
   /* ---------------- Actions ---------------- */
   const map = () => mapRef.current;
@@ -188,6 +254,27 @@ const VehiclesStatusMap = () => {
       className="relative w-full h-140 rounded-2xl overflow-hidden bg-white"
     >
       <div ref={mapContainerRef} className="w-full h-full" />
+
+      {/* Show addresses for each vehicle below the map */}
+      <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 bg-white bg-opacity-90 rounded-xl shadow px-4 py-2 max-w-xl w-fit flex flex-col gap-1 text-xs">
+        {imeis.map((imei) => {
+          const vts = vtsData?.[imei]?.[0]?.items?.[0];
+          const address = barikoiAddresses?.[imei];
+          return (
+            <div key={imei} className="flex flex-col gap-0.5">
+              <span className="font-semibold">{vts?.name || imei}</span>
+              <span>
+                Lat: {vts?.lat}, Lng: {vts?.lng}
+              </span>
+              <span>
+                {barikoiLoading
+                  ? "Getting address..."
+                  : address?.address || address?.address || "No address found"}
+              </span>
+            </div>
+          );
+        })}
+      </div>
       <div className="absolute top-3 left-3 z-10 bg-white rounded-lg shadow flex overflow-hidden">
         <button
           onClick={() => setSatellite(false)}

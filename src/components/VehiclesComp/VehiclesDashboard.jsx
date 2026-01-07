@@ -1,8 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import VehiclesStatusOption from "../AnalyticsSummaryPage/VehiclesStatusOption";
-import { getSpeedMeta, mockReverseGeocode } from "../../utilits/vehicleHelpers";
 import { RotateCw } from "lucide-react";
-import VehicleStatusDrawer from "./VehicleStatusDrawer";
 
 const PAGE_SIZE = 5;
 
@@ -41,7 +38,7 @@ const MOCK_DATA = [
     time: "2025-12-10 04:41:06",
   },
   {
-    id: 3,
+    id: 4,
     customer: "Sajjat Hossen",
     vehicle: "MT-15",
     reg: "DM GA 45-8256",
@@ -52,7 +49,7 @@ const MOCK_DATA = [
     time: "2025-12-10 04:41:06",
   },
   {
-    id: 3,
+    id: 5,
     customer: "Sajjat Hossen",
     vehicle: "MT-15",
     reg: "DM GA 45-8256",
@@ -63,7 +60,7 @@ const MOCK_DATA = [
     time: "2025-12-10 04:41:06",
   },
   {
-    id: 3,
+    id: 6,
     customer: "Sajjat Hossen",
     vehicle: "MT-15",
     reg: "DM GA 45-8256",
@@ -74,7 +71,7 @@ const MOCK_DATA = [
     time: "2025-12-10 04:41:06",
   },
   {
-    id: 3,
+    id: 7,
     customer: "Sajjat Hossen",
     vehicle: "MT-15",
     reg: "DM GA 45-8256",
@@ -85,7 +82,7 @@ const MOCK_DATA = [
     time: "2025-12-10 04:41:06",
   },
   {
-    id: 3,
+    id: 8,
     customer: "Sajjat Hossen",
     vehicle: "MT-15",
     reg: "DM GA 45-8256",
@@ -96,7 +93,7 @@ const MOCK_DATA = [
     time: "2025-12-10 04:41:06",
   },
   {
-    id: 3,
+    id: 9,
     customer: "Sajjat Hossen",
     vehicle: "MT-15",
     reg: "DM GA 45-8256",
@@ -107,7 +104,7 @@ const MOCK_DATA = [
     time: "2025-12-10 04:41:06",
   },
   {
-    id: 3,
+    id: 10,
     customer: "Sajjat Hossen",
     vehicle: "MT-15",
     reg: "DM GA 45-8256",
@@ -118,6 +115,81 @@ const MOCK_DATA = [
     time: "2025-12-10 04:41:06",
   },
 ];
+
+const mockReverseGeocode = async (lat, lng) => {
+  await new Promise((resolve) => setTimeout(resolve, 100));
+  return "Dhaka, Bangladesh";
+};
+
+const getSpeedMeta = (speed) => {
+  if (speed === 0)
+    return {
+      icon: "🛑",
+      bg: "bg-gray-100",
+      text: "text-gray-700",
+    };
+  if (speed < 40)
+    return {
+      icon: "🐢",
+      bg: "bg-green-100",
+      text: "text-green-700",
+    };
+  if (speed < 80)
+    return {
+      icon: "🚗",
+      bg: "bg-yellow-100",
+      text: "text-yellow-700",
+    };
+  return {
+    icon: "🚀",
+    bg: "bg-red-100",
+    text: "text-red-700",
+  };
+};
+
+const VehiclesStatusOption = () => {
+  return (
+    <div className="p-4">
+      <h3 className="font-semibold mb-4">Vehicle Status</h3>
+      <div className="space-y-2">
+        <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
+          <span>All Vehicles</span>
+          <span className="font-bold">10</span>
+        </div>
+        <div className="flex items-center justify-between p-2 bg-green-50 rounded">
+          <span>Online</span>
+          <span className="font-bold">2</span>
+        </div>
+        <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
+          <span>Offline</span>
+          <span className="font-bold">8</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const VehicleStatusDrawer = () => {
+  return (
+    <div className="bg-white rounded-xl shadow-sm p-4">
+      <h3 className="font-semibold mb-4">Vehicle Status</h3>
+      <div className="flex gap-4">
+        <div className="flex-1 p-3 bg-gray-50 rounded text-center">
+          <div className="text-2xl font-bold">10</div>
+          <div className="text-sm text-gray-600">All</div>
+        </div>
+        <div className="flex-1 p-3 bg-green-50 rounded text-center">
+          <div className="text-2xl font-bold">2</div>
+          <div className="text-sm text-gray-600">Online</div>
+        </div>
+        <div className="flex-1 p-3 bg-gray-100 rounded text-center">
+          <div className="text-2xl font-bold">8</div>
+          <div className="text-sm text-gray-600">Offline</div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default function VehiclesDashboard() {
   const [vehicles, setVehicles] = useState([]);
@@ -180,7 +252,7 @@ export default function VehiclesDashboard() {
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="space-y-4">
       {/* 🔝 TOP BAR */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-xl font-semibold text-gray-700">Vehicles List</h1>
@@ -194,19 +266,14 @@ export default function VehiclesDashboard() {
                 isReloading ? "bg-gray-300 cursor-not-allowed" : "bg-[#B0C1CF]"
               }`}
           >
-            {/* <img
-              src="/icons/vehicel/reload.svg"
-              className={`w-5 h-5 ml-auto ${isReloading ? "animate-spin" : ""}`}
-              alt="reload"
-            /> */}
             <RotateCw
-              className={`w-5 h-5 ml-auto ${isReloading ? "animate-spin" : ""}`}
+              className={`w-5 h-5 ${isReloading ? "animate-spin" : ""}`}
             />
             Reload {isReloading && `(${reloadTimer}s)`}
           </button>
 
-          <button className="px-4 py-2 rounded-lg bg-linear-to-r from-orange-400 to-orange-500 text-white font-bold flex gap-2">
-            <img src="/icons/vehicel/export.svg" alt="export" />
+          <button className="px-4 py-2 rounded-lg bg-linear-to-r from-orange-400 to-orange-500 text-white font-bold flex gap-2 items-center">
+            <span>📤</span>
             Export
           </button>
         </div>
@@ -216,17 +283,21 @@ export default function VehiclesDashboard() {
       <div className="grid grid-cols-1 xl:grid-cols-7 gap-4">
         <div className="xl:col-span-5">
           {/* 📋 TABLE */}
-          <div className=" bg-white rounded-xl shadow-sm relative overflow-x-auto">
-            <table className="min-w-225 w-full text-sm">
-              <thead className="bg-orange-50 text-gray-600">
+          <div className="bg-white rounded-xl shadow-sm overflow-x-auto border border-gray-300">
+            <table className="min-w-full w-full text-sm">
+              <thead className="bg-orange-50 text-gray-600 border-b border-gray-300">
                 <tr>
-                  <th className="p-3 text-left">Customer</th>
-                  <th>Vehicle</th>
-                  <th>Nearby Landmark</th>
-                  <th>Speed</th>
-                  <th>Date | Time</th>
-                  <th>Device</th>
-                  <th className="sticky right-0 bg-orange-50 z-20 px-3">
+                  <th className="p-3 text-left whitespace-nowrap">Customer</th>
+                  <th className="p-3 text-left whitespace-nowrap">Vehicle</th>
+                  <th className="p-3 text-left whitespace-nowrap">
+                    Nearby Landmark
+                  </th>
+                  <th className="p-3 text-left whitespace-nowrap">Speed</th>
+                  <th className="p-3 text-left whitespace-nowrap">
+                    Date | Time
+                  </th>
+                  <th className="p-3 text-left whitespace-nowrap">Device</th>
+                  <th className="sticky right-0 bg-orange-50 z-20 px-3 p-3 text-left whitespace-nowrap border-l border-gray-300">
                     Actions
                   </th>
                 </tr>
@@ -237,44 +308,49 @@ export default function VehiclesDashboard() {
                   const speedMeta = getSpeedMeta(v.speed);
 
                   return (
-                    <tr key={v.id} className="border-b">
-                      <td className="p-3 text-nowrap">{v.customer}</td>
+                    <tr
+                      key={v.id}
+                      className="border-b border-gray-300 hover:bg-gray-50"
+                    >
+                      <td className="p-3 whitespace-nowrap">{v.customer}</td>
 
-                      <td>
-                        <div className="font-medium">{v.vehicle}</div>
+                      <td className="p-3">
+                        <div className="font-medium whitespace-nowrap">
+                          {v.vehicle}
+                        </div>
                         <div className="text-xs text-gray-400">{v.reg}</div>
                       </td>
 
-                      <td>
-                        <p>{v.landmark}</p>
+                      <td className="p-3">
+                        <p className="whitespace-nowrap">{v.landmark}</p>
                         <a
                           href={`https://www.google.com/maps/search/?api=1&query=${v.lat},${v.lng}`}
                           target="_blank"
-                          className="text-xs text-gray-500 hover:text-orange-500"
+                          rel="noopener noreferrer"
+                          className="text-xs text-gray-500 hover:text-orange-500 whitespace-nowrap"
                         >
-                          {v.lat}, {v.lng}
+                          📍 {v.lat}, {v.lng}
                         </a>
                       </td>
 
                       {/* SPEED */}
-                      <td className="text-nowrap flex flex-col items-center gap-1 pr-1">
-                        <img
-                          src={speedMeta.icon}
-                          className="w-8 h-8"
-                          alt="speed"
-                        />
-                        <span
-                          className={`px-3 py-1 rounded-full text-xs font-semibold ${speedMeta.bg} ${speedMeta.text}`}
-                        >
-                          {v.speed} km/h
-                        </span>
+                      <td className="p-3">
+                        <div className="flex flex-col items-center gap-1">
+                          <span className="text-2xl">{speedMeta.icon}</span>
+                          <span
+                            className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${speedMeta.bg} ${speedMeta.text}`}
+                          >
+                            {v.speed} km/h
+                          </span>
+                        </div>
                       </td>
 
-                      <td>{v.time}</td>
+                      <td className="p-3 whitespace-nowrap">{v.time}</td>
 
-                      <td className="flex flex-col gap-2">
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs w-fit
+                      <td className="p-3">
+                        <div className="flex flex-col gap-2">
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs w-fit whitespace-nowrap
                           ${
                             v.deviceStatus === "Online"
                               ? "bg-green-100 text-green-700"
@@ -282,42 +358,48 @@ export default function VehiclesDashboard() {
                               ? "bg-gray-200 text-gray-600"
                               : "bg-red-100 text-red-600"
                           }`}
-                        >
-                          {v.deviceStatus}
-                        </span>
-                        <span className="text-xs text-gray-400">
-                          Expire: {v.time}
-                        </span>
+                          >
+                            {v.deviceStatus}
+                          </span>
+                          <span className="text-xs text-gray-400 whitespace-nowrap">
+                            Expire: {v.time}
+                          </span>
+                        </div>
                       </td>
 
                       {/* ACTIONS (STICKY) */}
-                      <td className="sticky right-0 bg-white z-10">
-                        <div className="flex gap-3 px-3">
-                          <img
-                            src="/icons/vehicel/location-pin.svg"
-                            className="w-5 h-5"
-                            alt=""
-                          />
-                          <img
-                            src="/icons/vehicel/time-duration.svg"
-                            className="w-5 h-5"
-                            alt=""
-                          />
-                          <img
-                            src="/icons/vehicel/calendar-minimalistic.svg"
-                            className="w-5 h-5"
-                            alt=""
-                          />
-                          <img
-                            src="/icons/vehicel/stop-timer.svg"
-                            className="w-5 h-5"
-                            alt=""
-                          />
-                          <img
-                            src="/icons/vehicel/locations-route.svg"
-                            className="w-5 h-5"
-                            alt=""
-                          />
+                      <td className="sticky right-0 bg-white z-10 border-l border-gray-300">
+                        <div className="flex gap-3 px-3 py-2 items-center">
+                          <button
+                            className="text-xl hover:scale-110 transition-transform"
+                            title="Location"
+                          >
+                            📍
+                          </button>
+                          <button
+                            className="text-xl hover:scale-110 transition-transform"
+                            title="Duration"
+                          >
+                            ⏱️
+                          </button>
+                          <button
+                            className="text-xl hover:scale-110 transition-transform"
+                            title="Calendar"
+                          >
+                            📅
+                          </button>
+                          <button
+                            className="text-xl hover:scale-110 transition-transform"
+                            title="Stop"
+                          >
+                            ⏹️
+                          </button>
+                          <button
+                            className="text-xl hover:scale-110 transition-transform"
+                            title="Route"
+                          >
+                            🗺️
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -326,6 +408,7 @@ export default function VehiclesDashboard() {
               </tbody>
             </table>
           </div>
+
           {/* PAGINATION */}
           <div className="flex justify-end gap-2 p-3">
             {Array.from({
@@ -335,7 +418,9 @@ export default function VehiclesDashboard() {
                 key={i}
                 onClick={() => setPage(i + 1)}
                 className={`px-3 py-1 rounded ${
-                  page === i + 1 ? "bg-orange-500 text-white" : "bg-gray-100"
+                  page === i + 1
+                    ? "bg-orange-500 text-white"
+                    : "bg-gray-100 border border-gray-300"
                 }`}
               >
                 {i + 1}
@@ -345,17 +430,9 @@ export default function VehiclesDashboard() {
         </div>
 
         {/* 👉 RIGHT SIDE */}
-        {/* <div className="xl:col-span-2 bg-white rounded-xl shadow-sm max-h-screen">
-          <VehiclesStatusOption
-            onTabChange={setActiveTab}
-            onSelectChange={setSelectedIds}
-          />
-        </div> */}
-
-        {/* 👉 RIGHT SIDE */}
         <div className="xl:col-span-2">
           {/* Desktop */}
-          <div className="hidden xl:block bg-white rounded-xl shadow-sm h-[calc(100vh-140px)]">
+          <div className="hidden xl:block bg-white rounded-xl shadow-sm h-[calc(100vh-140px)] border border-gray-300 overflow-y-auto">
             <VehiclesStatusOption />
           </div>
 
