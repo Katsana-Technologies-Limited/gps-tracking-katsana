@@ -89,13 +89,13 @@ const VehiclesStatusMap = () => {
 
   // Fetch VTS data for all IMEIs every 10 seconds
   const { data: vtsData } = useVtsDevices(imeis);
-
+  console.log(vtsData);
   // Prepare Barikoi reverse geocode hooks for each vehicle
   const vehicleAddresses = useMemo(() => {
     if (!imeis.length || !vtsData) return {};
     const result = {};
     imeis.forEach((imei) => {
-      const vts = vtsData[imei]?.[0]?.items?.[0];
+      const vts = vtsData[imei]?.[0];
       if (vts && vts.lat && vts.lng) {
         result[imei] = { lat: vts.lat, lng: vts.lng };
       }
@@ -176,7 +176,7 @@ const VehiclesStatusMap = () => {
     const map = mapRef.current;
     if (!map || !vtsData) return;
     imeis.forEach((imei) => {
-      const vts = vtsData[imei]?.[0]?.items?.[0];
+      const vts = vtsData[imei]?.[0];
       if (vts && vts.lat && vts.lng) {
         const source = map.getSource(`vehicle-${imei}`);
         if (source) {
@@ -258,7 +258,7 @@ const VehiclesStatusMap = () => {
       {/* Show addresses for each vehicle below the map */}
       <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 bg-white bg-opacity-90 rounded-xl shadow px-4 py-2 max-w-xl w-fit flex flex-col gap-1 text-xs">
         {imeis.map((imei) => {
-          const vts = vtsData?.[imei]?.[0]?.items?.[0];
+          const vts = vtsData?.[imei]?.[0];
           const address = barikoiAddresses?.[imei];
           return (
             <div key={imei} className="flex flex-col gap-0.5">

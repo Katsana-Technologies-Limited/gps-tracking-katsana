@@ -1,60 +1,46 @@
+import { useEffect } from "react";
+import { useAxios } from "./useAxios";
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
-
-const VTS_URL = import.meta.env.VITE_VTS_TRACKIGN_URL || "";
-const VTS_API_KEY = import.meta.env.VITE_VTS_TRACKIGN_API_KEY || "";
 
 function useVtsDevices(imeis = []) {
-  const enabled = imeis.length > 0 && !!VTS_URL && !!VTS_API_KEY;
+  const axiosUrl = useAxios();
+  const joinedImeis = Array.isArray(imeis) ? imeis.join(",") : "";
+
+  useEffect(() => {
+    if (!imeis.length) return;
+    axiosUrl
+      .post("/api/vts/set-imeis", { imeis }, { withCredentials: true })
+      .catch(() => {});
+  }, [axiosUrl, joinedImeis, imeis]);
+
   const query = useQuery({
-    queryKey: ["vts-devices", ...imeis],
+    queryKey: ["vts-devices"],
     queryFn: async () => {
-      const results = await Promise.all(
-        imeis.map(async (imei) => {
-          const url = `${VTS_URL}/get_devices?lang=en&user_api_hash=${VTS_API_KEY}&imei=${imei}`;
-          const res = await axios.get(url);
-          return { imei, data: res.data };
-        })
-      );
-      const mapped = {};
-      const normalized = [];
-      results.forEach(({ imei, data }) => {
-        mapped[imei] = data;
-        // Flatten and normalize for table
-        if (Array.isArray(data)) {
-          data.forEach((group) => {
-            if (Array.isArray(group.items)) {
-              group.items.forEach((item) => {
-                normalized.push({
-                  imei,
-                  customer: item.device_data?.users?.[0]?.email || "",
-                  vehicle: item.device_data?.name || item.name || "",
-                  registration: item.device_data?.registration_number || "",
-                  landmark: item.address || "",
-                  lat: item.lat,
-                  lng: item.lng,
-                  speed: item.speed,
-                  dateTime: item.time,
-                  deviceStatus: item.online,
-                  expire: item.device_data?.expiration_date || "",
-                  icon: item.icon,
-                  groupTitle: group.title,
-                  // Add more fields as needed
-                  raw: item,
-                });
-              });
-            }
-          });
-        }
+      const res = await axiosUrl.get("/api/vts/locations", {
+        withCredentials: true,
       });
-      return { mapped, normalized };
+      return res.data;
     },
-    enabled,
     refetchInterval: 10000,
     staleTime: 5000,
+    enabled: !!imeis.length,
   });
+  // Transform mapped data to return items array for each IMEI
+  let itemsByImei = {};
+  if (query.data?.mapped) {
+    Object.entries(query.data.mapped).forEach(([imei, groups]) => {
+      // groups is an array of group objects, each with an items array
+      if (Array.isArray(groups)) {
+        itemsByImei[imei] = groups.flatMap((group) =>
+          Array.isArray(group.items) ? group.items : []
+        );
+      } else {
+        itemsByImei[imei] = [];
+      }
+    });
+  }
   return {
-    data: query.data?.mapped,
+    data: itemsByImei,
     normalized: query.data?.normalized || [],
     loading: query.isLoading,
     error: query.error,
