@@ -17,16 +17,48 @@ function useVtsDevices(imeis = []) {
         })
       );
       const mapped = {};
+      const normalized = [];
       results.forEach(({ imei, data }) => {
         mapped[imei] = data;
+        // Flatten and normalize for table
+        if (Array.isArray(data)) {
+          data.forEach((group) => {
+            if (Array.isArray(group.items)) {
+              group.items.forEach((item) => {
+                normalized.push({
+                  imei,
+                  customer: item.device_data?.users?.[0]?.email || "",
+                  vehicle: item.device_data?.name || item.name || "",
+                  registration: item.device_data?.registration_number || "",
+                  landmark: item.address || "",
+                  lat: item.lat,
+                  lng: item.lng,
+                  speed: item.speed,
+                  dateTime: item.time,
+                  deviceStatus: item.online,
+                  expire: item.device_data?.expiration_date || "",
+                  icon: item.icon,
+                  groupTitle: group.title,
+                  // Add more fields as needed
+                  raw: item,
+                });
+              });
+            }
+          });
+        }
       });
-      return mapped;
+      return { mapped, normalized };
     },
     enabled,
     refetchInterval: 10000,
     staleTime: 5000,
   });
-  return { data: query.data, loading: query.isLoading, error: query.error };
+  return {
+    data: query.data?.mapped,
+    normalized: query.data?.normalized || [],
+    loading: query.isLoading,
+    error: query.error,
+  };
 }
 
 export default useVtsDevices;
