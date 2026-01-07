@@ -4,10 +4,12 @@ import { Link, useLocation } from "react-router-dom";
 import { ChevronRight, ChevronDown } from "lucide-react";
 import LogoutButton from "./LogoutButton";
 import { sidebarLinks } from "./SidebarRoutes";
+import useCustomer from "../../hooks/useCustomer";
 
 export default function TrackingSidebar() {
   const { pathname } = useLocation();
   const [expanded, setExpanded] = useState({});
+  const { data } = useCustomer();
   const navRef = useRef(null);
 
   useEffect(() => {
@@ -42,7 +44,7 @@ export default function TrackingSidebar() {
           className="w-28 h-10 object-contain mb-2"
         />
         <div className="text-primary-green font-semibold text-base text-center w-full">
-          Nidal Nabi Chowdhury
+          {data?.company || ""}
         </div>
       </div>
       <nav

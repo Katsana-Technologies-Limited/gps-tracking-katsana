@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Share2, Printer, Scan } from "lucide-react";
 import jsPDF from "jspdf";
+import useCustomerVehicle from "../../hooks/useCustomerVehicle";
 
 const barikoiAPiKey = import.meta.env.VITE_BARIKOI_API_KEY;
 const MAP_STYLE = "https://map.barikoi.com/styles/barikoi-light/style.json";
@@ -33,8 +34,10 @@ const VehiclesStatusMap = () => {
 
   const [satellite, setSatellite] = useState(false);
   const [moveHandel, setMoveHandel] = useState(false);
+  const { data: vehiclesData, isLoading } = useCustomerVehicle();
 
-  /* ================= MAP INIT (ONCE) ================= */
+  console.log(vehiclesData);
+
   useEffect(() => {
     if (!window.bkoigl) return;
 
@@ -177,7 +180,7 @@ const VehiclesStatusMap = () => {
     setMoveHandel((prev) => !prev);
   };
 
-  console.log(moveHandel);
+  // console.log(moveHandel);
 
   return (
     <div
