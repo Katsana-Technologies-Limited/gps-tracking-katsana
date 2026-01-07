@@ -1,8 +1,7 @@
 import axios from "axios";
 
 const axiosUrl = axios.create({
-  // baseURL: import.meta.env.VITE_API_URL,
-  baseURL: "https://api.katsana.com.bd",
+  baseURL: import.meta.env.VITE_API_URL,
   headers: {
     "Content-type": "application/json",
   },
