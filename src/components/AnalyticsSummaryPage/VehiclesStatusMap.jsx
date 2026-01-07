@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { Share2, Printer, Scan } from "lucide-react";
-import { toPng } from "html-to-image";
 import jsPDF from "jspdf";
 
 const barikoiAPiKey = import.meta.env.VITE_BARIKOI_API_KEY;
@@ -183,12 +182,9 @@ const VehiclesStatusMap = () => {
   return (
     <div
       ref={wrapperRef}
-      className="relative w-full h-[560px] rounded-2xl overflow-hidden bg-white"
+      className="relative w-full h-140 rounded-2xl overflow-hidden bg-white"
     >
-      {/* MAP */}
       <div ref={mapContainerRef} className="w-full h-full" />
-
-      {/* TOP LEFT: Map / Satellite */}
       <div className="absolute top-3 left-3 z-10 bg-white rounded-lg shadow flex overflow-hidden">
         <button
           onClick={() => setSatellite(false)}
@@ -207,8 +203,6 @@ const VehiclesStatusMap = () => {
           Satellite
         </button>
       </div>
-
-      {/* TOP RIGHT: FULLSCREEN */}
       <button
         onClick={() => {
           const el = wrapperRef.current;
@@ -222,19 +216,12 @@ const VehiclesStatusMap = () => {
       >
         <Scan size={21} />
       </button>
-
-      {/* BOTTOM RIGHT: ACTIONS */}
-      {/* BOTTOM RIGHT: RADIAL ACTIONS */}
       <div className="absolute bottom-20 right-17 z-20">
-        {/* MAIN BUTTON */}
         <button
           onClick={toggleMove}
-          className={`
-    relative z-30
-    w-12 h-12 rounded-full bg-white shadow-lg
-    flex items-center justify-center
-    transition-all duration-300 ease-out
-    ${moveHandel ? "rotate-45 scale-110" : "rotate-0 scale-100"}
+          className={`relative z-30 w-12 h-12 rounded-full bg-white shadow-lg flex items-center justify-center transition-all duration-300 ease-out ${
+            moveHandel ? "rotate-45 scale-110" : "rotate-0 scale-100"
+          }
   `}
           aria-pressed={moveHandel}
         >
@@ -243,9 +230,7 @@ const VehiclesStatusMap = () => {
 
         {/* RADIAL BUTTONS (ALWAYS RENDERED) */}
         <div
-          className={`
-    absolute inset-0 z-10
-    transition-all duration-300 ease-out
+          className={`absolute inset-0 z-10 transition-all duration-300 ease-out
     ${
       moveHandel
         ? "scale-100 opacity-100 pointer-events-auto"
@@ -292,8 +277,6 @@ const VehiclesStatusMap = () => {
           >
             ↑
           </RadialBtn>
-
-          {/* Bottom */}
           <RadialBtn
             style="bottom-[-42px] right-[-42px]"
             onClick={() => mapRef.current?.panBy([0, 120])}
@@ -302,9 +285,6 @@ const VehiclesStatusMap = () => {
           </RadialBtn>
         </div>
       </div>
-
-      {/* BOTTOM LEFT: Colors + Share */}
-      {/* Bottom left */}
       <div>
         <div className="absolute bottom-6 left-3 z-10  flex flex-col gap-2">
           <div className="w-8 h-8 rounded-xl bg-[#95F0B3]" />
@@ -337,8 +317,6 @@ const VehiclesStatusMap = () => {
           Waiting for update...
         </div>
       </div> */}
-
-      {/* STYLE */}
       <style>{`
         .map-btn{
           background:white;
