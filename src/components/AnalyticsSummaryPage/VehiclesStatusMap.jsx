@@ -1,10 +1,31 @@
 import { useEffect, useRef, useState } from "react";
 import { Share2, Printer, Scan } from "lucide-react";
+import { toPng } from "html-to-image";
+import jsPDF from "jspdf";
 
 const barikoiAPiKey = import.meta.env.VITE_BARIKOI_API_KEY;
 const MAP_STYLE = "https://map.barikoi.com/styles/barikoi-light/style.json";
 const SATELLITE_STYLE =
-  "https://map.barikoi.com/styles/barikoi-dark-mode/style.json";
+  "https://map.barikoi.com/styles/barikoi_satellite/style.json";
+
+const loadImage = (src) =>
+  new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => resolve(img);
+    img.src = src;
+  });
+
+const RadialBtn = ({ children, onClick, style }) => (
+  <button
+    onClick={onClick}
+    className={`absolute ${style} w-10 h-10 z-10 rounded-full bg-white shadow-md
+        flex items-center justify-center text-lg font-semibold
+        hover:scale-110 transition-transform duration-200`}
+  >
+    {children}
+  </button>
+);
 
 const VehiclesStatusMap = () => {
   const mapContainerRef = useRef(null);
@@ -12,6 +33,7 @@ const VehiclesStatusMap = () => {
   const mapRef = useRef(null);
 
   const [satellite, setSatellite] = useState(false);
+  const [moveHandel, setMoveHandel] = useState(false);
 
   /* ================= MAP INIT (ONCE) ================= */
   useEffect(() => {
@@ -23,6 +45,7 @@ const VehiclesStatusMap = () => {
       center: [90.3994, 23.7925],
       zoom: 14,
       accessToken: barikoiAPiKey,
+      preserveDrawingBuffer: true,
     });
 
     mapRef.current = map;
@@ -103,15 +126,59 @@ const VehiclesStatusMap = () => {
 
   const zoomIn = () => map()?.zoomIn();
   const zoomOut = () => map()?.zoomOut();
-  const panLeft = () => map()?.panBy([-120, 0]);
-  const panRight = () => map()?.panBy([120, 0]);
 
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
     alert("Map link copied");
   };
 
-  const handlePrint = () => window.print();
+  const handlePrint = async () => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    // wait one frame
+    await new Promise((r) => setTimeout(r, 200));
+
+    const canvas = map.getCanvas();
+    const mapImage = canvas.toDataURL("image/png");
+
+    const logo = await loadImage("/public/logo.png");
+
+    const width = canvas.width;
+    const headerHeight = 80;
+    const height = canvas.height + headerHeight;
+
+    const pdf = new jsPDF({
+      orientation: "landscape",
+      unit: "px",
+      format: [width, height],
+    });
+
+    // header
+    pdf.setFillColor(255, 255, 255);
+    pdf.rect(0, 0, width, headerHeight, "F");
+
+    pdf.addImage(logo, "PNG", 20, 15, 120, 40);
+    pdf.setFontSize(14);
+    pdf.text("Live Vehicle Tracking Map", width / 2, 45, { align: "center" });
+
+    // map
+    pdf.addImage(mapImage, "PNG", 0, headerHeight, width, canvas.height);
+
+    // iframe print (same page)
+    const iframe = document.createElement("iframe");
+    iframe.style.display = "none";
+    document.body.appendChild(iframe);
+
+    iframe.src = pdf.output("bloburl");
+    iframe.onload = () => iframe.contentWindow.print();
+  };
+
+  const toggleMove = () => {
+    setMoveHandel((prev) => !prev);
+  };
+
+  console.log(moveHandel);
 
   return (
     <div
@@ -141,23 +208,99 @@ const VehiclesStatusMap = () => {
         </button>
       </div>
 
+      {/* TOP RIGHT: FULLSCREEN */}
+      <button
+        onClick={() => {
+          const el = wrapperRef.current;
+          if (!document.fullscreenElement) {
+            el.requestFullscreen();
+          } else {
+            document.exitFullscreen();
+          }
+        }}
+        className="absolute top-3 right-5 z-20 w-11 h-11 bg-white rounded-full p-2 shadow-md hover:scale-105 transition flex justify-center items-center"
+      >
+        <Scan size={21} />
+      </button>
+
       {/* BOTTOM RIGHT: ACTIONS */}
-      <div className="absolute bottom-6 right-3 z-10 flex flex-col gap-2">
-        <button className="bg-white rounded-full p-2  font-extrabold ">
-          <Scan size={21} className="rotate-45" />
+      {/* BOTTOM RIGHT: RADIAL ACTIONS */}
+      <div className="absolute bottom-20 right-17 z-20">
+        {/* MAIN BUTTON */}
+        <button
+          onClick={toggleMove}
+          className={`
+    relative z-30
+    w-12 h-12 rounded-full bg-white shadow-lg
+    flex items-center justify-center
+    transition-all duration-300 ease-out
+    ${moveHandel ? "rotate-45 scale-110" : "rotate-0 scale-100"}
+  `}
+          aria-pressed={moveHandel}
+        >
+          <Scan size={22} />
         </button>
-        {/* <button onClick={zoomIn} className="map-btn">
-          ＋
-        </button>
-        <button onClick={zoomOut} className="map-btn">
-          －
-        </button>
-        <button onClick={panLeft} className="map-btn">
-          ←
-        </button>
-        <button onClick={panRight} className="map-btn">
-          →
-        </button> */}
+
+        {/* RADIAL BUTTONS (ALWAYS RENDERED) */}
+        <div
+          className={`
+    absolute inset-0 z-10
+    transition-all duration-300 ease-out
+    ${
+      moveHandel
+        ? "scale-100 opacity-100 pointer-events-auto"
+        : "scale-75 opacity-0 pointer-events-none"
+    }
+  `}
+        >
+          {/* Zoom In */}
+          <RadialBtn
+            style="top-[-60px] left-1/2 -translate-x-1/2"
+            onClick={zoomIn}
+          >
+            +
+          </RadialBtn>
+
+          {/* Zoom Out */}
+          <RadialBtn
+            style="bottom-[-60px] left-1/2 -translate-x-1/2"
+            onClick={zoomOut}
+          >
+            −
+          </RadialBtn>
+
+          {/* Left */}
+          <RadialBtn
+            style="left-[-60px] top-1/2 -translate-y-1/2"
+            onClick={() => mapRef.current?.panBy([-120, 0])}
+          >
+            ←
+          </RadialBtn>
+
+          {/* Right */}
+          <RadialBtn
+            style="right-[-60px] top-1/2 -translate-y-1/2"
+            onClick={() => mapRef.current?.panBy([120, 0])}
+          >
+            →
+          </RadialBtn>
+
+          {/* Top */}
+          <RadialBtn
+            style="top-[-42px] right-[-42px]"
+            onClick={() => mapRef.current?.panBy([0, -120])}
+          >
+            ↑
+          </RadialBtn>
+
+          {/* Bottom */}
+          <RadialBtn
+            style="bottom-[-42px] right-[-42px]"
+            onClick={() => mapRef.current?.panBy([0, 120])}
+          >
+            ↓
+          </RadialBtn>
+        </div>
       </div>
 
       {/* BOTTOM LEFT: Colors + Share */}
@@ -187,13 +330,13 @@ const VehiclesStatusMap = () => {
       </div>
 
       {/* STATUS */}
-      <div className="absolute top-16 left-1/2 -translate-x-1/2 z-10 bg-white px-4 py-2 rounded-xl shadow text-sm">
+      {/* <div className="absolute top-16 left-1/2 -translate-x-1/2 z-10 bg-white px-4 py-2 rounded-xl shadow text-sm">
         <span className="w-2.5 h-2.5 bg-green-500 inline-block rounded-full animate-pulse mr-2" />
         Live Vehicle Tracking
         <div id="coords" className="text-xs text-gray-500 mt-1">
           Waiting for update...
         </div>
-      </div>
+      </div> */}
 
       {/* STYLE */}
       <style>{`
