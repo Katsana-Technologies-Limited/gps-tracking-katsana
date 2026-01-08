@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useRef, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { ChevronRight, ChevronDown, Menu, X } from "lucide-react";
+import { Menu } from "lucide-react";
 import LogoutButton from "./LogoutButton";
 import { sidebarLinks } from "./SidebarRoutes";
 import useCustomer from "../../hooks/useCustomer";
@@ -36,11 +36,16 @@ export default function TrackingSidebar() {
     });
   };
 
-  const handleRouteClick = () => {
+  const handleRouteClick = (label) => {
+    if (label === "Analytics & Summary") {
+      if (!isOpen) setIsOpen(true);
+    } else {
+      setIsOpen(false);
+    }
   };
 
   const toggleSidebar = () => {
-    setIsOpen(!isOpen);
+    setIsOpen((prev) => !prev);
     if (!isOpen) {
       sidebarLinks.forEach((link) => {
         if (link.subroutes) {
@@ -69,14 +74,11 @@ export default function TrackingSidebar() {
     >
       <button
         onClick={toggleSidebar}
-        className="absolute top-4 right-4 p-2 rounded-lg hover:bg-gray-100 transition-colors z-10"
+        className="absolute top-4 right-4 p-2 rounded-lg hover:bg-gray-100 transition-colors z-10 cursor-pointer"
         aria-label="Toggle Sidebar"
+        type="button"
       >
-        {isOpen ? (
-          <X size={20} className="text-gray-600" />
-        ) : (
-          <Menu size={20} className="text-gray-600" />
-        )}
+        <Menu size={24} className="text-gray-600" />
       </button>
       <div
         className={`flex flex-col items-center mb-6 w-full transition-all duration-300 ${
@@ -135,11 +137,7 @@ export default function TrackingSidebar() {
                     <>
                       <span className="truncate font-semibold">{label}</span>
                       <span className="ml-auto">
-                        {isExpanded ? (
-                          <ChevronDown size={18} />
-                        ) : (
-                          <ChevronRight size={18} />
-                        )}
+                        <Menu size={18} className="text-[#fe8e1c]" />
                       </span>
                     </>
                   )}
@@ -166,8 +164,8 @@ export default function TrackingSidebar() {
                             </span>
                             <Link
                               to={sub.to}
-                              onClick={handleRouteClick}
-                              className={`block px-0 py-1.5 rounded-md text-[15px] transition font-medium ${
+                              onClick={() => handleRouteClick(label)}
+                              className={`block px-0 py-1.5 rounded-md text-[15px] transition font-medium cursor-pointer ${
                                 isSubRouteActive
                                   ? "text-[#fe8e1c] font-bold bg-transparent"
                                   : "text-gray-700 hover:text-[#fe8e1c]"
@@ -190,8 +188,8 @@ export default function TrackingSidebar() {
             <Link
               key={to}
               to={to}
-              onClick={handleRouteClick}
-              className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition font-medium text-[15px] ${
+              onClick={() => handleRouteClick(label)}
+              className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition font-medium text-[15px] cursor-pointer ${
                 isActive
                   ? "bg-[#fe8e1c] text-white shadow-sm"
                   : "text-primary-green hover:bg-[#f5f6fa]"
