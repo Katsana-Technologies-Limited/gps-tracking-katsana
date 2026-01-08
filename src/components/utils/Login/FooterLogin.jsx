@@ -4,7 +4,7 @@ const FooterLogin = () => {
       <div className="flex flex-col lg:flex-row items-center justify-between gap-4 text-sm text-gray-600">
         <div className="flex items-center gap-6">
           <img
-            src="/logo.png"
+            src="/logo0.png"
             className="h-7"
             draggable={false}
             onContextMenu={(e) => e.preventDefault()}
