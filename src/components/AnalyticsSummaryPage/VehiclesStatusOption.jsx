@@ -26,14 +26,6 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
   const [selected, setSelected] = useState([]);
   const { data: vehiclesData, isLoading } = useCustomerVehicle();
 
-  // const VEHICLES = (vehiclesData || []).map((v) => ({
-  //   id: v.id || 1,
-  //   number: v.vehicle_name || "-",
-  //   reg: v.subscription_number || "-",
-  //   status: "Online",
-  //   imei: v.imei,
-  // }));
-
   const rawVehicles = Array.isArray(vehiclesData)
     ? vehiclesData
     : vehiclesData?.data || vehiclesData?.vehicles || [];
@@ -81,7 +73,7 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
   }
 
   return (
-    <div className={`h-full max-h-[${divhight}px] flex flex-col gap-3 p-2`}>
+    <div className={`h-full max-h-[${divhight}px] flex flex-col gap-3 p-3`}>
       <div className="flex gap-2">
         {TABS.map((tab) => (
           <button

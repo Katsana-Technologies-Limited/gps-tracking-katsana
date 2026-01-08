@@ -24,7 +24,7 @@ const TraveledDistance = () => {
         <Switch
           checked={chartMode}
           onChange={setChartMode}
-          className={`relative inline-flex h-6 w-11 items-center rounded-full transition
+          className={`relative inline-flex cursor-pointer h-6 w-11 items-center rounded-full transition
             ${
               chartMode
                 ? "bg-linear-to-r from-orange-400 to-orange-500"
