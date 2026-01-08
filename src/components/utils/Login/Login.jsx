@@ -84,7 +84,7 @@ const Login = () => {
             </div>
             <div className="w-full lg:w-1/2 max-w-md">
               <img
-                src="/logo0.png"
+                src="/logo.png"
                 alt="Katsana"
                 className="w-64 mb-6 mx-auto"
                 draggable={false}

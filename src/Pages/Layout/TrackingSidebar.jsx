@@ -85,7 +85,7 @@ export default function TrackingSidebar({ isOpen, setIsOpen }) {
         }`}
       >
         <img
-          src="/logo0.png"
+          src="/logo.png"
           alt="Katsana Logo"
           className={`object-contain mb-4 transition-all duration-300 ${
             isOpen ? "w-28 h-10" : "w-10 h-10"
