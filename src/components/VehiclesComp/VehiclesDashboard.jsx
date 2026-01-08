@@ -329,7 +329,7 @@ export default function VehiclesDashboard() {
                 <button
                   key={i}
                   onClick={() => setPage(i + 1)}
-                  className={`px-3 py-1 rounded border border-gray-300
+                  className={`px-3 py-1 cursor-pointer rounded border border-gray-300
                     ${
                       page === i + 1
                         ? "bg-orange-500 text-white"
