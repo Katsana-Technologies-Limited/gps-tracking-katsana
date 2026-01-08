@@ -4,10 +4,12 @@ import { Link, useLocation } from "react-router-dom";
 import { ChevronRight, ChevronDown } from "lucide-react";
 import LogoutButton from "./LogoutButton";
 import { sidebarLinks } from "./SidebarRoutes";
+import useCustomer from "../../hooks/useCustomer";
 
 export default function TrackingSidebar() {
   const { pathname } = useLocation();
   const [expanded, setExpanded] = useState({});
+  const { data } = useCustomer();
   const navRef = useRef(null);
 
   useEffect(() => {
@@ -35,14 +37,14 @@ export default function TrackingSidebar() {
       className="fixed lg:left-4 top-0 bottom-0 h-auto w-68 2xl:w-72 bg-white rounded-2xl flex flex-col items-center py-8 pl-2 mr-2 mt-4 mb-4 z-30 font-['Inter','Arial','Helvetica',sans-serif']"
       style={{ minWidth: 240, maxWidth: 340 }}
     >
-      <div className="flex flex-col items-center mb-8 w-full">
+      <div className="flex flex-col items-center mb-6 w-full">
         <img
           src="/logo.png"
           alt="Katsana Logo"
-          className="w-28 h-10 object-contain mb-2"
+          className="w-28 h-10 object-contain mb-4"
         />
         <div className="text-primary-green font-semibold text-base text-center w-full">
-          Nidal Nabi Chowdhury
+          {data?.company || ""}
         </div>
       </div>
       <nav

@@ -1,18 +1,13 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useAxios } from "../../hooks/useAxios";
 import { useForm } from "react-hook-form";
+import useCustomer from "../../hooks/useCustomer";
 
 const VtsProfile = () => {
   const axiosUrl = useAxios();
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["vtsProfile"],
-    queryFn: async () => {
-      const res = await axiosUrl.get("/api/vts/auth/profile");
-      return res.data.profile;
-    },
-  });
+  const { data, isLoading, error } = useCustomer()
 
   const [showChangePass, setShowChangePass] = useState(false);
   const {
