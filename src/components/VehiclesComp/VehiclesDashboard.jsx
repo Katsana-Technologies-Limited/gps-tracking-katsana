@@ -65,7 +65,7 @@ export default function VehiclesDashboard() {
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 scrollbar-thin">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-xl font-semibold text-gray-700">Vehicles List</h1>
         <div className="flex gap-2">
@@ -90,10 +90,10 @@ export default function VehiclesDashboard() {
           </button>
         </div>
       </div>
-      <div className="grid grid-cols-1 xl:grid-cols-4 gap-5">
+      <div className="grid grid-cols-1 xl:grid-cols-4 gap-5 scrollbar-thin">
         <div className="xl:col-span-3">
           {/* 📋 TABLE */}
-          <div className="bg-white border border-gray-300 rounded-xl shadow-sm relative overflow-x-auto">
+          <div className="bg-white border border-gray-300 rounded-xl shadow-sm relative overflow-x-auto scrollbar-thin">
             <table className="min-w-225 w-full text-sm">
               <thead className="bg-orange-50 text-gray-600">
                 <tr className="border-b border-gray-200">
@@ -230,7 +230,7 @@ export default function VehiclesDashboard() {
         </div>
         {/* 👉 RIGHT SIDE */}
         <div className="xl:col-span-1">
-          <div className="hidden xl:block bg-white border border-gray-300 rounded-xl shadow-sm h-[calc(100vh-140px)] p-4">
+          <div className="hidden xl:block bg-white border border-gray-300 rounded-xl shadow-sm h-[calc(100vh-140px)] p-4 scrollbar-thin">
             <VehiclesStatusOption />
           </div>
           <div className="xl:hidden">
