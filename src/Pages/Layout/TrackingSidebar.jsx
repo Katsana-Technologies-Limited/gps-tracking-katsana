@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useRef, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu } from "lucide-react";
+import { ChevronDown, ChevronRight, Menu } from "lucide-react";
 import LogoutButton from "./LogoutButton";
 import { sidebarLinks } from "./SidebarRoutes";
 import useCustomer from "../../hooks/useCustomer";
@@ -136,7 +136,11 @@ export default function TrackingSidebar({ isOpen, setIsOpen }) {
                     <>
                       <span className="truncate font-semibold">{label}</span>
                       <span className="ml-auto">
-                        <Menu size={18} className="text-[#fe8e1c]" />
+                        {isExpanded ? (
+                          <ChevronDown size={18} />
+                        ) : (
+                          <ChevronRight size={18} />
+                        )}
                       </span>
                     </>
                   )}
