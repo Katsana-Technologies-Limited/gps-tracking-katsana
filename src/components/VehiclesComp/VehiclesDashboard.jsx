@@ -210,8 +210,8 @@ export default function VehiclesDashboard() {
           </button>
         </div>
       </div>
-      <div className="grid grid-cols-1 xl:grid-cols-7 gap-4">
-        <div className="xl:col-span-5">
+      <div className="grid grid-cols-1 xl:grid-cols-4 gap-4">
+        <div className="xl:col-span-3">
           {/* 📋 TABLE */}
           <div className=" bg-white rounded-xl shadow-sm relative overflow-x-auto">
             <table className="min-w-225 w-full text-sm">
@@ -347,7 +347,7 @@ export default function VehiclesDashboard() {
           />
         </div> */}
         {/* 👉 RIGHT SIDE */}
-        <div className="xl:col-span-2">
+        <div className="xl:col-span-1">
           <div className="hidden xl:block bg-white rounded-xl shadow-sm h-[calc(100vh-140px)]">
             <VehiclesStatusOption />
           </div>
