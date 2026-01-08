@@ -68,14 +68,12 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
     }
   };
 
-  console.log(vehiclesData);
-
   if (isLoading) {
     return <GlobalLoading message="Loading vehicles..." />;
   }
 
   return (
-    <div className={`h-full max-h-[${divhight}px] flex flex-col gap-3 p-3.5`}>
+    <div className={`h-full max-h-[${divhight}px] flex flex-col gap-3 p-3`}>
       <div className="flex gap-2">
         {TABS.map((tab) => (
           <button
