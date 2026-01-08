@@ -182,7 +182,7 @@ export default function VehiclesDashboard() {
           <button
             onClick={handleReload}
             disabled={isReloading}
-            className={`px-4 py-2 rounded-lg text-md font-medium flex items-center gap-2 border border-gray-300
+            className={`px-4 py-2 cursor-pointer rounded-lg text-md font-medium flex items-center gap-2 border border-gray-300
               ${
                 isReloading
                   ? "bg-gray-200 text-gray-500 cursor-not-allowed"
@@ -190,11 +190,11 @@ export default function VehiclesDashboard() {
               }`}
           >
             <RotateCw
-              className={`w-5 h-5 ml-auto ${isReloading ? "animate-spin" : ""}`}
+              className={`w-4 h-4 ml-auto ${isReloading ? "animate-spin" : ""}`}
             />
             Reload {isReloading && `(${reloadTimer}s)`}
           </button>
-          <button className="px-4 py-2 rounded-lg bg-linear-to-r from-orange-400 to-orange-500 text-white font-medium flex gap-2 border border-gray-300 shadow-sm hover:from-orange-500 hover:to-orange-600">
+          <button className="px-4 py-2 cursor-pointer rounded-lg bg-linear-to-r from-orange-400 to-orange-500 text-white font-medium flex gap-2 border border-gray-300 hover:from-orange-500 hover:to-orange-600">
             <img src="/icons/vehicel/export.svg" alt="export" />
             Export
           </button>
