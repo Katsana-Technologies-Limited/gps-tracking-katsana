@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable react-hooks/immutability */
 import React, { useEffect, useMemo, useState } from "react";
 import VehiclesStatusOption from "../AnalyticsSummaryPage/VehiclesStatusOption";
 import { getSpeedMeta, mockReverseGeocode } from "../../utilits/vehicleHelpers";
@@ -198,7 +200,7 @@ export default function VehiclesDashboard() {
           </button>
         </div>
       </div>
-      <div className="grid grid-cols-1 xl:grid-cols-4 gap-5 scrollbar-thin">
+      <div className="grid grid-cols-1 xl:grid-cols-4 gap-5">
         <div className="xl:col-span-3">
           {/* 📋 TABLE */}
           <div className="bg-white border border-gray-300 rounded-xl shadow-sm relative overflow-x-auto scrollbar-thin">
@@ -211,7 +213,12 @@ export default function VehiclesDashboard() {
                   <th className="p-4 text-left">Speed</th>
                   <th className="p-4 text-left">Date | Time</th>
                   <th className="p-4 text-left">Device</th>
-                  <th className="sticky right-0 bg-orange-50 z-20 p-4 border-l border-gray-200">
+                  <th
+                    className={`
+                      p-4 border-l border-gray-200
+                      lg:sticky lg:right-0 lg:bg-orange-50 lg:z-20
+                    `}
+                  >
                     Actions
                   </th>
                 </tr>
@@ -225,12 +232,10 @@ export default function VehiclesDashboard() {
                       className="border-b border-gray-200 last:border-0"
                     >
                       <td className="p-4 text-nowrap">{v.customer}</td>
-
                       <td className="p-4">
                         <div className="font-medium">{v.vehicle}</div>
                         <div className="text-xs text-gray-400">{v.reg}</div>
                       </td>
-
                       <td className="p-4">
                         <p>{v.landmark}</p>
                         <a
@@ -242,7 +247,6 @@ export default function VehiclesDashboard() {
                           {v.lat}, {v.lng}
                         </a>
                       </td>
-
                       {/* SPEED */}
                       <td className="p-4 text-nowrap">
                         <div className="flex flex-col items-center gap-1">
@@ -258,9 +262,7 @@ export default function VehiclesDashboard() {
                           </span>
                         </div>
                       </td>
-
                       <td className="p-4">{v.time}</td>
-
                       <td className="p-4">
                         <div className="flex flex-col gap-2">
                           <span
@@ -280,8 +282,12 @@ export default function VehiclesDashboard() {
                           </span>
                         </div>
                       </td>
-                      {/* ACTIONS (STICKY) */}
-                      <td className="sticky right-0 bg-white z-10 p-4 border-l border-gray-200">
+                      <td
+                        className="
+                          p-4 border-l border-gray-200
+                          lg:sticky lg:right-0 lg:bg-white lg:z-10
+                        "
+                      >
                         <div className="flex gap-3">
                           <img
                             src="/icons/vehicel/location-pin.svg"
@@ -328,7 +334,8 @@ export default function VehiclesDashboard() {
                       page === i + 1
                         ? "bg-orange-500 text-white"
                         : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
+                    }
+                  `}
                 >
                   {i + 1}
                 </button>
