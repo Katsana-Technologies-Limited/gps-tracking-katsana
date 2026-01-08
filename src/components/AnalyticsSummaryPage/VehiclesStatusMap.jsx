@@ -194,7 +194,7 @@ const VehiclesStatusMap = () => {
           onClick={() => setSatellite(false)}
           className={`px-4 py-1 text-sm ${
             !satellite && "bg-gray-100 font-medium"
-          }`}
+          } cursor-pointer`}
         >
           Map
         </button>
@@ -202,7 +202,7 @@ const VehiclesStatusMap = () => {
           onClick={() => setSatellite(true)}
           className={`px-4 py-1 text-sm ${
             satellite && "bg-gray-100 font-medium"
-          }`}
+          } cursor-pointer`}
         >
           Satellite
         </button>
@@ -218,7 +218,7 @@ const VehiclesStatusMap = () => {
             document.exitFullscreen();
           }
         }}
-        className="absolute top-3 right-5 z-20 w-11 h-11 bg-white rounded-full p-2 shadow-md hover:scale-105 transition flex justify-center items-center"
+        className="absolute top-3 right-5 z-20 w-11 h-11 bg-white rounded-full p-2 shadow-md hover:scale-105 transition flex justify-center items-center cursor-pointer"
       >
         <Scan size={21} />
       </button>
@@ -230,7 +230,7 @@ const VehiclesStatusMap = () => {
         <button
           onClick={toggleMove}
           className={`
-    relative z-30
+    relative z-30 cursor-pointer
     w-12 h-12 rounded-full bg-white shadow-lg
     flex items-center justify-center
     transition-all duration-300 ease-out
@@ -245,7 +245,7 @@ const VehiclesStatusMap = () => {
         <div
           className={`
     absolute inset-0 z-10
-    transition-all duration-300 ease-out
+    transition-all duration-300 ease-out 
     ${
       moveHandel
         ? "scale-100 opacity-100 pointer-events-auto"
@@ -255,7 +255,7 @@ const VehiclesStatusMap = () => {
         >
           {/* Zoom In */}
           <RadialBtn
-            style="top-[-60px] left-1/2 -translate-x-1/2"
+            style="top-[-60px] left-1/2 -translate-x-1/2 cursor-pointer"
             onClick={zoomIn}
           >
             +
@@ -263,7 +263,7 @@ const VehiclesStatusMap = () => {
 
           {/* Zoom Out */}
           <RadialBtn
-            style="bottom-[-60px] left-1/2 -translate-x-1/2"
+            style="bottom-[-60px] left-1/2 -translate-x-1/2 cursor-pointer"
             onClick={zoomOut}
           >
             −
@@ -271,7 +271,7 @@ const VehiclesStatusMap = () => {
 
           {/* Left */}
           <RadialBtn
-            style="left-[-60px] top-1/2 -translate-y-1/2"
+            style="left-[-60px] top-1/2 -translate-y-1/2 cursor-pointer"
             onClick={() => mapRef.current?.panBy([-120, 0])}
           >
             ←
@@ -279,7 +279,7 @@ const VehiclesStatusMap = () => {
 
           {/* Right */}
           <RadialBtn
-            style="right-[-60px] top-1/2 -translate-y-1/2"
+            style="right-[-60px] top-1/2 -translate-y-1/2 cursor-pointer"
             onClick={() => mapRef.current?.panBy([120, 0])}
           >
             →
@@ -287,7 +287,7 @@ const VehiclesStatusMap = () => {
 
           {/* Top */}
           <RadialBtn
-            style="top-[-42px] right-[-42px]"
+            style="top-[-42px] right-[-42px] cursor-pointer"
             onClick={() => mapRef.current?.panBy([0, -120])}
           >
             ↑
@@ -295,7 +295,7 @@ const VehiclesStatusMap = () => {
 
           {/* Bottom */}
           <RadialBtn
-            style="bottom-[-42px] right-[-42px]"
+            style="bottom-[-42px] right-[-42px] cursor-pointer"
             onClick={() => mapRef.current?.panBy([0, 120])}
           >
             ↓
@@ -306,7 +306,7 @@ const VehiclesStatusMap = () => {
       {/* BOTTOM LEFT: Colors + Share */}
       {/* Bottom left */}
       <div>
-        <div className="absolute bottom-6 left-3 z-10  flex flex-col gap-2">
+        <div className="absolute bottom-6 left-3 z-10  flex flex-col gap-2 cursor-pointer">
           <div className="w-8 h-8 rounded-xl bg-[#95F0B3]" />
           <div className="w-8 h-8 rounded-xl bg-[#95D8F0]" />
           <div className="w-8 h-8 rounded-xl bg-[#F0C695]" />
@@ -316,13 +316,13 @@ const VehiclesStatusMap = () => {
         <div className="absolute bottom-6 left-15 z-10 flex gap-2 h-9 ">
           <button
             onClick={handleShare}
-            className="flex gap-2 justify-center items-center bg-amber-50 rounded-2xl px-3"
+            className="flex gap-2 justify-center items-center bg-amber-50 rounded-2xl px-3 cursor-pointer"
           >
             <Share2 size={21} /> <span>Share</span>
           </button>
           <button
             onClick={handlePrint}
-            className="flex gap-2 justify-center items-center bg-amber-50 rounded-2xl px-3"
+            className="flex gap-2 justify-center items-center bg-amber-50 rounded-2xl px-3 cursor-pointer"
           >
             <Printer size={21} /> <span>Print</span>
           </button>
