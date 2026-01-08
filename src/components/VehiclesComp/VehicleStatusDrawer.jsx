@@ -9,7 +9,7 @@ export default function VehicleStatusDrawer() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="fixed top-34 right-4 z-40 bg-orange-500 text-white p-3 rounded-full shadow-lg xl:hidden"
+        className="fixed top-34 right-4 z-40 bg-orange-500 text-white p-3.5 rounded-full shadow-lg xl:hidden"
       >
         <SlidersHorizontal size={20} />
       </button>

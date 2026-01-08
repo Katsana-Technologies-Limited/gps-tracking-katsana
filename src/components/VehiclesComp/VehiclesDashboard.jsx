@@ -183,17 +183,15 @@ export default function VehiclesDashboard() {
 
   return (
     <div className="space-y-4">
-      {/* 🔝 TOP BAR */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-xl font-semibold text-gray-700">Vehicles List</h1>
-
         <div className="flex gap-2">
           <button
             onClick={handleReload}
             disabled={isReloading}
-            className={`px-4 py-2 rounded-lg text-md font-bold flex items-center gap-2
+            className={`px-4 py-2 rounded-lg text-md font-medium flex items-center gap-2
               ${
-                isReloading ? "bg-gray-300 cursor-not-allowed" : "bg-[#B0C1CF]"
+                isReloading ? "bg-gray-300 cursor-not-allowed" : "bg-[#c1d1de]"
               }`}
           >
             {/* <img
@@ -206,15 +204,12 @@ export default function VehiclesDashboard() {
             />
             Reload {isReloading && `(${reloadTimer}s)`}
           </button>
-
-          <button className="px-4 py-2 rounded-lg bg-linear-to-r from-orange-400 to-orange-500 text-white font-bold flex gap-2">
+          <button className="px-4 py-2 rounded-lg bg-linear-to-r from-orange-400 to-orange-500 text-white font-medium flex gap-2">
             <img src="/icons/vehicel/export.svg" alt="export" />
             Export
           </button>
         </div>
       </div>
-
-      {/* 🔲 MAIN LAYOUT */}
       <div className="grid grid-cols-1 xl:grid-cols-7 gap-4">
         <div className="xl:col-span-5">
           {/* 📋 TABLE */}
@@ -233,7 +228,6 @@ export default function VehiclesDashboard() {
                   </th>
                 </tr>
               </thead>
-
               <tbody>
                 {paginated.map((v) => {
                   const speedMeta = getSpeedMeta(v.speed);
@@ -345,7 +339,6 @@ export default function VehiclesDashboard() {
             ))}
           </div>
         </div>
-
         {/* 👉 RIGHT SIDE */}
         {/* <div className="xl:col-span-2 bg-white rounded-xl shadow-sm max-h-screen">
           <VehiclesStatusOption
@@ -353,15 +346,11 @@ export default function VehiclesDashboard() {
             onSelectChange={setSelectedIds}
           />
         </div> */}
-
         {/* 👉 RIGHT SIDE */}
         <div className="xl:col-span-2">
-          {/* Desktop */}
           <div className="hidden xl:block bg-white rounded-xl shadow-sm h-[calc(100vh-140px)]">
             <VehiclesStatusOption />
           </div>
-
-          {/* Mobile / Tablet */}
           <div className="xl:hidden">
             <VehicleStatusDrawer />
           </div>
