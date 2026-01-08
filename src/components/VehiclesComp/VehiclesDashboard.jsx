@@ -7,116 +7,7 @@ import VehicleStatusDrawer from "./VehicleStatusDrawer";
 const PAGE_SIZE = 5;
 
 const MOCK_DATA = [
-  {
-    id: 1,
-    customer: "Sajjat Hossen",
-    vehicle: "TMV 42555",
-    reg: "DM GA 45-8256",
-    lat: 23.7508,
-    lng: 90.389,
-    speed: 16,
-    deviceStatus: "Online",
-    time: "2025-12-24 03:41:06",
-  },
-  {
-    id: 2,
-    customer: "Sajjat Hossen",
-    vehicle: "YMA 3546",
-    reg: "DM GA 45-8256",
-    lat: 23.7108,
-    lng: 90.899,
-    speed: 96,
-    deviceStatus: "Online",
-    time: "2025-12-19 10:41:06",
-  },
-  {
-    id: 3,
-    customer: "Sajjat Hossen",
-    vehicle: "MT-15",
-    reg: "DM GA 45-8256",
-    lat: 23.8908,
-    lng: 90.559,
-    speed: 66,
-    deviceStatus: "Offline",
-    time: "2025-12-10 04:41:06",
-  },
-  {
-    id: 3,
-    customer: "Sajjat Hossen",
-    vehicle: "MT-15",
-    reg: "DM GA 45-8256",
-    lat: 23.8908,
-    lng: 90.559,
-    speed: 66,
-    deviceStatus: "Offline",
-    time: "2025-12-10 04:41:06",
-  },
-  {
-    id: 3,
-    customer: "Sajjat Hossen",
-    vehicle: "MT-15",
-    reg: "DM GA 45-8256",
-    lat: 23.8908,
-    lng: 90.559,
-    speed: 66,
-    deviceStatus: "Offline",
-    time: "2025-12-10 04:41:06",
-  },
-  {
-    id: 3,
-    customer: "Sajjat Hossen",
-    vehicle: "MT-15",
-    reg: "DM GA 45-8256",
-    lat: 23.8908,
-    lng: 90.559,
-    speed: 66,
-    deviceStatus: "Offline",
-    time: "2025-12-10 04:41:06",
-  },
-  {
-    id: 3,
-    customer: "Sajjat Hossen",
-    vehicle: "MT-15",
-    reg: "DM GA 45-8256",
-    lat: 23.8908,
-    lng: 90.559,
-    speed: 66,
-    deviceStatus: "Offline",
-    time: "2025-12-10 04:41:06",
-  },
-  {
-    id: 3,
-    customer: "Sajjat Hossen",
-    vehicle: "MT-15",
-    reg: "DM GA 45-8256",
-    lat: 23.8908,
-    lng: 90.559,
-    speed: 66,
-    deviceStatus: "Offline",
-    time: "2025-12-10 04:41:06",
-  },
-  {
-    id: 3,
-    customer: "Sajjat Hossen",
-    vehicle: "MT-15",
-    reg: "DM GA 45-8256",
-    lat: 23.8908,
-    lng: 90.559,
-    speed: 66,
-    deviceStatus: "Offline",
-    time: "2025-12-10 04:41:06",
-  },
-  {
-    id: 3,
-    customer: "Sajjat Hossen",
-    vehicle: "MT-15",
-    reg: "DM GA 45-8256",
-    lat: 23.8908,
-    lng: 90.559,
-    speed: 66,
-    deviceStatus: "Offline",
-    time: "2025-12-10 04:41:06",
-  },
+  // ... your mock data here ...
 ];
 
 export default function VehiclesDashboard() {
@@ -128,7 +19,6 @@ export default function VehiclesDashboard() {
   const [reloadTimer, setReloadTimer] = useState(60);
   const [isReloading, setIsReloading] = useState(false);
 
-  // 🔄 Initial Load
   useEffect(() => {
     loadData();
   }, []);
@@ -143,17 +33,14 @@ export default function VehiclesDashboard() {
     setVehicles(enriched);
   };
 
-  // 🔁 Reload countdown (LOCKED)
   useEffect(() => {
     if (!isReloading) return;
-
     if (reloadTimer === 0) {
       setReloadTimer(60);
       setIsReloading(false);
       loadData();
       return;
     }
-
     const t = setTimeout(() => setReloadTimer((p) => p - 1), 1000);
     return () => clearTimeout(t);
   }, [isReloading, reloadTimer]);
@@ -163,7 +50,6 @@ export default function VehiclesDashboard() {
     setIsReloading(true);
   };
 
-  // 🔍 Filter logic
   const filtered = useMemo(() => {
     let list =
       activeTab === "All"
@@ -176,54 +62,48 @@ export default function VehiclesDashboard() {
     return list;
   }, [vehicles, activeTab, selectedIds]);
 
-  // 📄 Pagination
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-  // console.log(vehicles);
-
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-xl font-semibold text-gray-700">Vehicles List</h1>
         <div className="flex gap-2">
           <button
             onClick={handleReload}
             disabled={isReloading}
-            className={`px-4 py-2 rounded-lg text-md font-medium flex items-center gap-2
+            className={`px-4 py-2 rounded-lg text-md font-medium flex items-center gap-2 border border-gray-300
               ${
-                isReloading ? "bg-gray-300 cursor-not-allowed" : "bg-[#c1d1de]"
+                isReloading
+                  ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                  : "bg-[#c1d1de] hover:bg-[#b0c6d6] text-gray-700"
               }`}
           >
-            {/* <img
-              src="/icons/vehicel/reload.svg"
-              className={`w-5 h-5 ml-auto ${isReloading ? "animate-spin" : ""}`}
-              alt="reload"
-            /> */}
             <RotateCw
               className={`w-5 h-5 ml-auto ${isReloading ? "animate-spin" : ""}`}
             />
             Reload {isReloading && `(${reloadTimer}s)`}
           </button>
-          <button className="px-4 py-2 rounded-lg bg-linear-to-r from-orange-400 to-orange-500 text-white font-medium flex gap-2">
+          <button className="px-4 py-2 rounded-lg bg-gradient-to-r from-orange-400 to-orange-500 text-white font-medium flex gap-2 border border-gray-300 shadow-sm hover:from-orange-500 hover:to-orange-600">
             <img src="/icons/vehicel/export.svg" alt="export" />
             Export
           </button>
         </div>
       </div>
-      <div className="grid grid-cols-1 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 xl:grid-cols-4 gap-5">
         <div className="xl:col-span-3">
           {/* 📋 TABLE */}
-          <div className=" bg-white rounded-xl shadow-sm relative overflow-x-auto">
+          <div className="bg-white border border-gray-300 rounded-xl shadow-sm relative overflow-x-auto">
             <table className="min-w-225 w-full text-sm">
               <thead className="bg-orange-50 text-gray-600">
-                <tr>
-                  <th className="p-3 text-left">Customer</th>
-                  <th>Vehicle</th>
-                  <th>Nearby Landmark</th>
-                  <th>Speed</th>
-                  <th>Date | Time</th>
-                  <th>Device</th>
-                  <th className="sticky right-0 bg-orange-50 z-20 px-3">
+                <tr className="border-b border-gray-200">
+                  <th className="p-4 text-left">Customer</th>
+                  <th className="p-4 text-left">Vehicle</th>
+                  <th className="p-4 text-left">Nearby Landmark</th>
+                  <th className="p-4 text-left">Speed</th>
+                  <th className="p-4 text-left">Date | Time</th>
+                  <th className="p-4 text-left">Device</th>
+                  <th className="sticky right-0 bg-orange-50 z-20 p-4 border-l border-gray-200">
                     Actions
                   </th>
                 </tr>
@@ -231,21 +111,24 @@ export default function VehiclesDashboard() {
               <tbody>
                 {paginated.map((v) => {
                   const speedMeta = getSpeedMeta(v.speed);
-
                   return (
-                    <tr key={v.id} className="border-b">
-                      <td className="p-3 text-nowrap">{v.customer}</td>
+                    <tr
+                      key={v.id}
+                      className="border-b border-gray-200 [&:last-child]:border-0"
+                    >
+                      <td className="p-4 text-nowrap">{v.customer}</td>
 
-                      <td>
+                      <td className="p-4">
                         <div className="font-medium">{v.vehicle}</div>
                         <div className="text-xs text-gray-400">{v.reg}</div>
                       </td>
 
-                      <td>
+                      <td className="p-4">
                         <p>{v.landmark}</p>
                         <a
                           href={`https://www.google.com/maps/search/?api=1&query=${v.lat},${v.lng}`}
                           target="_blank"
+                          rel="noopener noreferrer"
                           className="text-xs text-gray-500 hover:text-orange-500"
                         >
                           {v.lat}, {v.lng}
@@ -253,42 +136,45 @@ export default function VehiclesDashboard() {
                       </td>
 
                       {/* SPEED */}
-                      <td className="text-nowrap flex flex-col items-center gap-1 pr-1">
-                        <img
-                          src={speedMeta.icon}
-                          className="w-8 h-8"
-                          alt="speed"
-                        />
-                        <span
-                          className={`px-3 py-1 rounded-full text-xs font-semibold ${speedMeta.bg} ${speedMeta.text}`}
-                        >
-                          {v.speed} km/h
-                        </span>
+                      <td className="p-4 text-nowrap">
+                        <div className="flex flex-col items-center gap-1">
+                          <img
+                            src={speedMeta.icon}
+                            className="w-8 h-8"
+                            alt="speed"
+                          />
+                          <span
+                            className={`px-3 py-1 rounded-full text-xs font-semibold ${speedMeta.bg} ${speedMeta.text}`}
+                          >
+                            {v.speed} km/h
+                          </span>
+                        </div>
                       </td>
 
-                      <td>{v.time}</td>
+                      <td className="p-4">{v.time}</td>
 
-                      <td className="flex flex-col gap-2">
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs w-fit
-                          ${
-                            v.deviceStatus === "Online"
-                              ? "bg-green-100 text-green-700"
-                              : v.deviceStatus === "Offline"
-                              ? "bg-gray-200 text-gray-600"
-                              : "bg-red-100 text-red-600"
-                          }`}
-                        >
-                          {v.deviceStatus}
-                        </span>
-                        <span className="text-xs text-gray-400">
-                          Expire: {v.time}
-                        </span>
+                      <td className="p-4">
+                        <div className="flex flex-col gap-2">
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs w-fit
+                            ${
+                              v.deviceStatus === "Online"
+                                ? "bg-green-100 text-green-700"
+                                : v.deviceStatus === "Offline"
+                                ? "bg-gray-200 text-gray-600"
+                                : "bg-red-100 text-red-600"
+                            }`}
+                          >
+                            {v.deviceStatus}
+                          </span>
+                          <span className="text-xs text-gray-400">
+                            Expire: {v.time}
+                          </span>
+                        </div>
                       </td>
-
                       {/* ACTIONS (STICKY) */}
-                      <td className="sticky right-0 bg-white z-10">
-                        <div className="flex gap-3 px-3">
+                      <td className="sticky right-0 bg-white z-10 p-4 border-l border-gray-200">
+                        <div className="flex gap-3">
                           <img
                             src="/icons/vehicel/location-pin.svg"
                             className="w-5 h-5"
@@ -323,32 +209,28 @@ export default function VehiclesDashboard() {
             </table>
           </div>
           {/* PAGINATION */}
-          <div className="flex justify-end gap-2 p-3">
-            {Array.from({
-              length: Math.ceil(filtered.length / PAGE_SIZE),
-            }).map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setPage(i + 1)}
-                className={`px-3 py-1 rounded ${
-                  page === i + 1 ? "bg-orange-500 text-white" : "bg-gray-100"
-                }`}
-              >
-                {i + 1}
-              </button>
-            ))}
+          <div className="flex justify-end gap-2 p-4">
+            {Array.from({ length: Math.ceil(filtered.length / PAGE_SIZE) }).map(
+              (_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setPage(i + 1)}
+                  className={`px-3 py-1 rounded border border-gray-300
+                    ${
+                      page === i + 1
+                        ? "bg-orange-500 text-white"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
+                >
+                  {i + 1}
+                </button>
+              )
+            )}
           </div>
         </div>
         {/* 👉 RIGHT SIDE */}
-        {/* <div className="xl:col-span-2 bg-white rounded-xl shadow-sm max-h-screen">
-          <VehiclesStatusOption
-            onTabChange={setActiveTab}
-            onSelectChange={setSelectedIds}
-          />
-        </div> */}
-        {/* 👉 RIGHT SIDE */}
         <div className="xl:col-span-1">
-          <div className="hidden xl:block bg-white rounded-xl shadow-sm h-[calc(100vh-140px)]">
+          <div className="hidden xl:block bg-white border border-gray-300 rounded-xl shadow-sm h-[calc(100vh-140px)] p-4">
             <VehiclesStatusOption />
           </div>
           <div className="xl:hidden">
