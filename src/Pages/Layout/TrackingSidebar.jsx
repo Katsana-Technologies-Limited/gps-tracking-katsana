@@ -120,7 +120,7 @@ export default function TrackingSidebar({ isOpen, setIsOpen }) {
                     isSubActive || isExpanded
                       ? "bg-[#fff7e6] text-[#222] shadow-sm"
                       : "text-primary-green hover:bg-[#f5f6fa]"
-                  } ${!isOpen && "justify-center px-2"}`}
+                  } ${!isOpen ? "flex justify-center px-0" : ""}`}
                   style={{ fontFamily: "Inter, Arial, Helvetica, sans-serif" }}
                   onClick={() => handleExpand(to)}
                   aria-expanded={isExpanded}
@@ -196,7 +196,7 @@ export default function TrackingSidebar({ isOpen, setIsOpen }) {
                 isActive
                   ? "bg-[#fe8e1c] text-white shadow-sm"
                   : "text-primary-green hover:bg-[#f5f6fa]"
-              } ${!isOpen && "justify-center px-2"}`}
+              } ${!isOpen ? "flex justify-center px-0" : ""}`}
               style={{ fontFamily: "Inter, Arial, Helvetica, sans-serif" }}
               title={!isOpen ? label : ""}
             >
@@ -209,7 +209,9 @@ export default function TrackingSidebar({ isOpen, setIsOpen }) {
           );
         })}
       </nav>
-      <LogoutButton />
+      <div className={`w-full mt-auto ${!isOpen ? "flex justify-center" : ""}`}>
+        <LogoutButton collapsed={!isOpen} />
+      </div>
     </aside>
   );
 }
