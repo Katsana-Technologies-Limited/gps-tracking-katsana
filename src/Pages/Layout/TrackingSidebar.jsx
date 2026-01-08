@@ -39,7 +39,7 @@ export default function TrackingSidebar() {
     >
       <div className="flex flex-col items-center mb-6 w-full">
         <img
-          src="/logo.png"
+          src="/logo0.png"
           alt="Katsana Logo"
           className="w-28 h-10 object-contain mb-4"
         />
