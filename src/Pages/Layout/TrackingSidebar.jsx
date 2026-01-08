@@ -6,10 +6,9 @@ import LogoutButton from "./LogoutButton";
 import { sidebarLinks } from "./SidebarRoutes";
 import useCustomer from "../../hooks/useCustomer";
 
-export default function TrackingSidebar() {
+export default function TrackingSidebar({ isOpen, setIsOpen }) {
   const { pathname } = useLocation();
   const [expanded, setExpanded] = useState({});
-  const [isOpen, setIsOpen] = useState(true);
   const { data } = useCustomer();
   const navRef = useRef(null);
 

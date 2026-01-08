@@ -9,7 +9,7 @@ export default function VehiclecurrentLocation() {
   const [trafficOn, setTrafficOn] = useState(false);
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-xl font-semibold text-gray-700">
           Current Location

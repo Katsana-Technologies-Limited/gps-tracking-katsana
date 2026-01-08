@@ -5,6 +5,7 @@ import { Outlet } from "react-router-dom";
 
 export default function TrackingLayout() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
@@ -28,9 +29,16 @@ export default function TrackingLayout() {
 
   return (
     <div className="min-h-screen flex px-2 lg:px-5 bg-primary-gray mb-8">
-      <div className="hidden lg:block w-68 2xl:w-72" aria-hidden />
+      <div
+        className={`hidden lg:block transition-all duration-300 ${
+          isSidebarOpen ? "w-68 2xl:w-72" : "w-20"
+        }`}
+        aria-hidden
+        style={{ minWidth: isSidebarOpen ? 272 : 80 }}
+      />
+      {/* Desktop sidebar */}
       <div className="hidden lg:block">
-        <TrackingSidebar onClose={() => {}} />
+        <TrackingSidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
       </div>
       {isMobileMenuOpen && (
         <>
@@ -47,11 +55,15 @@ export default function TrackingLayout() {
               isAnimating ? "translate-x-0" : "-translate-x-full"
             }`}
           >
-            <TrackingSidebar onClose={handleClose} />
+            <TrackingSidebar isOpen={true} setIsOpen={() => {}} />
           </div>
         </>
       )}
-      <main className="flex-1 min-w-0 px-0 lg:px-3">
+      <main
+        className={`flex-1 min-w-0 px-0 lg:px-3 transition-all duration-300 ${
+          !isSidebarOpen ? "" : ""
+        }`}
+      >
         <div className="sticky top-0 h-2 lg:h-3 w-full z-20 bg-primary-gray" />
         <TrackingTopBar onMenuClick={() => setIsMobileMenuOpen(true)} />
         <div className="p-1 min-h-screen">
