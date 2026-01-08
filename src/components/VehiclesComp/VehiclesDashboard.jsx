@@ -65,7 +65,7 @@ export default function VehiclesDashboard() {
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
-    <div className="space-y-5 scrollbar-thin">
+    <div className="space-y-4 scrollbar-thin">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-xl font-semibold text-gray-700">Vehicles List</h1>
         <div className="flex gap-2">
@@ -84,7 +84,7 @@ export default function VehiclesDashboard() {
             />
             Reload {isReloading && `(${reloadTimer}s)`}
           </button>
-          <button className="px-4 py-2 rounded-lg bg-gradient-to-r from-orange-400 to-orange-500 text-white font-medium flex gap-2 border border-gray-300 shadow-sm hover:from-orange-500 hover:to-orange-600">
+          <button className="px-4 py-2 rounded-lg bg-linear-to-r from-orange-400 to-orange-500 text-white font-medium flex gap-2 border border-gray-300 shadow-sm hover:from-orange-500 hover:to-orange-600">
             <img src="/icons/vehicel/export.svg" alt="export" />
             Export
           </button>
@@ -114,7 +114,7 @@ export default function VehiclesDashboard() {
                   return (
                     <tr
                       key={v.id}
-                      className="border-b border-gray-200 [&:last-child]:border-0"
+                      className="border-b border-gray-200 last:border-0"
                     >
                       <td className="p-4 text-nowrap">{v.customer}</td>
 
@@ -228,9 +228,8 @@ export default function VehiclesDashboard() {
             )}
           </div>
         </div>
-        {/* 👉 RIGHT SIDE */}
         <div className="xl:col-span-1">
-          <div className="hidden xl:block bg-white border border-gray-300 rounded-xl shadow-sm h-[calc(100vh-140px)] p-4 scrollbar-thin">
+          <div className="hidden xl:block bg-white border border-gray-300 rounded-xl shadow-sm h-[calc(100vh-140px)] scrollbar-thin">
             <VehiclesStatusOption />
           </div>
           <div className="xl:hidden">
