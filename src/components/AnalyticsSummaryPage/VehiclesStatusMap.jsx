@@ -1,54 +1,63 @@
 import axios from "axios";
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
-import { Share2, Printer, Scan } from "lucide-react";
+import {
+  Share2,
+  Printer,
+  Scan,
+  ChevronLeft,
+  ChevronRight,
+  ChevronUp,
+  ChevronDown,
+  Plus,
+  Minus,
+} from "lucide-react";
 import jsPDF from "jspdf";
 import useCustomerVehicle from "../../hooks/useCustomerVehicle";
 import useVtsDevices from "../../hooks/useVtsDevices";
 
 const BARIKOI_KEY = import.meta.env.VITE_BARIKOI_API_KEY;
-function useBarikoiAddresses(vehicleCoords) {
-  const [addresses, setAddresses] = useState({});
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+// function useBarikoiAddresses(vehicleCoords) {
+//   const [addresses, setAddresses] = useState({});
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState(null);
 
-  const fetchAddresses = useCallback(async () => {
-    if (!BARIKOI_KEY) return;
-    setLoading(true);
-    setError(null);
-    try {
-      const results = await Promise.all(
-        Object.entries(vehicleCoords).map(async ([imei, { lat, lng }]) => {
-          if (!lat || !lng) return [imei, null];
-          try {
-            const res = await axios.get(
-              `https://barikoi.xyz/v1/api/search/reverse/geocode/${BARIKOI_KEY}/place`,
-              { params: { longitude: lng, latitude: lat } }
-            );
-            return [imei, res.data.place || res.data];
-          } catch {
-            return [imei, null];
-          }
-        })
-      );
-      setAddresses(Object.fromEntries(results));
-    } catch (err) {
-      setError(err);
-    } finally {
-      setLoading(false);
-    }
-  }, [vehicleCoords]);
+//   const fetchAddresses = useCallback(async () => {
+//     if (!BARIKOI_KEY) return;
+//     setLoading(true);
+//     setError(null);
+//     try {
+//       const results = await Promise.all(
+//         Object.entries(vehicleCoords).map(async ([imei, { lat, lng }]) => {
+//           if (!lat || !lng) return [imei, null];
+//           try {
+//             const res = await axios.get(
+//               `https://barikoi.xyz/v1/api/search/reverse/geocode/${BARIKOI_KEY}/place`,
+//               { params: { longitude: lng, latitude: lat } }
+//             );
+//             return [imei, res.data.place || res.data];
+//           } catch {
+//             return [imei, null];
+//           }
+//         })
+//       );
+//       setAddresses(Object.fromEntries(results));
+//     } catch (err) {
+//       setError(err);
+//     } finally {
+//       setLoading(false);
+//     }
+//   }, [vehicleCoords]);
 
-  useEffect(() => {
-    if (Object.keys(vehicleCoords).length) {
-      fetchAddresses();
-    }
-    // eslint-disable-next-line
-  }, [fetchAddresses]);
+//   useEffect(() => {
+//     if (Object.keys(vehicleCoords).length) {
+//       fetchAddresses();
+//     }
+//     // eslint-disable-next-line
+//   }, [fetchAddresses]);
 
-  return { addresses, loading, error };
-}
+//   return { addresses, loading, error };
+// }
 
-const barikoiAPiKey = import.meta.env.VITE_BARIKOI_API_KEY;
 const MAP_STYLE = "https://map.barikoi.com/styles/barikoi-light/style.json";
 const SATELLITE_STYLE =
   "https://map.barikoi.com/styles/barikoi_satellite/style.json";
@@ -64,7 +73,7 @@ const loadImage = (src) =>
 const RadialBtn = ({ children, onClick, style }) => (
   <button
     onClick={onClick}
-    className={`absolute ${style} w-10 h-10 z-10 rounded-full bg-white shadow-md
+    className={`absolute ${style} w-10 h-10 z-10 rounded-full bg-white hover:bg-amber-50 shadow-md
         flex items-center justify-center text-lg font-semibold
         hover:scale-110 transition-transform duration-200`}
   >
@@ -104,8 +113,8 @@ const VehiclesStatusMap = () => {
   }, [imeis, vtsData]);
 
   // Use the custom hook to get all addresses
-  const { addresses: barikoiAddresses, loading: barikoiLoading } =
-    useBarikoiAddresses(vehicleAddresses);
+  // const { addresses: barikoiAddresses, loading: barikoiLoading } =
+  //   useBarikoiAddresses(vehicleAddresses);
 
   useEffect(() => {
     if (!window.bkoigl) return;
@@ -113,9 +122,10 @@ const VehiclesStatusMap = () => {
     const map = new window.bkoigl.Map({
       container: mapContainerRef.current,
       style: satellite ? SATELLITE_STYLE : MAP_STYLE,
-      center: [90.3994, 23.7925],
-      zoom: 14,
-      accessToken: barikoiAPiKey,
+      center: [90.14, 23.681],
+      // center: [90.3563, 23.685],
+      zoom: 5.8,
+      accessToken: BARIKOI_KEY,
       preserveDrawingBuffer: true,
     });
 
@@ -246,8 +256,6 @@ const VehiclesStatusMap = () => {
     setMoveHandel((prev) => !prev);
   };
 
-  // console.log(moveHandel);
-
   return (
     <div
       ref={wrapperRef}
@@ -256,7 +264,7 @@ const VehiclesStatusMap = () => {
       <div ref={mapContainerRef} className="w-full h-full" />
 
       {/* Show addresses for each vehicle below the map */}
-      <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 bg-white bg-opacity-90 rounded-xl shadow px-4 py-2 max-w-xl w-fit flex flex-col gap-1 text-xs">
+      {/* <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 bg-white bg-opacity-90 rounded-xl shadow px-4 py-2 max-w-xl w-fit flex flex-col gap-1 text-xs">
         {imeis.map((imei) => {
           const vts = vtsData?.[imei]?.[0];
           const address = barikoiAddresses?.[imei];
@@ -274,7 +282,7 @@ const VehiclesStatusMap = () => {
             </div>
           );
         })}
-      </div>
+      </div> */}
       <div className="absolute top-3 left-3 z-10 bg-white rounded-lg shadow flex overflow-hidden">
         <button
           onClick={() => setSatellite(false)}
@@ -293,6 +301,7 @@ const VehiclesStatusMap = () => {
           Satellite
         </button>
       </div>
+
       <button
         onClick={() => {
           const el = wrapperRef.current;
@@ -306,12 +315,13 @@ const VehiclesStatusMap = () => {
       >
         <Scan size={21} />
       </button>
-      <div className="absolute bottom-20 right-17 z-20">
+
+      <div className="absolute bottom-9 right-4 z-20">
         <button
           onClick={toggleMove}
           className={`
     relative z-30 cursor-pointer
-    w-12 h-12 rounded-full bg-white shadow-lg
+    w-12 h-12 rounded-full bg-white hover:bg-amber-50 shadow-lg
     flex items-center justify-center
     transition-all duration-300 ease-out
     ${moveHandel ? "rotate-45 scale-110" : "rotate-0 scale-100"}
@@ -335,51 +345,59 @@ const VehiclesStatusMap = () => {
         >
           {/* Zoom In */}
           <RadialBtn
-            style="top-[-60px] left-1/2 -translate-x-1/2 cursor-pointer"
+            style="top-[-80px] right-[50px] cursor-pointer"
             onClick={zoomIn}
           >
-            +
+            {/* + */}
+            <Plus />
           </RadialBtn>
-
-          {/* Zoom Out */}
+          {/* Zoom Out  */}
           <RadialBtn
-            style="bottom-[-60px] left-1/2 -translate-x-1/2 cursor-pointer"
+            style="bottom-[-20px] right-[50px] cursor-pointer"
             onClick={zoomOut}
           >
-            −
+            {/* − */}
+            <Minus />
           </RadialBtn>
 
           {/* Left */}
           <RadialBtn
-            style="left-[-60px] top-1/2 -translate-y-1/2 cursor-pointer"
+            style="left-[-140px] top-[-7px] -translate-y-1/2 cursor-pointer"
             onClick={() => mapRef.current?.panBy([-120, 0])}
           >
-            ←
+            {/* ← */}
+            <ChevronLeft />
           </RadialBtn>
 
           {/* Right */}
           <RadialBtn
-            style="right-[-60px] top-1/2 -translate-y-1/2 cursor-pointer"
+            style="right-[50px] top-[-7px] -translate-y-1/2 cursor-pointer"
             onClick={() => mapRef.current?.panBy([120, 0])}
           >
-            →
+            {/* → */}
+            <ChevronRight />
           </RadialBtn>
 
           {/* Top */}
+
           <RadialBtn
-            style="top-[-42px] right-[-42px] cursor-pointer"
+            style="top-[-80px] left-[-78px] -translate-x-1/2 cursor-pointer"
             onClick={() => mapRef.current?.panBy([0, -120])}
           >
-            ↑
+            {/* ↑ */}
+            <ChevronUp />
           </RadialBtn>
+
           <RadialBtn
-            style="bottom-[-42px] right-[-42px] cursor-pointer"
+            style="bottom-[-20px] left-[-78px] -translate-x-1/2 cursor-pointer"
             onClick={() => mapRef.current?.panBy([0, 120])}
           >
-            ↓
+            {/* ↓ */}
+            <ChevronDown />
           </RadialBtn>
         </div>
       </div>
+
       <div>
         <div className="absolute bottom-6 left-3 z-10  flex flex-col gap-2 cursor-pointer">
           <div className="w-8 h-8 rounded-xl bg-[#95F0B3]" />

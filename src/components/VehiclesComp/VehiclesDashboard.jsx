@@ -179,6 +179,8 @@ export default function VehiclesDashboard() {
   // 📄 Pagination
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
+  // console.log(vehicles);
+
   return (
     <div className="p-4 space-y-4">
       {/* 🔝 TOP BAR */}
