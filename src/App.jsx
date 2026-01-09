@@ -25,7 +25,7 @@ import Payment from "./Pages/Routes/Payment";
 import UserManagement from "./Pages/Routes/UserManagement";
 import AIAssistant from "./Pages/Routes/AIAssistant";
 import ProtectedRoute from "./services/ProtectedRoute";
-import VehiclecurrentLocation from "./components/Vehicles/VehiclecurrentLocation";
+import VehiclecurrentLocation from "./components/Vehicles/VehicleCurrentLocation";
 import VehicleRoute from "./components/Vehicles/VehicleRoute";
 import VtsProfile from "./components/utils/Profile/VtsProfile";
 import VehicleAlerts from "./components/Vehicles/VehicleAlerts";

@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import VehiclesStatusOption from "../AnalyticsSummary/VehiclesStatusOption";
-import { Power, RotateCw } from "lucide-react";
+import { Power } from "lucide-react";
 import VehicleStatusDrawer from "./VehicleStatusDrawer";
 import VehiclesStatusMap from "../AnalyticsSummary/VehiclesStatusMap";
 import { TrafficToggle } from "../utils/TrafficToggle";
 
-export default function VehiclecurrentLocation() {
+export default function VehicleCurrentLocation() {
   const [trafficOn, setTrafficOn] = useState(false);
 
   return (
