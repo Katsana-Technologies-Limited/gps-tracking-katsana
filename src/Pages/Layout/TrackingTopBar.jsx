@@ -1,6 +1,9 @@
 /* eslint-disable no-unused-vars */
 import { useState, useRef, useEffect } from "react";
 import { Archive, CarFront, Headset, Menu } from "lucide-react";
+import { User } from "lucide-react";
+import { Link } from "react-router-dom";
+import LogoutButton from "./LogoutButton";
 
 const IconBell = () => (
   <svg
@@ -125,23 +128,18 @@ const TrackingTopBar = ({ onMenuClick }) => {
             onClick={() => setShowProfile((v) => !v)}
           />
           {showProfile && (
-            <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-slate-200 z-50">
-              <div className="px-4 py-3 border-b">
-                <div className="font-semibold text-gray-700">John Doe</div>
-                <div className="text-xs text-gray-400">john.doe@email.com</div>
-              </div>
-              <button
-                className="w-full text-left px-4 py-2 hover:bg-orange-50 text-gray-700 font-medium"
-                onClick={() => alert("Profile clicked")}
+            <div className="absolute right-0 mt-2 w-36 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+              <Link
+                to="/dashboard/profile"
+                className="w-full flex items-center gap-2 px-4 py-2.5 hover:bg-orange-50 text-gray-700 font-medium"
+                onClick={() => setShowProfile(false)}
               >
+                <User size={18} className="text-orange-500" />
                 Profile
-              </button>
-              <button
-                className="w-full text-left px-4 py-2 hover:bg-orange-50 text-gray-700 font-medium border-t"
-                onClick={() => alert("Logout clicked")}
-              >
-                Logout
-              </button>
+              </Link>
+              <div className="border-t border-gray-200">
+                <LogoutButton collapsed={false} />
+              </div>
             </div>
           )}
         </div>
