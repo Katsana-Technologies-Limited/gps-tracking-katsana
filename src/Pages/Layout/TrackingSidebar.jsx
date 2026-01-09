@@ -75,19 +75,22 @@ export default function TrackingSidebar({ isOpen, setIsOpen }) {
         (() => {
           let currentRouteName = "";
           let parentRouteName = "";
-          sidebarLinks.forEach(({ to, label, subroutes }) => {
+          for (const { to, label, subroutes } of sidebarLinks) {
             if (pathname === to) {
               currentRouteName = label;
+              break;
             }
             if (subroutes) {
-              subroutes.forEach((sub) => {
-                if (pathname.startsWith(sub.to)) {
+              for (const sub of subroutes) {
+                if (pathname === sub.to || pathname.startsWith(sub.to + "/")) {
                   currentRouteName = sub.label;
                   parentRouteName = label;
+                  break;
                 }
-              });
+              }
+              if (currentRouteName) break;
             }
-          });
+          }
           return null;
         })()}
       <button
