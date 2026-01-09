@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { X, SlidersHorizontal } from "lucide-react";
-import VehiclesStatusOption from "../AnalyticsSummaryPage/VehiclesStatusOption";
+import VehiclesStatusOption from "../AnalyticsSummary/VehiclesStatusOption";
 
 export default function VehicleStatusDrawer() {
   const [open, setOpen] = useState(false);

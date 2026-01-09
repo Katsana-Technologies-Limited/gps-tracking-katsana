@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import VehiclesStatusOption from "../AnalyticsSummaryPage/VehiclesStatusOption";
+import VehiclesStatusOption from "../AnalyticsSummary/VehiclesStatusOption";
 import { Power, RotateCw } from "lucide-react";
 import VehicleStatusDrawer from "./VehicleStatusDrawer";
-import VehiclesStatusMap from "../AnalyticsSummaryPage/VehiclesStatusMap";
+import VehiclesStatusMap from "../AnalyticsSummary/VehiclesStatusMap";
 import { TrafficToggle } from "../utils/TrafficToggle";
 
 export default function VehiclecurrentLocation() {

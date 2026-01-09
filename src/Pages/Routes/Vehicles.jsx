@@ -1,6 +1,6 @@
 import React from "react";
 import { Car } from "lucide-react";
-import VehiclesDashboard from "../../components/VehiclesComp/VehiclesDashboard";
+import VehiclesDashboard from "../../components/Vehicles/VehiclesDashboard";
 
 export default function Vehicles() {
   return (

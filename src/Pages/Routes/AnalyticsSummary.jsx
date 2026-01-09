@@ -1,10 +1,10 @@
 import "leaflet/dist/leaflet.css";
-import TraveledDistance from "../../components/AnalyticsSummaryPage/TraveledDistance";
-import CounterVehicles from "../../components/AnalyticsSummaryPage/CounterVehicles";
-import VehiclesStatusOption from "../../components/AnalyticsSummaryPage/VehiclesStatusOption";
-import VehiclesStatusMap from "../../components/AnalyticsSummaryPage/VehiclesStatusMap";
-import AlertsSummaryNumberChart from "../../components/AnalyticsSummaryPage/AlertsSummaryNumberChart";
-import AlertsSummaryBarChart from "../../components/AnalyticsSummaryPage/AlertsSummaryBarChart";
+import TraveledDistance from "../../components/AnalyticsSummary/TraveledDistance";
+import CounterVehicles from "../../components/AnalyticsSummary/CounterVehicles";
+import VehiclesStatusOption from "../../components/AnalyticsSummary/VehiclesStatusOption";
+import VehiclesStatusMap from "../../components/AnalyticsSummary/VehiclesStatusMap";
+import AlertsSummaryNumberChart from "../../components/AnalyticsSummary/AlertsSummaryNumberChart";
+import AlertsSummaryBarChart from "../../components/AnalyticsSummary/AlertsSummaryBarChart";
 
 const Card = ({ children, className = "" }) => (
   <div

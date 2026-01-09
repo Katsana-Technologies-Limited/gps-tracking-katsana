@@ -13,8 +13,10 @@ import Payment from "./Pages/Routes/Payment";
 import UserManagement from "./Pages/Routes/UserManagement";
 import AIAssistant from "./Pages/Routes/AIAssistant";
 import ProtectedRoute from "./services/ProtectedRoute";
-import VtsProfile from "./components/Profile/VtsProfile";
-import VehiclecurrentLocation from "./components/VehiclesComp/VehiclecurrentLocation";
+import VehiclecurrentLocation from "./components/Vehicles/VehiclecurrentLocation";
+import VehicleRoute from "./components/Vehicles/VehicleRoute";
+import VtsProfile from "./components/utils/Profile/VtsProfile";
+import VehicleAlerts from "./components/Vehicles/VehicleAlerts";
 
 const App = () => {
   return (
@@ -37,6 +39,8 @@ const App = () => {
             path="vehicles/current-location"
             element={<VehiclecurrentLocation />}
           />
+          <Route path="vehicles/vehicle-route" element={<VehicleRoute />} />
+          <Route path="vehicles/vehicle-alerts" element={<VehicleAlerts />} />
           <Route path="reports" element={<Reports />} />
           <Route path="drive-mark" element={<DriveMark />} />
           <Route path="alert" element={<Alert />} />

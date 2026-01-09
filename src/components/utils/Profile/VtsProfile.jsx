@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { useMutation } from "@tanstack/react-query";
-import { useAxios } from "../../hooks/useAxios";
 import { useForm } from "react-hook-form";
-import useCustomer from "../../hooks/useCustomer";
+import { useAxios } from "../../../hooks/useAxios";
+import useCustomer from "../../../hooks/useCustomer";
 
 const VtsProfile = () => {
   const axiosUrl = useAxios();

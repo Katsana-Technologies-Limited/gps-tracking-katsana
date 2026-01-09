@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/immutability */
 import React, { useEffect, useMemo, useState } from "react";
-import VehiclesStatusOption from "../AnalyticsSummaryPage/VehiclesStatusOption";
+import VehiclesStatusOption from "../AnalyticsSummary/VehiclesStatusOption";
 import { getSpeedMeta, mockReverseGeocode } from "../../utilits/vehicleHelpers";
 import { RotateCw } from "lucide-react";
 import VehicleStatusDrawer from "./VehicleStatusDrawer";
