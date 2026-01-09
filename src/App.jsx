@@ -5,7 +5,19 @@ import TrackingLayout from "./Pages/Layout/TrackingLayout";
 import AnalyticsSummary from "./Pages/Routes/AnalyticsSummary";
 import Vehicles from "./Pages/Routes/Vehicles";
 import Reports from "./Pages/Routes/Reports";
-import DriveMark from "./Pages/Routes/DriveMark";
+import MonthlyDistanceReport from "./components/Reports/MonthlyDistanceReport";
+import HourlyDistanceReport from "./components/Reports/HourlyDistanceReport";
+import DailyDistanceReport from "./components/Reports/DailyDistanceReport";
+import LocationReport from "./components/Reports/LocationReport";
+import SpeedReport from "./components/Reports/SpeedReport";
+import EngineReport from "./components/Reports/EngineReport";
+import TripReport from "./components/Reports/TripReport";
+import FuelReport from "./components/Reports/FuelReport";
+import LastLocationReport from "./components/Reports/LastLocationReport";
+import DailyLiveStatusReport from "./components/Reports/DailyLiveStatusReport";
+import MonthlyKPLCostReport from "./components/Reports/MonthlyKPLCostReport";
+import VehicleActivityReport from "./components/Reports/VehicleActivityReport";
+import MonthlyModelSummaryReport from "./components/Reports/MonthlyModelSummaryReport";
 import Alert from "./Pages/Routes/Alert";
 import Maintenance from "./Pages/Routes/Maintenance";
 import Support from "./Pages/Routes/Support";
@@ -21,6 +33,7 @@ import FindHelp from "./components/Vehicles/FindHelp";
 import LocationShareList from "./components/Vehicles/LocationShareList";
 import RouteShareList from "./components/Vehicles/RouteShareList";
 import GeoFence from "./components/Vehicles/GeoFence";
+import DailyAnalytics from "./components/Drive Mark/DailyAnalytics";
 
 const App = () => {
   return (
@@ -46,11 +59,54 @@ const App = () => {
           <Route path="vehicles/vehicle-route" element={<VehicleRoute />} />
           <Route path="vehicles/vehicle-alerts" element={<VehicleAlerts />} />
           <Route path="vehicles/find-help" element={<FindHelp />} />
-          <Route path="vehicles/location-share-list" element={<LocationShareList />} />
-          <Route path="vehicles/route-share-list" element={<RouteShareList />} />
+          <Route
+            path="vehicles/location-share-list"
+            element={<LocationShareList />}
+          />
+          <Route
+            path="vehicles/route-share-list"
+            element={<RouteShareList />}
+          />
           <Route path="vehicles/geo-fence" element={<GeoFence />} />
           <Route path="reports" element={<Reports />} />
-          <Route path="drive-mark" element={<DriveMark />} />
+          <Route
+            path="reports/monthly-distance"
+            element={<MonthlyDistanceReport />}
+          />
+          <Route
+            path="reports/hourly-distance"
+            element={<HourlyDistanceReport />}
+          />
+          <Route
+            path="reports/daily-distance"
+            element={<DailyDistanceReport />}
+          />
+          <Route path="reports/location" element={<LocationReport />} />
+          <Route path="reports/speed" element={<SpeedReport />} />
+          <Route path="reports/engine" element={<EngineReport />} />
+          <Route path="reports/trip" element={<TripReport />} />
+          <Route path="reports/fuel" element={<FuelReport />} />
+          <Route
+            path="reports/last-location"
+            element={<LastLocationReport />}
+          />
+          <Route
+            path="reports/daily-live-status"
+            element={<DailyLiveStatusReport />}
+          />
+          <Route
+            path="reports/monthly-kpl-cost"
+            element={<MonthlyKPLCostReport />}
+          />
+          <Route
+            path="reports/vehicle-activity"
+            element={<VehicleActivityReport />}
+          />
+          <Route
+            path="reports/monthly-model-summary"
+            element={<MonthlyModelSummaryReport />}
+          />
+          <Route path="drive-mark/daily-analytics" element={<DailyAnalytics />} />
           <Route path="alert" element={<Alert />} />
           <Route path="maintenance" element={<Maintenance />} />
           <Route path="support" element={<Support />} />
