@@ -103,7 +103,7 @@ const TrackingTopBar = ({ onMenuClick }) => {
         </button>
         <div className="ml-1">
           <img
-            src="https://randomuser.me/api/portraits/men/32.jpg"
+            src="/sddefault.jpg"
             alt="User Avatar"
             className="w-8 h-8 cursor-pointer rounded-full border border-slate-200 shadow-sm"
           />
