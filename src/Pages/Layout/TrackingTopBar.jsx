@@ -35,6 +35,22 @@ const IconSearch = () => (
 );
 
 const TrackingTopBar = ({ onMenuClick }) => {
+  const [showProfile, setShowProfile] = useState(false);
+  const profileRef = useRef(null);
+
+  useEffect(() => {
+    function onDoc(e) {
+      if (
+        showProfile &&
+        profileRef.current &&
+        !profileRef.current.contains(e.target)
+      ) {
+        setShowProfile(false);
+      }
+    }
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, [showProfile]);
   const [showActions, setShowActions] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const actionsRef = useRef(null);
@@ -101,12 +117,33 @@ const TrackingTopBar = ({ onMenuClick }) => {
         <button className="rounded-full cursor-pointer hover:bg-orange-50 text-orange-500 p-1.5 transition">
           <Headset />
         </button>
-        <div className="ml-1">
+        <div className="ml-1 relative" ref={profileRef}>
           <img
             src="/sddefault.jpg"
             alt="User Avatar"
             className="w-8 h-8 cursor-pointer rounded-full border border-slate-200 shadow-sm"
+            onClick={() => setShowProfile((v) => !v)}
           />
+          {showProfile && (
+            <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-slate-200 z-50">
+              <div className="px-4 py-3 border-b">
+                <div className="font-semibold text-gray-700">John Doe</div>
+                <div className="text-xs text-gray-400">john.doe@email.com</div>
+              </div>
+              <button
+                className="w-full text-left px-4 py-2 hover:bg-orange-50 text-gray-700 font-medium"
+                onClick={() => alert("Profile clicked")}
+              >
+                Profile
+              </button>
+              <button
+                className="w-full text-left px-4 py-2 hover:bg-orange-50 text-gray-700 font-medium border-t"
+                onClick={() => alert("Logout clicked")}
+              >
+                Logout
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
