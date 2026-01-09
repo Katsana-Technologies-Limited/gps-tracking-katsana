@@ -17,6 +17,10 @@ import VehiclecurrentLocation from "./components/Vehicles/VehiclecurrentLocation
 import VehicleRoute from "./components/Vehicles/VehicleRoute";
 import VtsProfile from "./components/utils/Profile/VtsProfile";
 import VehicleAlerts from "./components/Vehicles/VehicleAlerts";
+import FindHelp from "./components/Vehicles/FindHelp";
+import LocationShareList from "./components/Vehicles/LocationShareList";
+import RouteShareList from "./components/Vehicles/RouteShareList";
+import GeoFence from "./components/Vehicles/GeoFence";
 
 const App = () => {
   return (
@@ -41,6 +45,10 @@ const App = () => {
           />
           <Route path="vehicles/vehicle-route" element={<VehicleRoute />} />
           <Route path="vehicles/vehicle-alerts" element={<VehicleAlerts />} />
+          <Route path="vehicles/find-help" element={<FindHelp />} />
+          <Route path="vehicles/location-share-list" element={<LocationShareList />} />
+          <Route path="vehicles/route-share-list" element={<RouteShareList />} />
+          <Route path="vehicles/geo-fence" element={<GeoFence />} />
           <Route path="reports" element={<Reports />} />
           <Route path="drive-mark" element={<DriveMark />} />
           <Route path="alert" element={<Alert />} />

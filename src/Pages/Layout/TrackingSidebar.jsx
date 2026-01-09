@@ -71,6 +71,22 @@ export default function TrackingSidebar({ isOpen, setIsOpen }) {
         maxWidth: isOpen ? 340 : 80,
       }}
     >
+      {isOpen &&
+        (() => {
+          let currentRouteName = "";
+          sidebarLinks.forEach(({ to, label, subroutes }) => {
+            if (pathname === to) {
+              currentRouteName = label;
+            }
+            if (subroutes) {
+              subroutes.forEach((sub) => {
+                if (pathname.startsWith(sub.to)) {
+                  currentRouteName = sub.label;
+                }
+              });
+            }
+          });
+        })()}
       <button
         onClick={toggleSidebar}
         className="absolute top-4 right-4 p-2 rounded-lg hover:bg-gray-100 transition-colors z-10 cursor-pointer"
