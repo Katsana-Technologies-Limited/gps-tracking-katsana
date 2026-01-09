@@ -25,7 +25,6 @@ import Payment from "./Pages/Routes/Payment";
 import UserManagement from "./Pages/Routes/UserManagement";
 import AIAssistant from "./Pages/Routes/AIAssistant";
 import ProtectedRoute from "./services/ProtectedRoute";
-import VehiclecurrentLocation from "./components/Vehicles/VehicleCurrentLocation";
 import VehicleRoute from "./components/Vehicles/VehicleRoute";
 import VtsProfile from "./components/utils/Profile/VtsProfile";
 import VehicleAlerts from "./components/Vehicles/VehicleAlerts";
@@ -34,6 +33,7 @@ import LocationShareList from "./components/Vehicles/LocationShareList";
 import RouteShareList from "./components/Vehicles/RouteShareList";
 import GeoFence from "./components/Vehicles/GeoFence";
 import DailyAnalytics from "./components/Drive Mark/DailyAnalytics";
+import VehicleCurrentLocationa from "./components/Vehicles/VehicleCurrentLocationa";
 
 const App = () => {
   return (
@@ -54,7 +54,7 @@ const App = () => {
           <Route path="vehicles/dashboard" element={<Vehicles />} />
           <Route
             path="vehicles/current-location"
-            element={<VehiclecurrentLocation />}
+            element={<VehicleCurrentLocationa />}
           />
           <Route path="vehicles/vehicle-route" element={<VehicleRoute />} />
           <Route path="vehicles/vehicle-alerts" element={<VehicleAlerts />} />

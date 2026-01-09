@@ -5,7 +5,7 @@ import VehicleStatusDrawer from "./VehicleStatusDrawer";
 import VehiclesStatusMap from "../AnalyticsSummary/VehiclesStatusMap";
 import { TrafficToggle } from "../utils/TrafficToggle";
 
-export default function VehicleCurrentLocation() {
+export default function VehicleCurrentLocationa() {
   const [trafficOn, setTrafficOn] = useState(false);
 
   return (
