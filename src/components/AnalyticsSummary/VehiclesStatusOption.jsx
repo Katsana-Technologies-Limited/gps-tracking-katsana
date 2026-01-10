@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import { Check, Search } from "lucide-react";
 import GlobalLoading from "../utils/GlobalLoading";
 import useVtsAllDevices from "../../hooks/useVtsAllDevices";
+import useCustomerVehicle from "../../hooks/useCustomerVehicle";
 
 const TABS = ["All", "Offline", "Online", "Suspended"];
 
@@ -24,18 +25,56 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
   const [activeTab, setActiveTab] = useState("All");
   const [query, setQuery] = useState("");
   const { filteredDevices, isLoading } = useVtsAllDevices();
-
-  // Map filteredDevices to VEHICLES structure
+  const { data: customerVehicles = [], isLoading: isLoadingCustomer } =
+    useCustomerVehicle();
+  console.log(filteredDevices);
+  // Map to VEHICLES structure
   const VEHICLES = useMemo(() => {
-    if (!filteredDevices) return [];
-    return filteredDevices.map((device, index) => ({
-      id: device.device_data?.id ?? device.id ?? index + 1,
-      number: device.device_data?.name || device.name || "-",
-      reg: device.device_data?.subscription_number || "-",
-      status: device.online === "online" ? "Online" : "Offline",
-      imei: device.device_data?.imei || device.imei,
-    }));
-  }, [filteredDevices]);
+    if (activeTab === "All") {
+      // Show all vehicles from DB, merge live VTS data if available
+      return customerVehicles.map((v, index) => {
+        // Find matching VTS device by IMEI
+        const live = filteredDevices?.find(
+          (d) => (d.device_data?.imei || d.imei) === v.imei
+        );
+        return {
+          id: v.id ?? live?.device_data?.id ?? live?.id ?? index + 1,
+          number:
+            v.vehicle_name ||
+            v.subscription_number ||
+            v.imei ||
+            live?.device_data?.name ||
+            live?.name ||
+            "-",
+          reg:
+            v.subscription_number ||
+            live?.device_data?.subscription_number ||
+            "-",
+          status: live
+            ? live.online === "online"
+              ? "Online"
+              : "Offline"
+            : "Unknown",
+          imei: v.imei,
+          company: v.company,
+          // Attach all live VTS data if available
+          vts: live || null,
+        };
+      });
+    } else {
+      // Show only filteredDevices (with live status)
+      if (!filteredDevices) return [];
+      return filteredDevices.map((device, index) => ({
+        id: device.device_data?.id ?? device.id ?? index + 1,
+        number: device.device_data?.name || device.name || "-",
+        reg: device.device_data?.subscription_number || "-",
+        status: device.online === "online" ? "Online" : "Offline",
+        imei: device.device_data?.imei || device.imei,
+        company: device.company,
+        vts: device,
+      }));
+    }
+  }, [activeTab, filteredDevices, customerVehicles]);
 
   // Filter vehicles by tab and query
   const filteredVehicles = useMemo(() => {
@@ -75,7 +114,7 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
     }
   };
 
-  if (isLoading) {
+  if (isLoading || isLoadingCustomer) {
     return <GlobalLoading message="Loading vehicles..." />;
   }
 
@@ -135,7 +174,11 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
       <div className="flex flex-col gap-2 max-h-125 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
         {filteredVehicles.map((v) => {
           const isSelected = selected.includes(v.id);
-          const style = statusStyle[v.status];
+          // Provide a default style for unknown status
+          const style = statusStyle[v.status] || {
+            border: "border-gray-200",
+            bg: "bg-white",
+          };
 
           return (
             <div

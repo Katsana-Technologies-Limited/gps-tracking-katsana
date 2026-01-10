@@ -16,34 +16,62 @@ export default function VehiclesDashboard() {
   const [isReloading, setIsReloading] = useState(false);
   const { filteredDevices, isLoading } = useVtsAllDevices();
   const { data: customerVehicles = [] } = useCustomerVehicle();
-  console.log(customerVehicles);
+
   const [enrichedDevices, setEnrichedDevices] = useState([]);
   useEffect(() => {
     const enrich = async () => {
-      if (!filteredDevices) return;
-      const enriched = await Promise.all(
-        filteredDevices.map(async (v) => {
-          const match = customerVehicles.find(
-            (cv) => String(cv.imei) === String(v.imei)
-          );
-          // Debug: log the match for each device
-          if (!match) {
-            console.warn("No customerVehicle match for IMEI", v.imei);
-          }
-          return {
-            ...v,
-            customer: match?.company || v.imei || "",
-            vehicle: match?.vehicle_name || v.imei || "",
-            reg: match?.reg_no || "",
-            landmark:
-              v.lat && v.lng ? await mockReverseGeocode(v.lat, v.lng) : "",
-          };
-        })
-      );
+      let enriched = [];
+      if (activeTab === "All") {
+        // Show all vehicles from DB, merge live VTS data if available
+        enriched = await Promise.all(
+          customerVehicles.map(async (v, index) => {
+            const live = filteredDevices?.find(
+              (d) => (d.device_data?.imei || d.imei) === v.imei
+            );
+            return {
+              ...v,
+              customer: v.company || v.imei || "",
+              vehicle: v.vehicle_name || v.imei || "",
+              reg: v.subscription_number || "",
+              landmark:
+                live?.lat && live?.lng
+                  ? await mockReverseGeocode(live.lat, live.lng)
+                  : "",
+              deviceStatus: live
+                ? live.online === "online"
+                  ? "Online"
+                  : "Offline"
+                : "Unknown",
+              speed: live?.speed ?? "-",
+              time: live?.time ?? "-",
+              lat: live?.lat ?? v.lat,
+              lng: live?.lng ?? v.lng,
+            };
+          })
+        );
+      } else {
+        // Show only filteredDevices (with live status)
+        if (!filteredDevices) return;
+        enriched = await Promise.all(
+          filteredDevices.map(async (v) => {
+            const match = customerVehicles.find(
+              (cv) => String(cv.imei) === String(v.imei)
+            );
+            return {
+              ...v,
+              customer: match?.company || v.imei || "",
+              vehicle: match?.vehicle_name || v.imei || "",
+              reg: match?.reg_no || "",
+              landmark:
+                v.lat && v.lng ? await mockReverseGeocode(v.lat, v.lng) : "",
+            };
+          })
+        );
+      }
       setEnrichedDevices(enriched);
     };
     enrich();
-  }, [filteredDevices, customerVehicles]);
+  }, [filteredDevices, customerVehicles, activeTab]);
 
   useEffect(() => {
     if (!isReloading) return;
