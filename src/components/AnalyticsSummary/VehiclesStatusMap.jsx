@@ -98,7 +98,7 @@ const VehiclesStatusMap = () => {
 
   // Fetch VTS data for all IMEIs every 10 seconds
   const { data: vtsData } = useVtsDevices(imeis);
-  console.log(vtsData);
+  // console.log(vtsData);
   // Prepare Barikoi reverse geocode hooks for each vehicle
   const vehicleAddresses = useMemo(() => {
     if (!imeis.length || !vtsData) return {};

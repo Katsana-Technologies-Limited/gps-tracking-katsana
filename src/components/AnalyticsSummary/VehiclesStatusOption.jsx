@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import { Check, Search } from "lucide-react";
 import GlobalLoading from "../utils/GlobalLoading";
 import useCustomerVehicle from "../../hooks/useCustomerVehicle";
+import useVtsAllDevices from "../../hooks/useVtsAllDevices";
 
 const TABS = ["All", "Offline", "Online", "Suspended"];
 
@@ -25,6 +26,8 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState([]);
   const { data: vehiclesData, isLoading } = useCustomerVehicle();
+  const { filteredDevices } = useVtsAllDevices();
+  console.log(filteredDevices);
 
   const rawVehicles = Array.isArray(vehiclesData)
     ? vehiclesData
