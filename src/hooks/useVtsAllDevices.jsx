@@ -2,9 +2,6 @@ import { useMemo } from "react";
 import useDataQuery from "./useDataQuery";
 import useCustomerVehicle from "./useCustomerVehicle";
 
-const VTS_DEVICES_URL =
-  "http://194.135.92.189/api/get_devices?lang=en&user_api_hash=$2y$10$5ULdfBXQeFG9eA7vjGxy5eoHPnU8T9cMe49goEXkkAmjLfXLj0l0m";
-
 const useVtsAllDevices = () => {
   // Fetch all VTS devices
   const {
@@ -12,7 +9,7 @@ const useVtsAllDevices = () => {
     isLoading: isLoadingDevices,
     error: errorDevices,
     refetch: refetchDevices,
-  } = useDataQuery(["vts-all-devices"], VTS_DEVICES_URL);
+  } = useDataQuery(["vts-all-devices"], "/api/vts/devices-proxy");
 
   // Fetch customer vehicles (with IMEIs)
   const {
@@ -34,13 +31,14 @@ const useVtsAllDevices = () => {
     return customerVehicles.map((v) => v.imei);
   }, [customerVehicles]);
 
-  // Filter devices by customer IMEIs
+  // Filter devices by customer IMEIs (imei-wise)
   const filteredDevices = useMemo(() => {
     if (!allDevices.length || !customerImeis.length) return [];
+    // Create a map for fast lookup
+    const imeiSet = new Set(customerImeis);
     return allDevices.filter((device) => {
-      // device_data.imei or device.device_data?.imei
       const imei = device.device_data?.imei || device.imei;
-      return customerImeis.includes(imei);
+      return imeiSet.has(imei);
     });
   }, [allDevices, customerImeis]);
 

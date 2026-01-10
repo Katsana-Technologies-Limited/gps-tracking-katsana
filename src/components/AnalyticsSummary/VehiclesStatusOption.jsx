@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { Check, Search } from "lucide-react";
 import GlobalLoading from "../utils/GlobalLoading";
-import useCustomerVehicle from "../../hooks/useCustomerVehicle";
+import useVtsAllDevices from "../../hooks/useVtsAllDevices";
 
 const TABS = ["All", "Offline", "Online", "Suspended"];
 
@@ -24,19 +24,22 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
   const [activeTab, setActiveTab] = useState("All");
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState([]);
-  const { data: vehiclesData, isLoading } = useCustomerVehicle();
+  const { filteredDevices, isLoading, customerVehicles } = useVtsAllDevices();
 
-  const rawVehicles = Array.isArray(vehiclesData)
-    ? vehiclesData
-    : vehiclesData?.data || vehiclesData?.vehicles || [];
-
-  const VEHICLES = rawVehicles.map((v, index) => ({
-    id: v.id ?? index + 1,
-    number: v.vehicle_name || "-",
-    reg: v.subscription_number || "-",
-    status: v.status || "Online",
-    imei: v.imei,
-  }));
+  // Map filteredDevices to VEHICLES structure
+  const VEHICLES = useMemo(() => {
+    if (!filteredDevices || !customerVehicles) return [];
+    return filteredDevices.map((device, index) => {
+      const vehicle = customerVehicles.find(v => v.imei === (device.device_data?.imei || device.imei));
+      return {
+        id: vehicle?.id ?? device.id ?? index + 1,
+        number: vehicle?.vehicle_name || device.name || "-",
+        reg: vehicle?.subscription_number || "-",
+        status: device.online === "online" ? "Online" : device.online === "ack" ? "Offline" : device.online === "offline" ? "Suspended" : "Online",
+        imei: vehicle?.imei || device.device_data?.imei || device.imei,
+      };
+    });
+  }, [filteredDevices, customerVehicles]);
 
   const filteredVehicles = useMemo(() => {
     let list =
