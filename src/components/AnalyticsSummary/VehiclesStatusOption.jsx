@@ -25,7 +25,6 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
   const [query, setQuery] = useState("");
   const { filteredDevices, isLoading } = useVtsAllDevices();
 
-<<<<<<< HEAD
   // Map filteredDevices to VEHICLES structure
   const VEHICLES = useMemo(() => {
     if (!filteredDevices) return [];
@@ -37,21 +36,6 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
       imei: device.device_data?.imei || device.imei,
     }));
   }, [filteredDevices]);
-=======
-  console.log(vehiclesData);
-
-  const rawVehicles = Array.isArray(vehiclesData)
-    ? vehiclesData
-    : vehiclesData?.data || vehiclesData?.vehicles || [];
-
-  const VEHICLES = rawVehicles.map((v, index) => ({
-    id: v.id ?? index + 1,
-    number: v.vehicle_name || "-",
-    reg: v.subscription_number || "-",
-    status: v.status || "Online",
-    imei: v.imei,
-  }));
->>>>>>> sw
 
   // Filter vehicles by tab and query
   const filteredVehicles = useMemo(() => {

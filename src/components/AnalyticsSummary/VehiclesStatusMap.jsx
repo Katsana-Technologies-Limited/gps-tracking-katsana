@@ -1,14 +1,5 @@
 import { useMemo, useRef, useState } from "react";
-import {
-  Map,
-  Source,
-  Layer,
-  FullscreenControl,
-  NavigationControl,
-  GeolocateControl,
-  ScaleControl,
-  Marker,
-} from "react-bkoi-gl";
+import { Map, Source, Layer, Marker } from "react-bkoi-gl";
 import "react-bkoi-gl/styles";
 import {
   Share2,
@@ -25,6 +16,7 @@ import jsPDF from "jspdf";
 import useCustomerVehicle from "../../hooks/useCustomerVehicle";
 import useVtsDevices from "../../hooks/useVtsDevices";
 import { VehicleMarker } from "../Vehicles/VehicleMarker";
+import useVtsAllDevices from "../../hooks/useVtsAllDevices";
 
 const BARIKOI_KEY = import.meta.env.VITE_BARIKOI_API_KEY;
 
@@ -45,6 +37,9 @@ const vehicleLayer = {
 const VehiclesStatusMap = () => {
   const mapRef = useRef(null);
   const wrapperRef = useRef(null);
+  const { filteredDevices, isLoading } = useVtsAllDevices();
+
+  console.log(filteredDevices);
 
   const [satellite, setSatellite] = useState(false);
   const [moveHandel, setMoveHandel] = useState(false);
