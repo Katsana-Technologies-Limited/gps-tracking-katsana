@@ -29,11 +29,13 @@ function useVtsDevices(imeis = []) {
   let itemsByImei = {};
   if (query.data?.mapped) {
     Object.entries(query.data.mapped).forEach(([imei, groups]) => {
-      // groups is an array of group objects, each with an items array
       if (Array.isArray(groups)) {
-        itemsByImei[imei] = groups.flatMap((group) =>
-          Array.isArray(group.items) ? group.items : []
-        );
+        itemsByImei[imei] = groups.reduce((acc, group) => {
+          if (Array.isArray(group.items)) {
+            return acc.concat(group.items);
+          }
+          return acc;
+        }, []);
       } else {
         itemsByImei[imei] = [];
       }
