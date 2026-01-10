@@ -39,7 +39,7 @@ body {
 .maplibregl-ctrl-bottom-right,
 .maplibregl-ctrl-bottom-left,
 .maplibregl-ctrl-top-right {
-  display: none;
+  display: none !important;
 }
 
 .radial-btn {
@@ -67,24 +67,4 @@ body {
 .radial-close .radial-btn {
   opacity: 0;
   transform: rotate(-90deg) translateY(0) scale(0.5);
-}
-
-/* FAN POSITIONS */
-.btn-up {
-  transform: rotate(-90deg) translateY(70px);
-}
-.btn-down {
-  transform: rotate(90deg) translateY(70px);
-}
-.btn-left {
-  transform: rotate(-180deg) translateY(70px);
-}
-.btn-right {
-  transform: rotate(0deg) translateY(70px);
-}
-.btn-top-right {
-  transform: rotate(-45deg) translateY(70px);
-}
-.btn-bottom-right {
-  transform: rotate(45deg) translateY(70px);
 }

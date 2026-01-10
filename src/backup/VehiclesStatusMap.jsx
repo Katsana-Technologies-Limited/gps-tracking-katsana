@@ -1,125 +1,294 @@
-import React, { useRef, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
-import { CiLink } from "react-icons/ci";
-import { IoMdPrint } from "react-icons/io";
+import axios from "axios";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import {
+  Share2,
+  Printer,
+  Scan,
+  ChevronLeft,
+  ChevronRight,
+  ChevronUp,
+  ChevronDown,
+  Plus,
+  Minus,
+} from "lucide-react";
+import jsPDF from "jspdf";
+import useCustomerVehicle from "../../hooks/useCustomerVehicle";
+import useVtsDevices from "../../hooks/useVtsDevices";
 
-/* ---------------- FIX LEAFLET ICON ---------------- */
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl:
-    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-});
+const BARIKOI_KEY = import.meta.env.VITE_BARIKOI_API_KEY;
+// function useBarikoiAddresses(vehicleCoords) {
+//   const [addresses, setAddresses] = useState({});
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState(null);
 
-/* ---------------- CAR ICON WITH WAVE ---------------- */
-const carIcon = new L.DivIcon({
-  className: "",
-  html: `
-    <div class="car-marker">
-      <span class="car-wave"></span>
-      <img src="/icons/vehicle.svg" />
-    </div>
-  `,
-  iconSize: [40, 40],
-  iconAnchor: [20, 20],
-});
+//   const fetchAddresses = useCallback(async () => {
+//     if (!BARIKOI_KEY) return;
+//     setLoading(true);
+//     setError(null);
+//     try {
+//       const results = await Promise.all(
+//         Object.entries(vehicleCoords).map(async ([imei, { lat, lng }]) => {
+//           if (!lat || !lng) return [imei, null];
+//           try {
+//             const res = await axios.get(
+//               `https://barikoi.xyz/v1/api/search/reverse/geocode/${BARIKOI_KEY}/place`,
+//               { params: { longitude: lng, latitude: lat } }
+//             );
+//             return [imei, res.data.place || res.data];
+//           } catch {
+//             return [imei, null];
+//           }
+//         })
+//       );
+//       setAddresses(Object.fromEntries(results));
+//     } catch (err) {
+//       setError(err);
+//     } finally {
+//       setLoading(false);
+//     }
+//   }, [vehicleCoords]);
 
-/* ---------------- VEHICLES ---------------- */
-const vehicles = [
-  {
-    id: 1,
-    lat: 23.8103,
-    lng: 90.4125,
-    number: "TMV 44837",
-    reg: "DM NA 13-0756",
-  },
-  {
-    id: 2,
-    lat: 22.3569,
-    lng: 91.7832,
-    number: "CTG 88321",
-    reg: "CTG GA 22-9981",
-  },
-  {
-    id: 3,
-    lat: 24.3636,
-    lng: 88.6241,
-    number: "RAJ 22119",
-    reg: "RJ GA 19-3321",
-  },
-];
+//   useEffect(() => {
+//     if (Object.keys(vehicleCoords).length) {
+//       fetchAddresses();
+//     }
+//     // eslint-disable-next-line
+//   }, [fetchAddresses]);
 
-/* ---------------- MAP CONTROLS ---------------- */
-const MapActions = ({ setSatellite }) => {
-  const map = useMap();
+//   return { addresses, loading, error };
+// }
 
-  return (
-    <>
-      {/* Zoom group */}
-      <div className="absolute bottom-6 right-3 z-[1000] flex flex-col gap-2">
-        <button onClick={() => map.zoomIn()} className="map-btn">
-          ＋
-        </button>
-        <button onClick={() => map.zoomOut()} className="map-btn">
-          －
-        </button>
-        <button onClick={() => map.panBy([-100, 0])} className="map-btn">
-          ←
-        </button>
-        <button onClick={() => map.panBy([100, 0])} className="map-btn">
-          →
-        </button>
-      </div>
+const MAP_STYLE = "https://map.barikoi.com/styles/barikoi-light/style.json";
+const SATELLITE_STYLE =
+  "https://map.barikoi.com/styles/barikoi_satellite/style.json";
 
-      {/* Wifi / focus */}
-      <div className="absolute top-16 left-1/2 -translate-x-1/2 z-[1000] bg-white px-4 py-2 rounded-xl shadow flex items-center gap-2 text-sm font-medium">
-        <span className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse" />
-        Online Vehicles: {vehicles.length}
-      </div>
-    </>
-  );
-};
+const loadImage = (src) =>
+  new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => resolve(img);
+    img.src = src;
+  });
+
+const RadialBtn = ({ children, onClick, style }) => (
+  <button
+    onClick={onClick}
+    className={`absolute ${style} w-10 h-10 z-10 rounded-full bg-white hover:bg-amber-50 shadow-md
+        flex items-center justify-center text-lg font-semibold
+        hover:scale-110 transition-transform duration-200`}
+  >
+    {children}
+  </button>
+);
 
 const VehiclesStatusMap = () => {
+  const mapContainerRef = useRef(null);
+  const wrapperRef = useRef(null);
   const mapRef = useRef(null);
+
   const [satellite, setSatellite] = useState(false);
+  const [moveHandel, setMoveHandel] = useState(false);
+  const { data: vehiclesData } = useCustomerVehicle();
 
-  /* ---------- Fullscreen ---------- */
-  const handleFullscreen = () => {
-    const el = mapRef.current;
-    if (!document.fullscreenElement) {
-      el.requestFullscreen();
-    } else {
-      document.exitFullscreen();
-    }
-  };
+  // Extract IMEIs from vehiclesData
+  const imeis = useMemo(() => {
+    if (!vehiclesData || !Array.isArray(vehiclesData)) return [];
+    return vehiclesData.map((v) => v.imei).filter(Boolean);
+  }, [vehiclesData]);
 
-  /* ---------- Share ---------- */
+  // Fetch VTS data for all IMEIs every 10 seconds
+  const { data: vtsData } = useVtsDevices(imeis);
+  console.log(vtsData);
+  // Prepare Barikoi reverse geocode hooks for each vehicle
+  const vehicleAddresses = useMemo(() => {
+    if (!imeis.length || !vtsData) return {};
+    const result = {};
+    imeis.forEach((imei) => {
+      const vts = vtsData[imei]?.[0];
+      if (vts && vts.lat && vts.lng) {
+        result[imei] = { lat: vts.lat, lng: vts.lng };
+      }
+    });
+    return result;
+  }, [imeis, vtsData]);
+
+  // Use the custom hook to get all addresses
+  // const { addresses: barikoiAddresses, loading: barikoiLoading } =
+  //   useBarikoiAddresses(vehicleAddresses);
+
+  useEffect(() => {
+    if (!window.bkoigl) return;
+
+    const map = new window.bkoigl.Map({
+      container: mapContainerRef.current,
+      style: satellite ? SATELLITE_STYLE : MAP_STYLE,
+      center: [90.14, 23.681],
+      // center: [90.3563, 23.685],
+      zoom: 5.8,
+      accessToken: BARIKOI_KEY,
+      preserveDrawingBuffer: true,
+    });
+
+    mapRef.current = map;
+
+    map.on("load", async () => {
+      map.addControl(new window.bkoigl.FullscreenControl(), "top-right");
+      map.addControl(
+        new window.bkoigl.NavigationControl({ showCompass: false }),
+        "top-right"
+      );
+      map.addControl(
+        new window.bkoigl.ScaleControl({ unit: "metric" }),
+        "bottom-left"
+      );
+
+      // Vehicle icon
+      const img = await map.loadImage(
+        "https://cdn-icons-png.flaticon.com/512/7893/7893979.png"
+      );
+      map.addImage("vehicle", img.data, { pixelRatio: 2 });
+
+      // Add a source and layer for each vehicle
+      if (imeis.length) {
+        imeis.forEach((imei) => {
+          map.addSource(`vehicle-${imei}`, {
+            type: "geojson",
+            data: {
+              type: "Feature",
+              geometry: {
+                type: "Point",
+                coordinates: [90.3994, 23.7925],
+              },
+            },
+          });
+          map.addLayer({
+            id: `vehicle-layer-${imei}`,
+            type: "symbol",
+            source: `vehicle-${imei}`,
+            layout: {
+              "icon-image": "vehicle",
+              "icon-size": 0.4,
+              "icon-allow-overlap": true,
+            },
+          });
+        });
+      }
+    });
+
+    return () => {
+      map.remove();
+    };
+    // eslint-disable-next-line
+  }, [satellite, imeis.join(",")]);
+
+  // Update vehicle positions on the map when vtsData changes
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !vtsData) return;
+    imeis.forEach((imei) => {
+      const vts = vtsData[imei]?.[0];
+      if (vts && vts.lat && vts.lng) {
+        const source = map.getSource(`vehicle-${imei}`);
+        if (source) {
+          source.setData({
+            type: "Feature",
+            geometry: { type: "Point", coordinates: [vts.lng, vts.lat] },
+          });
+        }
+      }
+    });
+  }, [vtsData, imeis]);
+
+  /* ---------------- Actions ---------------- */
+  const map = () => mapRef.current;
+
+  const zoomIn = () => map()?.zoomIn();
+  const zoomOut = () => map()?.zoomOut();
+
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
     alert("Map link copied");
   };
 
-  /* ---------- Print ---------- */
-  const handlePrint = () => {
-    window.print();
+  const handlePrint = async () => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    // wait one frame
+    await new Promise((r) => setTimeout(r, 200));
+
+    const canvas = map.getCanvas();
+    const mapImage = canvas.toDataURL("image/png");
+
+    const logo = await loadImage("/public/logo.png");
+
+    const width = canvas.width;
+    const headerHeight = 80;
+    const height = canvas.height + headerHeight;
+
+    const pdf = new jsPDF({
+      orientation: "landscape",
+      unit: "px",
+      format: [width, height],
+    });
+
+    // header
+    pdf.setFillColor(255, 255, 255);
+    pdf.rect(0, 0, width, headerHeight, "F");
+
+    pdf.addImage(logo, "PNG", 20, 15, 120, 40);
+    pdf.setFontSize(14);
+    pdf.text("Live Vehicle Tracking Map", width / 2, 45, { align: "center" });
+
+    // map
+    pdf.addImage(mapImage, "PNG", 0, headerHeight, width, canvas.height);
+
+    // iframe print (same page)
+    const iframe = document.createElement("iframe");
+    iframe.style.display = "none";
+    document.body.appendChild(iframe);
+
+    iframe.src = pdf.output("bloburl");
+    iframe.onload = () => iframe.contentWindow.print();
+  };
+
+  const toggleMove = () => {
+    setMoveHandel((prev) => !prev);
   };
 
   return (
     <div
-      ref={mapRef}
-      className="relative w-full h-[560px] rounded-2xl overflow-hidden bg-white shadow-[0_8px_30px_rgba(0,0,0,0.06)]"
+      ref={wrapperRef}
+      className="relative w-full h-140 rounded-2xl overflow-hidden bg-white"
     >
-      {/* Map / Satellite */}
-      <div className="absolute top-3 left-3 z-[1000] flex bg-white rounded-lg shadow overflow-hidden">
+      <div ref={mapContainerRef} className="w-full h-full" />
+
+      {/* Show addresses for each vehicle below the map */}
+      {/* <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 bg-white bg-opacity-90 rounded-xl shadow px-4 py-2 max-w-xl w-fit flex flex-col gap-1 text-xs">
+        {imeis.map((imei) => {
+          const vts = vtsData?.[imei]?.[0];
+          const address = barikoiAddresses?.[imei];
+          return (
+            <div key={imei} className="flex flex-col gap-0.5">
+              <span className="font-semibold">{vts?.name || imei}</span>
+              <span>
+                Lat: {vts?.lat}, Lng: {vts?.lng}
+              </span>
+              <span>
+                {barikoiLoading
+                  ? "Getting address..."
+                  : address?.address || address?.address || "No address found"}
+              </span>
+            </div>
+          );
+        })}
+      </div> */}
+      <div className="absolute top-3 left-3 z-10 bg-white rounded-lg shadow flex overflow-hidden">
         <button
           onClick={() => setSatellite(false)}
           className={`px-4 py-1 text-sm ${
             !satellite && "bg-gray-100 font-medium"
-          }`}
+          } cursor-pointer`}
         >
           Map
         </button>
@@ -127,105 +296,146 @@ const VehiclesStatusMap = () => {
           onClick={() => setSatellite(true)}
           className={`px-4 py-1 text-sm ${
             satellite && "bg-gray-100 font-medium"
-          }`}
+          } cursor-pointer`}
         >
           Satellite
         </button>
       </div>
 
-      {/* Fullscreen */}
-      <div className="absolute top-3 right-3 z-[1000]">
-        <button onClick={handleFullscreen} className="map-btn">
-          ⛶
+      <button
+        onClick={() => {
+          const el = wrapperRef.current;
+          if (!document.fullscreenElement) {
+            el.requestFullscreen();
+          } else {
+            document.exitFullscreen();
+          }
+        }}
+        className="absolute top-3 right-5 z-20 w-11 h-11 bg-white rounded-full p-2 shadow-md hover:scale-105 transition flex justify-center items-center cursor-pointer"
+      >
+        <Scan size={21} />
+      </button>
+
+      <div className="absolute bottom-9 right-4 z-20">
+        <button
+          onClick={toggleMove}
+          className={`
+    relative z-30 cursor-pointer
+    w-12 h-12 rounded-full bg-white hover:bg-amber-50 shadow-lg
+    flex items-center justify-center
+    transition-all duration-300 ease-out
+    ${moveHandel ? "rotate-45 scale-110" : "rotate-0 scale-100"}
+  `}
+          aria-pressed={moveHandel}
+        >
+          <Scan size={22} />
         </button>
+
+        {/* RADIAL BUTTONS (ALWAYS RENDERED) */}
+        <div
+          className={`
+    absolute inset-0 z-10
+    transition-all duration-300 ease-out 
+    ${
+      moveHandel
+        ? "scale-100 opacity-100 pointer-events-auto"
+        : "scale-75 opacity-0 pointer-events-none"
+    }
+  `}
+        >
+          {/* Zoom In */}
+          <RadialBtn
+            style="top-[-80px] right-[50px] cursor-pointer"
+            onClick={zoomIn}
+          >
+            {/* + */}
+            <Plus />
+          </RadialBtn>
+          {/* Zoom Out  */}
+          <RadialBtn
+            style="bottom-[-20px] right-[50px] cursor-pointer"
+            onClick={zoomOut}
+          >
+            {/* − */}
+            <Minus />
+          </RadialBtn>
+
+          {/* Left */}
+          <RadialBtn
+            style="left-[-140px] top-[-7px] -translate-y-1/2 cursor-pointer"
+            onClick={() => mapRef.current?.panBy([-120, 0])}
+          >
+            {/* ← */}
+            <ChevronLeft />
+          </RadialBtn>
+
+          {/* Right */}
+          <RadialBtn
+            style="right-[50px] top-[-7px] -translate-y-1/2 cursor-pointer"
+            onClick={() => mapRef.current?.panBy([120, 0])}
+          >
+            {/* → */}
+            <ChevronRight />
+          </RadialBtn>
+
+          {/* Top */}
+
+          <RadialBtn
+            style="top-[-80px] left-[-78px] -translate-x-1/2 cursor-pointer"
+            onClick={() => mapRef.current?.panBy([0, -120])}
+          >
+            {/* ↑ */}
+            <ChevronUp />
+          </RadialBtn>
+
+          <RadialBtn
+            style="bottom-[-20px] left-[-78px] -translate-x-1/2 cursor-pointer"
+            onClick={() => mapRef.current?.panBy([0, 120])}
+          >
+            {/* ↓ */}
+            <ChevronDown />
+          </RadialBtn>
+        </div>
       </div>
 
-      {/* Bottom left */}
       <div>
-        <div className="absolute bottom-6 left-3 z-[1000]  flex flex-col gap-2">
+        <div className="absolute bottom-6 left-3 z-10  flex flex-col gap-2 cursor-pointer">
           <div className="w-8 h-8 rounded-xl bg-[#95F0B3]" />
           <div className="w-8 h-8 rounded-xl bg-[#95D8F0]" />
           <div className="w-8 h-8 rounded-xl bg-[#F0C695]" />
           <div className="w-8 h-8 rounded-xl bg-[#F09D95]" />
           <div className="w-8 h-8 rounded-xl bg-[#787878]" />
         </div>
-        <div className="absolute bottom-6 left-15 z-[1000] flex gap-2 ">
-          <button onClick={handleShare} className="map-btn">
-            <CiLink />
+        <div className="absolute bottom-6 left-15 z-10 flex gap-2 h-9 ">
+          <button
+            onClick={handleShare}
+            className="flex gap-2 justify-center items-center bg-amber-50 rounded-2xl px-3 cursor-pointer"
+          >
+            <Share2 size={21} /> <span>Share</span>
           </button>
-          <button onClick={handlePrint} className="map-btn">
-            <IoMdPrint />
+          <button
+            onClick={handlePrint}
+            className="flex gap-2 justify-center items-center bg-amber-50 rounded-2xl px-3 cursor-pointer"
+          >
+            <Printer size={21} /> <span>Print</span>
           </button>
         </div>
       </div>
 
-      {/* MAP */}
-      <MapContainer
-        center={[23.685, 90.3563]}
-        zoom={7}
-        scrollWheelZoom
-        dragging
-        style={{ height: "100%", width: "100%" }}
-      >
-        <TileLayer
-          url={
-            satellite
-              ? "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-              : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          }
-        />
-        <MapActions setSatellite={setSatellite} />
-        {vehicles.map((v) => (
-          <Marker key={v.id} position={[v.lat, v.lng]} icon={carIcon}>
-            <Popup>
-              <div className="w-[260px]">
-                <div className="bg-yellow-400 px-3 py-2 rounded font-semibold flex justify-between">
-                  {v.number}
-                  <img src="/icons/vehicle.svg" className="w-6 h-6" />
-                </div>
-                <div className="p-2 text-xs text-gray-600">
-                  {v.reg}
-                  <br />
-                  Status: Online
-                </div>
-              </div>
-            </Popup>
-          </Marker>
-        ))}
-      </MapContainer>
-
-      {/* STYLES */}
+      {/* STATUS */}
+      {/* <div className="absolute top-16 left-1/2 -translate-x-1/2 z-10 bg-white px-4 py-2 rounded-xl shadow text-sm">
+        <span className="w-2.5 h-2.5 bg-green-500 inline-block rounded-full animate-pulse mr-2" />
+        Live Vehicle Tracking
+        <div id="coords" className="text-xs text-gray-500 mt-1">
+          Waiting for update...
+        </div>
+      </div> */}
       <style>{`
         .map-btn{
           background:white;
           border-radius:8px;
           padding:6px;
           box-shadow:0 2px 6px rgba(0,0,0,.15);
-        }
-        .car-marker{
-          position:relative;
-          width:40px;
-          height:40px;
-        }
-        .car-marker img{
-          width:32px;
-          height:32px;
-          position:relative;
-          z-index:2;
-        }
-        .car-wave{
-          position:absolute;
-          width:40px;
-          height:40px;
-          border-radius:999px;
-          background:rgba(255,165,0,.3);
-          animation:pulse 1.6s infinite;
-          top:0;
-          left:0;
-        }
-        @keyframes pulse{
-          0%{transform:scale(.6);opacity:1}
-          100%{transform:scale(1.6);opacity:0}
         }
       `}</style>
     </div>
