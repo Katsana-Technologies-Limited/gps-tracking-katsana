@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { Check, Search } from "lucide-react";
 import GlobalLoading from "../utils/GlobalLoading";
-import useCustomerVehicle from "../../hooks/useCustomerVehicle";
 import useVtsAllDevices from "../../hooks/useVtsAllDevices";
 
 const TABS = ["All", "Offline", "Online", "Suspended"];
@@ -24,29 +23,28 @@ const statusStyle = {
 const VehiclesStatusOption = ({ divhight = 80 }) => {
   const [activeTab, setActiveTab] = useState("All");
   const [query, setQuery] = useState("");
-  const [selected, setSelected] = useState([]);
-  const { data: vehiclesData, isLoading } = useCustomerVehicle();
-  const { filteredDevices } = useVtsAllDevices();
-  console.log(filteredDevices);
+  const { filteredDevices, isLoading } = useVtsAllDevices();
 
-  const rawVehicles = Array.isArray(vehiclesData)
-    ? vehiclesData
-    : vehiclesData?.data || vehiclesData?.vehicles || [];
+  // Map filteredDevices to VEHICLES structure
+  const VEHICLES = useMemo(() => {
+    if (!filteredDevices) return [];
+    return filteredDevices.map((device, index) => ({
+      id: device.device_data?.id ?? device.id ?? index + 1,
+      number: device.device_data?.name || device.name || "-",
+      reg: device.device_data?.subscription_number || "-",
+      status: device.online === "online" ? "Online" : "Offline",
+      imei: device.device_data?.imei || device.imei,
+    }));
+  }, [filteredDevices]);
 
-  const VEHICLES = rawVehicles.map((v, index) => ({
-    id: v.id ?? index + 1,
-    number: v.vehicle_name || "-",
-    reg: v.subscription_number || "-",
-    status: v.status || "Online",
-    imei: v.imei,
-  }));
-
+  // Filter vehicles by tab and query
   const filteredVehicles = useMemo(() => {
-    let list =
-      activeTab === "All"
-        ? VEHICLES
-        : VEHICLES.filter((v) => v.status === activeTab);
-
+    let list = VEHICLES;
+    if (activeTab === "Online") {
+      list = list.filter((v) => v.status === "Online");
+    } else if (activeTab === "Offline") {
+      list = list.filter((v) => v.status !== "Online");
+    }
     if (query) {
       list = list.filter(
         (v) =>
@@ -56,6 +54,12 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
     }
     return list;
   }, [activeTab, query, VEHICLES]);
+
+  // Always select all by default
+  const [selected, setSelected] = useState([]);
+  React.useEffect(() => {
+    setSelected(filteredVehicles.map((v) => v.id));
+  }, [filteredVehicles]);
 
   const toggleVehicle = (id) => {
     setSelected((prev) =>

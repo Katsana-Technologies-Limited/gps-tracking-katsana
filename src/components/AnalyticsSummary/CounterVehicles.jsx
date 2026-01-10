@@ -1,18 +1,27 @@
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
-import useCustomerVehicle from "../../hooks/useCustomerVehicle";
 import GlobalLoading from "../utils/GlobalLoading";
+import useVtsAllDevices from "../../hooks/useVtsAllDevices";
 
 const CounterVehicles = () => {
-  const { data: vehiclesData, isLoading } = useCustomerVehicle();
+  const { filteredDevices, isLoading: isDevicesLoading } = useVtsAllDevices();
 
-  const total = vehiclesData ? vehiclesData.length : 0;
+  // Count online and offline vehicles
+  const onlineCount = filteredDevices
+    ? filteredDevices.filter((d) => d.online === "online").length
+    : 0;
+  const offlineCount = filteredDevices
+    ? filteredDevices.filter((d) => d.online !== "online").length
+    : 0;
+  // Suspended logic can be added later
+  const suspendedCount = 0;
+  const total = filteredDevices ? filteredDevices.length : 0;
   const vehiclesPie = [
-    { name: "Online", value: total, color: "#1ED760" },
-    { name: "Suspended", value: 0, color: "#FF4D4F" },
-    { name: "Offline", value: 0, color: "#B0BEC5" },
+    { name: "Online", value: onlineCount, color: "#1ED760" },
+    { name: "Suspended", value: suspendedCount, color: "#FF4D4F" },
+    { name: "Offline", value: offlineCount, color: "#B0BEC5" },
   ];
 
-  if (isLoading) {
+  if (isDevicesLoading) {
     return <GlobalLoading message="Loading vehicles..." />;
   }
 

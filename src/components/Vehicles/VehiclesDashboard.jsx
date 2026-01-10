@@ -5,6 +5,7 @@ import VehiclesStatusOption from "../AnalyticsSummary/VehiclesStatusOption";
 import { getSpeedMeta, mockReverseGeocode } from "../../utilits/vehicleHelpers";
 import { RotateCw } from "lucide-react";
 import VehicleStatusDrawer from "./VehicleStatusDrawer";
+import useVtsAllDevices from "../../hooks/useVtsAllDevices";
 
 const PAGE_SIZE = 5;
 const MOCK_DATA = [
@@ -128,6 +129,7 @@ export default function VehiclesDashboard() {
 
   const [reloadTimer, setReloadTimer] = useState(60);
   const [isReloading, setIsReloading] = useState(false);
+  const { filteredDevices, isLoading } = useVtsAllDevices();
 
   useEffect(() => {
     loadData();
