@@ -39,7 +39,7 @@ const VehiclesStatusMap = () => {
   const wrapperRef = useRef(null);
   const { filteredDevices, isLoading } = useVtsAllDevices();
 
-  console.log(filteredDevices);
+  // console.log(filteredDevices);
 
   const [satellite, setSatellite] = useState(false);
   const [moveHandel, setMoveHandel] = useState(false);
@@ -194,37 +194,37 @@ const VehiclesStatusMap = () => {
           <>
             <button
               onClick={zoomIn}
-              className="absolute top-[-80px] right-[50px] bg-white rounded-full p-2 cursor-pointer"
+              className="absolute -top-20 right-12.5 bg-white rounded-full p-2 cursor-pointer"
             >
               <Plus />
             </button>
             <button
               onClick={zoomOut}
-              className="absolute bottom-[-20px] right-[50px] cursor-pointer bg-white rounded-full p-2"
+              className="absolute -bottom-5 right-12.5 cursor-pointer bg-white rounded-full p-2"
             >
               <Minus />
             </button>
             <button
               onClick={() => mapRef.current?.panBy([-120, 0])}
-              className="absolute left-[-140px] top-[-7px] -translate-y-1/2   cursor-pointer bg-white rounded-full p-2"
+              className="absolute -left-35 top-[-7px] -translate-y-1/2   cursor-pointer bg-white rounded-full p-2"
             >
               <ChevronLeft />
             </button>
             <button
               onClick={() => mapRef.current?.panBy([120, 0])}
-              className="absolute right-[50px] top-[-7px] -translate-y-1/2 cursor-pointer bg-white rounded-full p-2"
+              className="absolute right-12.5 top-[-7px] -translate-y-1/2 cursor-pointer bg-white rounded-full p-2"
             >
               <ChevronRight />
             </button>
             <button
               onClick={() => mapRef.current?.panBy([0, -120])}
-              className="absolute top-[-80px] left-[-78px] -translate-x-1/2 cursor-pointer bg-white rounded-full p-2"
+              className="absolute -top-20 left-[-78px] -translate-x-1/2 cursor-pointer bg-white rounded-full p-2"
             >
               <ChevronUp />
             </button>
             <button
               onClick={() => mapRef.current?.panBy([0, 120])}
-              className="absolute bottom-[-20px] left-[-78px] -translate-x-1/2 cursor-pointer  bg-white rounded-full p-2"
+              className="absolute -bottom-5 left-[-78px] -translate-x-1/2 cursor-pointer  bg-white rounded-full p-2"
             >
               <ChevronDown />
             </button>

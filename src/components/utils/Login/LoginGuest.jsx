@@ -10,7 +10,7 @@ const LoginGuest = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log({ userId, email });
+    // console.log({ userId, email });
   };
 
   return (

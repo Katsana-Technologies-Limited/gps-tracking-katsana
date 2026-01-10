@@ -3,25 +3,66 @@ import GlobalLoading from "../utils/GlobalLoading";
 import useVtsAllDevices from "../../hooks/useVtsAllDevices";
 
 const CounterVehicles = () => {
-  const { filteredDevices, isLoading: isDevicesLoading } = useVtsAllDevices();
+  const { filteredDevices, customerVehicles, isLoading } = useVtsAllDevices();
 
-  // Count online and offline vehicles
-  const onlineCount = filteredDevices
-    ? filteredDevices.filter((d) => d.online === "online").length
-    : 0;
-  const offlineCount = filteredDevices
-    ? filteredDevices.filter((d) => d.online !== "online").length
-    : 0;
-  // Suspended logic can be added later
-  const suspendedCount = 0;
-  const total = filteredDevices ? filteredDevices.length : 0;
+  // Merge DB vehicles with live status (like VehiclesStatusOption 'All' tab)
+  const vehicles = Array.isArray(customerVehicles)
+    ? customerVehicles.map((v, index) => {
+        const live = Array.isArray(filteredDevices)
+          ? filteredDevices.find(
+              (d) => (d.device_data?.imei || d.imei) === v.imei
+            )
+          : null;
+        let status = "Unknown";
+        if (live) {
+          if (
+            live.status === "Suspended" ||
+            live.deviceStatus === "Suspended" ||
+            live.suspended === true
+          ) {
+            status = "Suspended";
+          } else if (live.online === "online") {
+            status = "Online";
+          } else {
+            status = "Offline";
+          }
+        } else if (v.suspended === true) {
+          status = "Suspended";
+        }
+        return {
+          id: v.id ?? live?.device_data?.id ?? live?.id ?? index + 1,
+          number:
+            v.vehicle_name ||
+            v.subscription_number ||
+            v.imei ||
+            live?.device_data?.name ||
+            live?.name ||
+            "-",
+          reg:
+            v.subscription_number ||
+            live?.device_data?.subscription_number ||
+            "-",
+          status,
+          imei: v.imei,
+          company: v.company,
+          vts: live || null,
+        };
+      })
+    : [];
+
+  const onlineCount = vehicles.filter((v) => v.status === "Online").length;
+  const suspendedCount = vehicles.filter(
+    (v) => v.status === "Suspended"
+  ).length;
+  const offlineCount = vehicles.filter((v) => v.status === "Offline").length;
+  const total = vehicles.length;
   const vehiclesPie = [
     { name: "Online", value: onlineCount, color: "#1ED760" },
     { name: "Suspended", value: suspendedCount, color: "#FF4D4F" },
     { name: "Offline", value: offlineCount, color: "#B0BEC5" },
   ];
 
-  if (isDevicesLoading) {
+  if (isLoading) {
     return <GlobalLoading message="Loading vehicles..." />;
   }
 

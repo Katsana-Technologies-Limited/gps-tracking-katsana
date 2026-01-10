@@ -98,17 +98,17 @@ const VehiclesStatusMap = () => {
 
   // Fetch VTS data for all IMEIs every 10 seconds
   const { data: vtsData } = useVtsDevices(imeis);
-  console.log(vtsData);
+  // console.log(vtsData);
   // Prepare Barikoi reverse geocode hooks for each vehicle
-  const vehicleAddresses = useMemo(() => {
-    if (!imeis.length || !vtsData) return {};
-    const result = {};
-    imeis.forEach((imei) => {
-      const vts = vtsData[imei]?.[0];
-      if (vts && vts.lat && vts.lng) {
-        result[imei] = { lat: vts.lat, lng: vts.lng };
-      }
-    });
+  // const vehicleAddresses = useMemo(() => {
+  //   if (!imeis.length || !vtsData) return {};
+  //   const result = {};
+  //   imeis.forEach((imei) => {
+  //     const vts = vtsData[imei]?.[0];
+  //     if (vts && vts.lat && vts.lng) {
+  //       result[imei] = { lat: vts.lat, lng: vts.lng };
+  //     }
+  //   });
     return result;
   }, [imeis, vtsData]);
 

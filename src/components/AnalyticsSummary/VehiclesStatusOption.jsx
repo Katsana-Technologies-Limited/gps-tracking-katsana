@@ -27,7 +27,7 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
   const { filteredDevices, isLoading } = useVtsAllDevices();
   const { data: customerVehicles = [], isLoading: isLoadingCustomer } =
     useCustomerVehicle();
-  console.log(filteredDevices);
+  // console.log(filteredDevices);
   // Map to VEHICLES structure
   const VEHICLES = useMemo(() => {
     if (activeTab === "All") {

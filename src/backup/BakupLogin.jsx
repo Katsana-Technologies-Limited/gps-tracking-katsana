@@ -21,7 +21,7 @@ const BackupLogin = () => {
         ? { email: username, password }
         : { mobile: username, password };
       const res = await axiosUrl.post("/api/vts/auth/login", payload);
-      console.log(res);
+      // console.log(res);
       if (res.data && res.data.loginStatus) {
         const vtsAuth = {
           token: res.data.token,
