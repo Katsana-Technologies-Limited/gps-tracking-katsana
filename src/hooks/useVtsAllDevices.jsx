@@ -2,6 +2,10 @@ import { useMemo } from "react";
 import useDataQuery from "./useDataQuery";
 import useCustomerVehicle from "./useCustomerVehicle";
 
+/**
+ * Hook to fetch all VTS devices and filter by customer's vehicles
+ * Fully defensive against API shape changes
+ */
 const useVtsAllDevices = () => {
   // ---------------- Devices from 3rd Party VTS API ----------------
   const {
@@ -19,41 +23,43 @@ const useVtsAllDevices = () => {
     refetch: refetchVehicles,
   } = useCustomerVehicle();
 
-  // ---------------- Normalize Devices Data ----------------
+  // ---------------- Normalize Devices ----------------
   const safeAllDevicesData = useMemo(() => {
-    // Ensure always array
-    if (!allDevicesData) return [];
-    if (Array.isArray(allDevicesData)) return allDevicesData;
-    // Sometimes API wraps array in { data: [...] }
-    if (Array.isArray(allDevicesData.data)) return allDevicesData.data;
-    return [];
+    if (!Array.isArray(allDevicesData)) return [];
+    // Only keep groups that have an 'items' array
+    return allDevicesData.filter((group) => Array.isArray(group.items));
   }, [allDevicesData]);
 
-  // ---------------- Flatten All Devices ----------------
+  // ---------------- Flatten Devices ----------------
   const allDevices = useMemo(() => {
     const result = [];
     for (const group of safeAllDevicesData) {
-      if (Array.isArray(group?.items)) {
+      if (Array.isArray(group.items)) {
         result.push(...group.items);
       }
     }
+    console.log("DEBUG allDevices:", result);
     return result;
   }, [safeAllDevicesData]);
 
-  // ---------------- Customer IMEI List ----------------
+  // ---------------- Customer IMEIs ----------------
   const customerImeis = useMemo(() => {
     if (!Array.isArray(customerVehicles)) return [];
-    return customerVehicles.map((v) => v?.imei).filter(Boolean);
+    const imeis = customerVehicles.map((v) => v?.imei).filter(Boolean);
+    console.log("DEBUG customerImeis:", imeis);
+    return imeis;
   }, [customerVehicles]);
 
-  // ---------------- Filter Devices by Customer IMEI ----------------
+  // ---------------- Filter by IMEI ----------------
   const filteredDevices = useMemo(() => {
     if (!allDevices.length || !customerImeis.length) return [];
     const imeiSet = new Set(customerImeis);
-    return allDevices.filter((device) => {
+    const filtered = allDevices.filter((device) => {
       const imei = device?.device_data?.imei ?? device?.imei ?? null;
       return imei && imeiSet.has(imei);
     });
+    console.log("DEBUG filteredDevices:", filtered);
+    return filtered;
   }, [allDevices, customerImeis]);
 
   // ---------------- Return ----------------
