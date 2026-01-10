@@ -19,7 +19,12 @@ const useVtsAllDevices = () => {
 
   const allDevices = useMemo(() => {
     if (!allDevicesData) return [];
-    return allDevicesData.flatMap((group) => group.items || []);
+    return allDevicesData.reduce((acc, group) => {
+      if (Array.isArray(group.items)) {
+        return acc.concat(group.items);
+      }
+      return acc;
+    }, []);
   }, [allDevicesData]);
 
   const customerImeis = useMemo(() => {
