@@ -26,6 +26,8 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
   const [selected, setSelected] = useState([]);
   const { data: vehiclesData, isLoading } = useCustomerVehicle();
 
+  console.log(vehiclesData);
+
   const rawVehicles = Array.isArray(vehiclesData)
     ? vehiclesData
     : vehiclesData?.data || vehiclesData?.vehicles || [];
