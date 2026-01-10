@@ -19,7 +19,16 @@ const useVtsAllDevices = () => {
 
   const allDevices = useMemo(() => {
     if (!allDevicesData) return [];
-    return allDevicesData?.flatMap((group) => group.items || []);
+    const result = [];
+    for (let i = 0; i < allDevicesData.length; i++) {
+      const group = allDevicesData[i];
+      if (group && Array.isArray(group.items)) {
+        for (let j = 0; j < group.items.length; j++) {
+          result.push(group.items[j]);
+        }
+      }
+    }
+    return result;
   }, [allDevicesData]);
 
   const customerImeis = useMemo(() => {
