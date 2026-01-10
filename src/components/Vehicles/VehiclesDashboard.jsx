@@ -1,160 +1,79 @@
 /* eslint-disable no-unused-vars */
-/* eslint-disable react-hooks/immutability */
 import React, { useEffect, useMemo, useState } from "react";
 import VehiclesStatusOption from "../AnalyticsSummary/VehiclesStatusOption";
 import { getSpeedMeta, mockReverseGeocode } from "../../utilits/vehicleHelpers";
 import { RotateCw } from "lucide-react";
 import VehicleStatusDrawer from "./VehicleStatusDrawer";
 import useVtsAllDevices from "../../hooks/useVtsAllDevices";
+import useCustomerVehicle from "../../hooks/useCustomerVehicle";
 
 const PAGE_SIZE = 5;
-const MOCK_DATA = [
-  {
-    id: 1,
-    customer: "Sajjat Hossen",
-    vehicle: "TMV 42555",
-    reg: "DM GA 45-8256",
-    lat: 23.7508,
-    lng: 90.389,
-    speed: 16,
-    deviceStatus: "Online",
-    time: "2025-12-24 03:41:06",
-  },
-  {
-    id: 2,
-    customer: "Sajjat Hossen",
-    vehicle: "YMA 3546",
-    reg: "DM GA 45-8256",
-    lat: 23.7108,
-    lng: 90.899,
-    speed: 96,
-    deviceStatus: "Online",
-    time: "2025-12-19 10:41:06",
-  },
-  {
-    id: 3,
-    customer: "Sajjat Hossen",
-    vehicle: "MT-15",
-    reg: "DM GA 45-8256",
-    lat: 23.8908,
-    lng: 90.559,
-    speed: 66,
-    deviceStatus: "Offline",
-    time: "2025-12-10 04:41:06",
-  },
-  {
-    id: 3,
-    customer: "Sajjat Hossen",
-    vehicle: "MT-15",
-    reg: "DM GA 45-8256",
-    lat: 23.8908,
-    lng: 90.559,
-    speed: 66,
-    deviceStatus: "Offline",
-    time: "2025-12-10 04:41:06",
-  },
-  {
-    id: 3,
-    customer: "Sajjat Hossen",
-    vehicle: "MT-15",
-    reg: "DM GA 45-8256",
-    lat: 23.8908,
-    lng: 90.559,
-    speed: 66,
-    deviceStatus: "Offline",
-    time: "2025-12-10 04:41:06",
-  },
-  {
-    id: 3,
-    customer: "Sajjat Hossen",
-    vehicle: "MT-15",
-    reg: "DM GA 45-8256",
-    lat: 23.8908,
-    lng: 90.559,
-    speed: 66,
-    deviceStatus: "Offline",
-    time: "2025-12-10 04:41:06",
-  },
-  {
-    id: 3,
-    customer: "Sajjat Hossen",
-    vehicle: "MT-15",
-    reg: "DM GA 45-8256",
-    lat: 23.8908,
-    lng: 90.559,
-    speed: 66,
-    deviceStatus: "Offline",
-    time: "2025-12-10 04:41:06",
-  },
-  {
-    id: 3,
-    customer: "Sajjat Hossen",
-    vehicle: "MT-15",
-    reg: "DM GA 45-8256",
-    lat: 23.8908,
-    lng: 90.559,
-    speed: 66,
-    deviceStatus: "Offline",
-    time: "2025-12-10 04:41:06",
-  },
-  {
-    id: 3,
-    customer: "Sajjat Hossen",
-    vehicle: "MT-15",
-    reg: "DM GA 45-8256",
-    lat: 23.8908,
-    lng: 90.559,
-    speed: 66,
-    deviceStatus: "Offline",
-    time: "2025-12-10 04:41:06",
-  },
-  {
-    id: 3,
-    customer: "Sajjat Hossen",
-    vehicle: "MT-15",
-    reg: "DM GA 45-8256",
-    lat: 23.8908,
-    lng: 90.559,
-    speed: 66,
-    deviceStatus: "Offline",
-    time: "2025-12-10 04:41:06",
-  },
-];
-
 export default function VehiclesDashboard() {
-  const [vehicles, setVehicles] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
   const [activeTab, setActiveTab] = useState("All");
   const [page, setPage] = useState(1);
-
   const [reloadTimer, setReloadTimer] = useState(60);
   const [isReloading, setIsReloading] = useState(false);
   const { filteredDevices, isLoading } = useVtsAllDevices();
-
+  const { data: customerVehicles = [] } = useCustomerVehicle();
+  console.log(customerVehicles);
+  const [enrichedDevices, setEnrichedDevices] = useState([]);
   useEffect(() => {
-    loadData();
-  }, []);
-
-  const loadData = async () => {
-    const enriched = await Promise.all(
-      MOCK_DATA.map(async (v) => ({
-        ...v,
-        landmark: await mockReverseGeocode(v.lat, v.lng),
-      }))
-    );
-    setVehicles(enriched);
-  };
+    const enrich = async () => {
+      if (!filteredDevices) return;
+      const enriched = await Promise.all(
+        filteredDevices.map(async (v) => {
+          const match = customerVehicles.find(
+            (cv) => String(cv.imei) === String(v.imei)
+          );
+          // Debug: log the match for each device
+          if (!match) {
+            console.warn("No customerVehicle match for IMEI", v.imei);
+          }
+          return {
+            ...v,
+            customer: match?.company || v.imei || "",
+            vehicle: match?.vehicle_name || v.imei || "",
+            reg: match?.reg_no || "",
+            landmark:
+              v.lat && v.lng ? await mockReverseGeocode(v.lat, v.lng) : "",
+          };
+        })
+      );
+      setEnrichedDevices(enriched);
+    };
+    enrich();
+  }, [filteredDevices, customerVehicles]);
 
   useEffect(() => {
     if (!isReloading) return;
     if (reloadTimer === 0) {
-      setReloadTimer(60);
-      setIsReloading(false);
-      loadData();
+      if (filteredDevices) {
+        const enrich = async () => {
+          const enriched = await Promise.all(
+            filteredDevices.map(async (v) => ({
+              ...v,
+              landmark:
+                v.lat && v.lng ? await mockReverseGeocode(v.lat, v.lng) : "",
+            }))
+          );
+          setEnrichedDevices(enriched);
+        };
+        enrich();
+      }
       return;
     }
     const t = setTimeout(() => setReloadTimer((p) => p - 1), 1000);
     return () => clearTimeout(t);
+  }, [isReloading, reloadTimer, filteredDevices]);
+
+  useEffect(() => {
+    if (isReloading && reloadTimer === 0) {
+      setTimeout(() => {
+        setReloadTimer(60);
+        setIsReloading(false);
+      }, 0);
+    }
   }, [isReloading, reloadTimer]);
 
   const handleReload = () => {
@@ -165,14 +84,14 @@ export default function VehiclesDashboard() {
   const filtered = useMemo(() => {
     let list =
       activeTab === "All"
-        ? vehicles
-        : vehicles.filter((v) => v.deviceStatus === activeTab);
+        ? enrichedDevices
+        : enrichedDevices.filter((v) => v.deviceStatus === activeTab);
 
     if (selectedIds.length > 0) {
       list = list.filter((v) => selectedIds.includes(v.id));
     }
     return list;
-  }, [vehicles, activeTab, selectedIds]);
+  }, [enrichedDevices, activeTab, selectedIds]);
 
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
