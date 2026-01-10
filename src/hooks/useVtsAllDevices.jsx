@@ -23,20 +23,24 @@ const useVtsAllDevices = () => {
     refetch: refetchVehicles,
   } = useCustomerVehicle();
 
+  // ---------------- Safe Defaults ----------------
+  const allDevicesDataSafe = Array.isArray(allDevicesData)
+    ? allDevicesData
+    : [];
+  const customerVehiclesSafe = Array.isArray(customerVehicles)
+    ? customerVehicles
+    : [];
+
   // ---------------- Normalize Devices ----------------
   const safeAllDevicesData = useMemo(() => {
-    if (!Array.isArray(allDevicesData)) return [];
-    // Only keep groups that have an 'items' array
-    return allDevicesData.filter((group) => Array.isArray(group.items));
-  }, [allDevicesData]);
+    return allDevicesDataSafe.filter((group) => Array.isArray(group.items));
+  }, [allDevicesDataSafe]);
 
   // ---------------- Flatten Devices ----------------
   const allDevices = useMemo(() => {
     const result = [];
     for (const group of safeAllDevicesData) {
-      if (Array.isArray(group.items)) {
-        result.push(...group.items);
-      }
+      if (Array.isArray(group.items)) result.push(...group.items);
     }
     console.log("DEBUG allDevices:", result);
     return result;
@@ -44,22 +48,17 @@ const useVtsAllDevices = () => {
 
   // ---------------- Customer IMEIs ----------------
   const customerImeis = useMemo(() => {
-    if (!Array.isArray(customerVehicles)) return [];
-    const imeis = customerVehicles.map((v) => v?.imei).filter(Boolean);
-    console.log("DEBUG customerImeis:", imeis);
-    return imeis;
-  }, [customerVehicles]);
+    return customerVehiclesSafe.map((v) => v?.imei).filter(Boolean);
+  }, [customerVehiclesSafe]);
 
   // ---------------- Filter by IMEI ----------------
   const filteredDevices = useMemo(() => {
     if (!allDevices.length || !customerImeis.length) return [];
     const imeiSet = new Set(customerImeis);
-    const filtered = allDevices.filter((device) => {
+    return allDevices.filter((device) => {
       const imei = device?.device_data?.imei ?? device?.imei ?? null;
       return imei && imeiSet.has(imei);
     });
-    console.log("DEBUG filteredDevices:", filtered);
-    return filtered;
   }, [allDevices, customerImeis]);
 
   // ---------------- Return ----------------
@@ -67,7 +66,7 @@ const useVtsAllDevices = () => {
     isLoading: isLoadingDevices || isLoadingVehicles,
     error: errorDevices || errorVehicles,
     allDevices,
-    customerVehicles,
+    customerVehicles: customerVehiclesSafe,
     filteredDevices,
     refetch: () => {
       refetchDevices();
