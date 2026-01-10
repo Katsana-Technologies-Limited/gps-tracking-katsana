@@ -18,7 +18,7 @@ const useVtsAllDevices = () => {
   } = useCustomerVehicle();
 
   const allDevices = useMemo(() => {
-    if (!allDevicesData) return [];
+    if (!Array.isArray(allDevicesData)) return [];
     const result = [];
     for (let i = 0; i < allDevicesData.length; i++) {
       const group = allDevicesData[i];
