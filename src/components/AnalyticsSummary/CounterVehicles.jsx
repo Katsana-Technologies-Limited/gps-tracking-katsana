@@ -22,8 +22,6 @@ const CounterVehicles = () => {
       }
     });
   }
-  console.log("DEBUG vehicles from DB:", data);
-  console.log("DEBUG onlineCount:", onlineCount, "offlineCount:", offlineCount);
 
   const vehiclesPie = [
     { name: "Online", value: onlineCount, color: "#1ED760" },
