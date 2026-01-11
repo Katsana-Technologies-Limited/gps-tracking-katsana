@@ -40,9 +40,9 @@ const VehiclesStatusMap = () => {
   //   return vehiclesData.map((v) => v.imei).filter(Boolean);
   // }, [vehiclesData]);
 
-  const imeis = useMemo(() => {
-    return vehiclesData.map((v) => v.imei).filter(Boolean);
-  }, [vehiclesData]);
+  // const imeis = useMemo(() => {
+  //   return vehiclesData.map((v) => v.imei).filter(Boolean);
+  // }, [vehiclesData]);
 
   // console.log("imesis update", imeis);
 
@@ -168,8 +168,6 @@ const VehiclesStatusMap = () => {
       >
         <Scan />
       </button>
-
-      {/* 🎯 Radial Controls */}
       <div className="absolute bottom-8 right-4 z-20">
         <button
           onClick={() => setControlsOpen((p) => !p)}
@@ -177,42 +175,41 @@ const VehiclesStatusMap = () => {
         >
           <Scan />
         </button>
-
         {controlsOpen && (
           <>
             <button
               onClick={zoomIn}
-              className="absolute top-[-80px] right-[50px] cursor-pointer bg-white p-2 rounded-full shadow"
+              className="absolute -top-20 right-12.5 cursor-pointer bg-white p-2 rounded-full shadow"
             >
               <Plus />
             </button>
             <button
               onClick={zoomOut}
-              className="absolute bottom-[-20px] right-[50px] cursor-pointer bg-white p-2 rounded-full shadow"
+              className="absolute -bottom-5 right-12.5 cursor-pointer bg-white p-2 rounded-full shadow"
             >
               <Minus />
             </button>
             <button
               onClick={() => mapRef.current?.panBy([-120, 0])}
-              className="absolute left-[-140px] top-[-7px] -translate-y-1/2 cursor-pointer bg-white p-2 rounded-full shadow"
+              className="absolute -left-35 -top-1.75 -translate-y-1/2 cursor-pointer bg-white p-2 rounded-full shadow"
             >
               <ChevronLeft />
             </button>
             <button
               onClick={() => mapRef.current?.panBy([120, 0])}
-              className="absolute right-[50px] top-[-7px] -translate-y-1/2 cursor-pointer bg-white p-2 rounded-full shadow"
+              className="absolute right-12.5 -top-1.75 -translate-y-1/2 cursor-pointer bg-white p-2 rounded-full shadow"
             >
               <ChevronRight />
             </button>
             <button
               onClick={() => mapRef.current?.panBy([0, -120])}
-              className="absolute top-[-80px] left-[-78px] -translate-x-1/2 cursor-pointer bg-white p-2 rounded-full shadow"
+              className="absolute -top-20 -left-19.5 -translate-x-1/2 cursor-pointer bg-white p-2 rounded-full shadow"
             >
               <ChevronUp />
             </button>
             <button
               onClick={() => mapRef.current?.panBy([0, 120])}
-              className="absolute bottom-[-20px] left-[-78px] -translate-x-1/2 cursor-pointer bg-white p-2 rounded-full shadow"
+              className="absolute -bottom-5 -left-19.5 -translate-x-1/2 cursor-pointer bg-white p-2 rounded-full shadow"
             >
               <ChevronDown />
             </button>
