@@ -1,13 +1,8 @@
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import useDataQuery from "./useDataQuery";
 import useCustomerVehicle from "./useCustomerVehicle";
 
-/**
- * Hook to fetch all VTS devices and filter by customer's vehicles
- * Fully defensive against API shape changes
- */
 const useVtsAllDevices = () => {
-  // ---------------- Devices from 3rd Party VTS API ----------------
   const {
     data: allDevicesData,
     isLoading: isLoadingDevices,
@@ -15,7 +10,6 @@ const useVtsAllDevices = () => {
     refetch: refetchDevices,
   } = useDataQuery(["vts-all-devices"], "/api/vts/devices-proxy");
 
-  // ---------------- Customer Vehicles ----------------
   const {
     data: customerVehicles,
     isLoading: isLoadingVehicles,
@@ -23,15 +17,12 @@ const useVtsAllDevices = () => {
     refetch: refetchVehicles,
   } = useCustomerVehicle();
 
-  // ---------------- Safe Defaults ----------------
   const customerVehiclesSafe = useMemo(() => {
     return Array.isArray(customerVehicles) ? customerVehicles : [];
   }, [customerVehicles]);
 
-  // ---------------- Flatten All Items from Groups ----------------
   const allDevices = useMemo(() => {
     if (!Array.isArray(allDevicesData)) return [];
-    // Flatten all items from all groups
     return allDevicesData.reduce((acc, group) => {
       if (Array.isArray(group.items)) {
         acc.push(...group.items);
@@ -40,7 +31,6 @@ const useVtsAllDevices = () => {
     }, []);
   }, [allDevicesData]);
 
-  // ---------------- Customer IMEIs ----------------
   const customerImeis = useMemo(() => {
     return customerVehiclesSafe
       .filter((v) => v?.suspended === false)
@@ -48,7 +38,6 @@ const useVtsAllDevices = () => {
       .filter(Boolean);
   }, [customerVehiclesSafe]);
 
-  // ---------------- Filter by IMEI ----------------
   const filteredDevices = useMemo(() => {
     if (!allDevices.length || !customerImeis.length) return [];
     const imeiSet = new Set(customerImeis);
@@ -58,7 +47,13 @@ const useVtsAllDevices = () => {
     });
   }, [allDevices, customerImeis]);
 
-  // ---------------- Return ----------------
+  useEffect(() => {
+    const interval = setInterval(() => {
+      refetchDevices();
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [refetchDevices]);
+
   return {
     isLoading: isLoadingDevices || isLoadingVehicles,
     error: errorDevices || errorVehicles,
