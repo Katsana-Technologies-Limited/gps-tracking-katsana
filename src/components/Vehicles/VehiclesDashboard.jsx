@@ -4,14 +4,21 @@ import VehiclesStatusOption from "../AnalyticsSummary/VehiclesStatusOption";
 import { getSpeedMeta, mockReverseGeocode } from "../../utilits/vehicleHelpers";
 import { RotateCw } from "lucide-react";
 import VehicleStatusDrawer from "./VehicleStatusDrawer";
+import useCustomerVehicle from "../../hooks/useCustomerVehicle";
+import useVtsAllDevices from "../../hooks/useVtsAllDevices";
+import GlobalLoading from "../utils/GlobalLoading";
 
 const PAGE_SIZE = 5;
 export default function VehiclesDashboard() {
+  const { data: customerVehicles = [], isLoading } = useCustomerVehicle();
+  const { allDevices } = useVtsAllDevices();
   const [selectedIds, setSelectedIds] = useState([]);
   const [activeTab, setActiveTab] = useState("All");
   const [page, setPage] = useState(1);
   const [reloadTimer, setReloadTimer] = useState(60);
   const [isReloading, setIsReloading] = useState(false);
+
+  if (isLoading) return <GlobalLoading message="Loading vehicles..." />;
 
   const filteredDevices = useMemo(
     () => [
@@ -50,41 +57,20 @@ export default function VehiclesDashboard() {
     ],
     []
   );
-  const customerVehicles = useMemo(
-    () => [
-      {
-        id: 1,
-        imei: "123456789012345",
-        company: "Katsana",
-        vehicle_name: "Toyota Camry",
-        subscription_number: "REG1234",
-        lat: 3.139,
-        lng: 101.6869,
-      },
-      {
-        id: 2,
-        imei: "987654321098765",
-        company: "Katsana",
-        vehicle_name: "Honda City",
-        subscription_number: "REG5678",
-        lat: 3.15,
-        lng: 101.7,
-      },
-    ],
-    []
-  );
 
+  // Merge DB and VTS data for enrichedDevices
   const [enrichedDevices, setEnrichedDevices] = useState([]);
   useEffect(() => {
     const enrich = async () => {
       let enriched = [];
       if (activeTab === "All") {
-        // Show all vehicles from DB, merge live VTS data if available
         enriched = await Promise.all(
           customerVehicles.map(async (v, index) => {
-            const live = filteredDevices?.find(
-              (d) => (d.device_data?.imei || d.imei) === v.imei
-            );
+            const live = Array.isArray(allDevices)
+              ? allDevices.find(
+                  (d) => (d.device_data?.imei || d.imei) === v.imei
+                )
+              : null;
             return {
               ...v,
               customer: v.company || v.imei || "",
@@ -94,7 +80,9 @@ export default function VehiclesDashboard() {
                 live?.lat && live?.lng
                   ? await mockReverseGeocode(live.lat, live.lng)
                   : "",
-              deviceStatus: live
+              deviceStatus: v.suspended
+                ? "Suspended"
+                : live
                 ? live.online === "online"
                   ? "Online"
                   : "Offline"
@@ -107,10 +95,9 @@ export default function VehiclesDashboard() {
           })
         );
       } else {
-        // Show only filteredDevices (with live status)
-        if (!filteredDevices) return;
+        if (!allDevices) return;
         enriched = await Promise.all(
-          filteredDevices.map(async (v) => {
+          allDevices.map(async (v) => {
             const match = customerVehicles.find(
               (cv) => String(cv.imei) === String(v.imei)
             );
@@ -121,6 +108,11 @@ export default function VehiclesDashboard() {
               reg: match?.reg_no || "",
               landmark:
                 v.lat && v.lng ? await mockReverseGeocode(v.lat, v.lng) : "",
+              deviceStatus: match?.suspended
+                ? "Suspended"
+                : v.online === "online"
+                ? "Online"
+                : "Offline",
             };
           })
         );
@@ -128,7 +120,7 @@ export default function VehiclesDashboard() {
       setEnrichedDevices(enriched);
     };
     enrich();
-  }, [filteredDevices, customerVehicles, activeTab]);
+  }, [allDevices, customerVehicles, activeTab]);
 
   useEffect(() => {
     if (!isReloading) return;
