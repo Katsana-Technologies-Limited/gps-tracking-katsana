@@ -20,7 +20,7 @@ import { VehicleMarker } from "../Vehicles/VehicleMarker";
 const BARIKOI_KEY = import.meta.env.VITE_BARIKOI_API_KEY;
 
 /* ✅ USE STABLE STYLE ONLY */
-const MAP_STYLE = `https://map.barikoi.com/styles/barikoi-light/style.json?key=${BARIKOI_KEY}`;
+const MAP_STYLE = `https://map.barikoi.com/styles/osm-liberty/style.json?key=${BARIKOI_KEY}`;
 const SATELLITE_STYLE = `https://map.barikoi.com/styles/barikoi_satellite/style.json?key=${BARIKOI_KEY}`;
 
 const VehiclesStatusMap = () => {
@@ -30,16 +30,14 @@ const VehiclesStatusMap = () => {
   const [controlsOpen, setControlsOpen] = useState(false);
 
   const { data: vehiclesData } = useCustomerVehicle();
-  console.log(vehiclesData);
-
-  // const imeis = vehiclesData
-  //   ? vehiclesData.map((v) => v.imei).filter(Boolean)
-  //   : [];
+  console.log("vehiclesData", vehiclesData);
 
   const imeis = useMemo(() => {
     if (!vehiclesData || !Array.isArray(vehiclesData)) return [];
     return vehiclesData.map((v) => v.imei).filter(Boolean);
   }, [vehiclesData]);
+
+  console.log("imesis update", imeis);
 
   // FAKE VTS DATA FOR DEMO/TESTING
   const vtsData = {
