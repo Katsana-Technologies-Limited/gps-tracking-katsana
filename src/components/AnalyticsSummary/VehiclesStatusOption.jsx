@@ -69,12 +69,19 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
     return list;
   }, [VEHICLES, activeTab, query]);
 
-  // Select All by default
+  // Select All by default, only update if filteredVehicles changes and selection is out of sync
   const [selected, setSelected] = useState(() =>
     filteredVehicles.map((v) => v.id)
   );
   useEffect(() => {
-    setSelected(filteredVehicles.map((v) => v.id));
+    const filteredIds = filteredVehicles.map((v) => v.id);
+    if (
+      selected.length !== filteredIds.length ||
+      !selected.every((id, i) => id === filteredIds[i])
+    ) {
+      setSelected(filteredIds);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filteredVehicles]);
 
   const toggleVehicle = (id) => {
