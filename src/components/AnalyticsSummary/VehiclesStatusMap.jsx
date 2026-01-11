@@ -32,8 +32,12 @@ const VehiclesStatusMap = () => {
   const { data: vehiclesData } = useCustomerVehicle();
   console.log("vehiclesData", vehiclesData);
 
+  // const imeis = useMemo(() => {
+  //   if (!vehiclesData || !Array.isArray(vehiclesData)) return [];
+  //   return vehiclesData.map((v) => v.imei).filter(Boolean);
+  // }, [vehiclesData]);
+
   const imeis = useMemo(() => {
-    if (!vehiclesData || !Array.isArray(vehiclesData)) return [];
     return vehiclesData.map((v) => v.imei).filter(Boolean);
   }, [vehiclesData]);
 
