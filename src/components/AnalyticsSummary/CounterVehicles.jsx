@@ -1,62 +1,10 @@
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import GlobalLoading from "../utils/GlobalLoading";
-// import useVtsAllDevices from "../../hooks/useVtsAllDevices";
+import useCustomerVehicle from "../../hooks/useCustomerVehicle";
 
 const CounterVehicles = () => {
-  // const { filteredDevices, customerVehicles, isLoading } = useVtsAllDevices();
-
-  // const vehicles = Array.isArray(customerVehicles)
-  //   ? customerVehicles.map((v, index) => {
-  //       const live = Array.isArray(filteredDevices)
-  //         ? filteredDevices.find(
-  //             (d) => (d.device_data?.imei || d.imei) === v.imei
-  //           )
-  //         : null;
-
-  //       let status = "Unknown";
-  //       if (live) {
-  //         if (
-  //           live.status === "Suspended" ||
-  //           live.deviceStatus === "Suspended" ||
-  //           live.suspended === true
-  //         ) {
-  //           status = "Suspended";
-  //         } else if (live.online === "online") {
-  //           status = "Online";
-  //         } else {
-  //           status = "Offline";
-  //         }
-  //       } else if (v.suspended === true) {
-  //         status = "Suspended";
-  //       }
-
-  //       return {
-  //         id: v.id ?? live?.device_data?.id ?? live?.id ?? index + 1,
-  //         number:
-  //           v.vehicle_name ||
-  //           v.subscription_number ||
-  //           v.imei ||
-  //           live?.device_data?.name ||
-  //           live?.name ||
-  //           "-",
-  //         reg:
-  //           v.subscription_number ||
-  //           live?.device_data?.subscription_number ||
-  //           "-",
-  //         status,
-  //         imei: v.imei,
-  //         company: v.company,
-  //         vts: live || null,
-  //       };
-  //     })
-  //   : [];
-
-  // const onlineCount = vehicles.filter((v) => v.status === "Online").length;
-  // const suspendedCount = vehicles.filter(
-  //   (v) => v.status === "Suspended"
-  // ).length;
-  // const offlineCount = vehicles.filter((v) => v.status === "Offline").length;
-  // const total = vehicles.length;
+  const { data } = useCustomerVehicle();
+  console.log(data);
 
   const vehiclesPie = [
     { name: "Online", value: 7, color: "#1ED760" },

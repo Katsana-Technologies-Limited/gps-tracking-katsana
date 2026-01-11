@@ -1,5 +1,6 @@
-import { useRef, useState } from "react";
-import { Map, Source, Layer, Marker } from "react-bkoi-gl";
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useRef, useState, useMemo } from "react";
+import { Map, Marker } from "react-bkoi-gl";
 import "react-bkoi-gl/styles";
 import {
   Share2,
@@ -18,87 +19,51 @@ import { VehicleMarker } from "../Vehicles/VehicleMarker";
 
 const BARIKOI_KEY = import.meta.env.VITE_BARIKOI_API_KEY;
 
-// const MAP_STYLE = `https://map.barikoi.com/styles/barikoi-light/style.json?key=${BARIKOI_KEY}`;
-const MAP_STYLE = `https://map.barikoi.com/styles/osm-liberty/style.json?key=${BARIKOI_KEY}`;
+/* ✅ USE STABLE STYLE ONLY */
+const MAP_STYLE = `https://map.barikoi.com/styles/barikoi-light/style.json?key=${BARIKOI_KEY}`;
 const SATELLITE_STYLE = `https://map.barikoi.com/styles/barikoi_satellite/style.json?key=${BARIKOI_KEY}`;
-
-const vehicleLayer = {
-  id: "vehicle-layer",
-  type: "symbol",
-  layout: {
-    "icon-image": "car-15",
-    "icon-size": 1.2,
-    "icon-allow-overlap": true,
-  },
-};
 
 const VehiclesStatusMap = () => {
   const mapRef = useRef(null);
   const wrapperRef = useRef(null);
   const [satellite, setSatellite] = useState(false);
-  const [moveHandel, setMoveHandel] = useState(false);
+  const [controlsOpen, setControlsOpen] = useState(false);
 
   const { data: vehiclesData } = useCustomerVehicle();
 
-  const imeis = vehiclesData
-    ? vehiclesData.map((v) => v.imei).filter(Boolean)
-    : [];
-
-  // FAKE VTS DATA FOR DEMO/TESTING
   const vtsData = {
-    123456789012345: [
-      {
-        imei: "123456789012345",
-        name: "Toyota Camry",
-        lat: 23.823731,
-        lng: 90.36402,
-      },
-    ],
-    987654321098765: [
-      {
-        imei: "987654321098765",
-        name: "Honda City",
-        lat: 23.825,
-        lng: 90.366,
-      },
-    ],
+    123456789012345: {
+      lat: 23.823731,
+      lng: 90.36402,
+      count: 2,
+    },
+    987654321098765: {
+      lat: 23.825,
+      lng: 90.366,
+      count: 1,
+    },
   };
 
-  /** 🔥 Convert API data → GeoJSON */
-  let vehiclesGeoJSON = { type: "FeatureCollection", features: [] };
-  if (vtsData) {
-    const features = imeis
-      .map((imei) => {
-        const vts = vtsData[imei]?.[0];
-        if (!vts?.lat || !vts?.lng) return null;
+  const markers = useMemo(() => {
+    if (!vehiclesData) return [];
+    return vehiclesData
+      .map((v) => {
+        const d = vtsData[v.imei];
+        if (!d) return null;
         return {
-          type: "Feature",
-          properties: {
-            imei,
-            name: vts.name || imei,
-          },
-          geometry: {
-            type: "Point",
-            coordinates: [vts.lng, vts.lat],
-          },
+          imei: v.imei,
+          ...d,
         };
       })
       .filter(Boolean);
-    vehiclesGeoJSON = {
-      type: "FeatureCollection",
-      features,
-    };
-  }
+  }, [vehiclesData]);
 
   const initialViewState = {
     longitude: 90.3563,
     latitude: 23.685,
-    minZoom: 4,
-    maxZoom: 30,
-    zoom: 5.8,
+    zoom: 6,
     bearing: 0,
     pitch: 0,
-    antialias: true,
   };
 
   /* ---------------- Actions ---------------- */
@@ -142,17 +107,21 @@ const VehiclesStatusMap = () => {
         dragRotate={false}
         attributionControl={false}
       >
-        {/* 🚗 Vehicles */}
-        <Source id="vehicles" type="geojson" data={vehiclesGeoJSON}>
-          <Layer {...vehicleLayer} />
-        </Source>
-        <Marker longitude={90.36402} latitude={23.823731} anchor="bottom">
-          <VehicleMarker count={2} />
-        </Marker>
+        {/* 🚗 VEHICLE MARKERS */}
+        {markers.map((m) => (
+          <Marker
+            key={m.imei}
+            longitude={m.lng}
+            latitude={m.lat}
+            anchor="center"
+          >
+            <VehicleMarker count={m.count} />
+          </Marker>
+        ))}
       </Map>
 
-      {/* Map / Satellite Toggle */}
-      <div className="absolute top-3 left-3 z-10 bg-white rounded-lg shadow flex">
+      {/* 🗺️ Map / Satellite Toggle */}
+      <div className="absolute top-3 left-3 z-20 bg-white rounded-lg shadow flex">
         <button
           onClick={() => setSatellite(false)}
           className={`px-4 py-1 ${!satellite && "bg-gray-100 font-medium"}`}
@@ -167,7 +136,7 @@ const VehiclesStatusMap = () => {
         </button>
       </div>
 
-      {/* Fullscreen */}
+      {/* 🖥 Fullscreen */}
       <button
         onClick={() => {
           const el = wrapperRef.current;
@@ -175,62 +144,55 @@ const VehiclesStatusMap = () => {
             ? el.requestFullscreen()
             : document.exitFullscreen();
         }}
-        className="absolute top-3 right-5 z-20 w-11 h-11 bg-white rounded-full p-2 shadow-md hover:scale-105 transition flex justify-center items-center cursor-pointer"
+        className="absolute top-3 right-4 z-20 w-11 h-11 bg-white rounded-full shadow flex items-center justify-center"
       >
         <Scan />
       </button>
 
-      {/* Radial Controls */}
-      <div className="absolute bottom-9 right-4 z-20">
+      {/* 🎯 Radial Controls */}
+      <div className="absolute bottom-8 right-4 z-20">
         <button
-          onClick={() => setMoveHandel((p) => !p)}
-          className={`
-            relative z-30 cursor-pointer
-            w-12 h-12 rounded-full bg-white hover:bg-amber-50 shadow-lg
-            flex items-center justify-center
-            transition-all duration-300 ease-out
-            ${moveHandel ? "rotate-45 scale-110" : "rotate-0 scale-100"}
-          `}
-          aria-pressed={moveHandel}
+          onClick={() => setControlsOpen((p) => !p)}
+          className="w-12 h-12 rounded-full bg-white shadow flex items-center justify-center"
         >
-          <Scan size={22} />
+          <Scan />
         </button>
-        {/* RADIAL BUTTONS */}
-        {moveHandel && (
+
+        {controlsOpen && (
           <>
             <button
               onClick={zoomIn}
-              className="absolute -top-20 right-12.5 bg-white rounded-full p-2 cursor-pointer"
+              className="absolute -top-16 right-0 bg-white p-2 rounded-full shadow"
             >
               <Plus />
             </button>
             <button
               onClick={zoomOut}
-              className="absolute -bottom-5 right-12.5 cursor-pointer bg-white rounded-full p-2"
+              className="absolute -bottom-16 right-0 bg-white p-2 rounded-full shadow"
             >
               <Minus />
             </button>
             <button
               onClick={() => mapRef.current?.panBy([-120, 0])}
-              className="absolute -left-35 -top-1.75 -translate-y-1/2   cursor-pointer bg-white rounded-full p-2"
+              className="absolute -left-16 top-0 bg-white p-2 rounded-full shadow"
             >
               <ChevronLeft />
             </button>
             <button
               onClick={() => mapRef.current?.panBy([120, 0])}
-              className="absolute right-12.5 -top-1.75 -translate-y-1/2 cursor-pointer bg-white rounded-full p-2"
+              className="absolute -right-16 top-0 bg-white p-2 rounded-full shadow"
             >
               <ChevronRight />
             </button>
             <button
               onClick={() => mapRef.current?.panBy([0, -120])}
-              className="absolute -top-20 -left-19.5 -translate-x-1/2 cursor-pointer bg-white rounded-full p-2"
+              className="absolute -top-16 left-0 bg-white p-2 rounded-full shadow"
             >
               <ChevronUp />
             </button>
             <button
               onClick={() => mapRef.current?.panBy([0, 120])}
-              className="absolute -bottom-5 -left-19.5 -translate-x-1/2 cursor-pointer  bg-white rounded-full p-2"
+              className="absolute -bottom-16 left-0 bg-white p-2 rounded-full shadow"
             >
               <ChevronDown />
             </button>
@@ -238,29 +200,20 @@ const VehiclesStatusMap = () => {
         )}
       </div>
 
-      {/* Share / Print */}
-      <div>
-        <div className="absolute bottom-6 left-3 z-10  flex flex-col gap-2 cursor-pointer">
-          <div className="w-8 h-8 rounded-xl bg-[#95F0B3]" />
-          <div className="w-8 h-8 rounded-xl bg-[#95D8F0]" />
-          <div className="w-8 h-8 rounded-xl bg-[#F0C695]" />
-          <div className="w-8 h-8 rounded-xl bg-[#F09D95]" />
-          <div className="w-8 h-8 rounded-xl bg-[#787878]" />
-        </div>
-        <div className="absolute bottom-6 left-15 z-10 flex gap-2 h-9 ">
-          <button
-            onClick={handleShare}
-            className="flex gap-2 justify-center items-center bg-amber-50 rounded-2xl px-3 cursor-pointer"
-          >
-            <Share2 size={21} /> <span>Share</span>
-          </button>
-          <button
-            onClick={handlePrint}
-            className="flex gap-2 justify-center items-center bg-amber-50 rounded-2xl px-3 cursor-pointer"
-          >
-            <Printer size={21} /> <span>Print</span>
-          </button>
-        </div>
+      {/* 📤 Share / Print */}
+      <div className="absolute bottom-6 left-4 z-20 flex gap-2">
+        <button
+          onClick={handleShare}
+          className="flex items-center gap-2 bg-amber-50 rounded-xl px-3 py-2"
+        >
+          <Share2 size={18} /> Share
+        </button>
+        <button
+          onClick={handlePrint}
+          className="flex items-center gap-2 bg-amber-50 rounded-xl px-3 py-2"
+        >
+          <Printer size={18} /> Print
+        </button>
       </div>
     </div>
   );
