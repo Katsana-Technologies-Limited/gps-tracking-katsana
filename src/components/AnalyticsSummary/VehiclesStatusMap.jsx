@@ -134,16 +134,20 @@ const VehiclesStatusMap = () => {
       </Map>
 
       {/* 🗺️ Map / Satellite Toggle */}
-      <div className="absolute top-3 left-3 z-20 bg-white rounded-lg shadow flex">
+      <div className="absolute top-3 left-3 z-20 bg-white rounded-lg shadow  flex">
         <button
           onClick={() => setSatellite(false)}
-          className={`px-4 py-1 ${!satellite && "bg-gray-100 font-medium"}`}
+          className={`px-4 py-1 cursor-pointer ${
+            !satellite && "bg-gray-100 font-medium"
+          }`}
         >
           Map
         </button>
         <button
           onClick={() => setSatellite(true)}
-          className={`px-4 py-1 ${satellite && "bg-gray-100 font-medium"}`}
+          className={`px-4 py-1 cursor-pointer ${
+            satellite && "bg-gray-100 font-medium"
+          }`}
         >
           Satellite
         </button>
@@ -157,7 +161,7 @@ const VehiclesStatusMap = () => {
             ? el.requestFullscreen()
             : document.exitFullscreen();
         }}
-        className="absolute top-3 right-4 z-20 w-11 h-11 bg-white rounded-full shadow flex items-center justify-center"
+        className="absolute top-3 right-4 z-20 w-11 h-11 cursor-pointer bg-white rounded-full shadow flex items-center justify-center"
       >
         <Scan />
       </button>
@@ -166,7 +170,7 @@ const VehiclesStatusMap = () => {
       <div className="absolute bottom-8 right-4 z-20">
         <button
           onClick={() => setControlsOpen((p) => !p)}
-          className="w-12 h-12 rounded-full bg-white shadow flex items-center justify-center"
+          className="w-12 h-12 rounded-full cursor-pointer bg-white shadow flex items-center justify-center"
         >
           <Scan />
         </button>
@@ -175,37 +179,37 @@ const VehiclesStatusMap = () => {
           <>
             <button
               onClick={zoomIn}
-              className="absolute -top-16 right-0 bg-white p-2 rounded-full shadow"
+              className="absolute top-[-80px] right-[50px] cursor-pointer bg-white p-2 rounded-full shadow"
             >
               <Plus />
             </button>
             <button
               onClick={zoomOut}
-              className="absolute -bottom-16 right-0 bg-white p-2 rounded-full shadow"
+              className="absolute bottom-[-20px] right-[50px] cursor-pointer bg-white p-2 rounded-full shadow"
             >
               <Minus />
             </button>
             <button
               onClick={() => mapRef.current?.panBy([-120, 0])}
-              className="absolute -left-16 top-0 bg-white p-2 rounded-full shadow"
+              className="absolute left-[-140px] top-[-7px] -translate-y-1/2 cursor-pointer bg-white p-2 rounded-full shadow"
             >
               <ChevronLeft />
             </button>
             <button
               onClick={() => mapRef.current?.panBy([120, 0])}
-              className="absolute -right-16 top-0 bg-white p-2 rounded-full shadow"
+              className="absolute right-[50px] top-[-7px] -translate-y-1/2 cursor-pointer bg-white p-2 rounded-full shadow"
             >
               <ChevronRight />
             </button>
             <button
               onClick={() => mapRef.current?.panBy([0, -120])}
-              className="absolute -top-16 left-0 bg-white p-2 rounded-full shadow"
+              className="absolute top-[-80px] left-[-78px] -translate-x-1/2 cursor-pointer bg-white p-2 rounded-full shadow"
             >
               <ChevronUp />
             </button>
             <button
               onClick={() => mapRef.current?.panBy([0, 120])}
-              className="absolute -bottom-16 left-0 bg-white p-2 rounded-full shadow"
+              className="absolute bottom-[-20px] left-[-78px] -translate-x-1/2 cursor-pointer bg-white p-2 rounded-full shadow"
             >
               <ChevronDown />
             </button>
@@ -214,19 +218,28 @@ const VehiclesStatusMap = () => {
       </div>
 
       {/* 📤 Share / Print */}
-      <div className="absolute bottom-6 left-4 z-20 flex gap-2">
-        <button
-          onClick={handleShare}
-          className="flex items-center gap-2 bg-amber-50 rounded-xl px-3 py-2"
-        >
-          <Share2 size={18} /> Share
-        </button>
-        <button
-          onClick={handlePrint}
-          className="flex items-center gap-2 bg-amber-50 rounded-xl px-3 py-2"
-        >
-          <Printer size={18} /> Print
-        </button>
+      <div>
+        <div className="absolute bottom-6 left-3 z-10  flex flex-col gap-2 cursor-pointer">
+          <div className="w-8 h-8 rounded-xl bg-[#95F0B3]" />
+          <div className="w-8 h-8 rounded-xl bg-[#95D8F0]" />
+          <div className="w-8 h-8 rounded-xl bg-[#F0C695]" />
+          <div className="w-8 h-8 rounded-xl bg-[#F09D95]" />
+          <div className="w-8 h-8 rounded-xl bg-[#787878]" />
+        </div>
+        <div className="absolute bottom-6 left-15 z-10 flex gap-2 h-9 ">
+          <button
+            onClick={handleShare}
+            className="flex gap-2 justify-center items-center bg-amber-50 rounded-2xl px-3 cursor-pointer"
+          >
+            <Share2 size={21} /> <span>Share</span>
+          </button>
+          <button
+            onClick={handlePrint}
+            className="flex gap-2 justify-center items-center bg-amber-50 rounded-2xl px-3 cursor-pointer"
+          >
+            <Printer size={21} /> <span>Print</span>
+          </button>
+        </div>
       </div>
     </div>
   );
