@@ -4,8 +4,6 @@ import VehiclesStatusOption from "../AnalyticsSummary/VehiclesStatusOption";
 import { getSpeedMeta, mockReverseGeocode } from "../../utilits/vehicleHelpers";
 import { RotateCw } from "lucide-react";
 import VehicleStatusDrawer from "./VehicleStatusDrawer";
-import useVtsAllDevices from "../../hooks/useVtsAllDevices";
-import useCustomerVehicle from "../../hooks/useCustomerVehicle";
 
 const PAGE_SIZE = 5;
 export default function VehiclesDashboard() {
@@ -14,8 +12,10 @@ export default function VehiclesDashboard() {
   const [page, setPage] = useState(1);
   const [reloadTimer, setReloadTimer] = useState(60);
   const [isReloading, setIsReloading] = useState(false);
-  const { filteredDevices, isLoading } = useVtsAllDevices();
-  const { data: customerVehicles = [] } = useCustomerVehicle();
+  // TODO: Provide filteredDevices, isLoading, and customerVehicles from another source or props
+  const filteredDevices = [];
+  const isLoading = false;
+  const customerVehicles = [];
 
   const [enrichedDevices, setEnrichedDevices] = useState([]);
   useEffect(() => {

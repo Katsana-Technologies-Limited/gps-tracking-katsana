@@ -1,70 +1,70 @@
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import GlobalLoading from "../utils/GlobalLoading";
-import useVtsAllDevices from "../../hooks/useVtsAllDevices";
+// import useVtsAllDevices from "../../hooks/useVtsAllDevices";
 
 const CounterVehicles = () => {
-  const { filteredDevices, customerVehicles, isLoading } = useVtsAllDevices();
+  // const { filteredDevices, customerVehicles, isLoading } = useVtsAllDevices();
 
-  const vehicles = Array.isArray(customerVehicles)
-    ? customerVehicles.map((v, index) => {
-        const live = Array.isArray(filteredDevices)
-          ? filteredDevices.find(
-              (d) => (d.device_data?.imei || d.imei) === v.imei
-            )
-          : null;
+  // const vehicles = Array.isArray(customerVehicles)
+  //   ? customerVehicles.map((v, index) => {
+  //       const live = Array.isArray(filteredDevices)
+  //         ? filteredDevices.find(
+  //             (d) => (d.device_data?.imei || d.imei) === v.imei
+  //           )
+  //         : null;
 
-        let status = "Unknown";
-        if (live) {
-          if (
-            live.status === "Suspended" ||
-            live.deviceStatus === "Suspended" ||
-            live.suspended === true
-          ) {
-            status = "Suspended";
-          } else if (live.online === "online") {
-            status = "Online";
-          } else {
-            status = "Offline";
-          }
-        } else if (v.suspended === true) {
-          status = "Suspended";
-        }
+  //       let status = "Unknown";
+  //       if (live) {
+  //         if (
+  //           live.status === "Suspended" ||
+  //           live.deviceStatus === "Suspended" ||
+  //           live.suspended === true
+  //         ) {
+  //           status = "Suspended";
+  //         } else if (live.online === "online") {
+  //           status = "Online";
+  //         } else {
+  //           status = "Offline";
+  //         }
+  //       } else if (v.suspended === true) {
+  //         status = "Suspended";
+  //       }
 
-        return {
-          id: v.id ?? live?.device_data?.id ?? live?.id ?? index + 1,
-          number:
-            v.vehicle_name ||
-            v.subscription_number ||
-            v.imei ||
-            live?.device_data?.name ||
-            live?.name ||
-            "-",
-          reg:
-            v.subscription_number ||
-            live?.device_data?.subscription_number ||
-            "-",
-          status,
-          imei: v.imei,
-          company: v.company,
-          vts: live || null,
-        };
-      })
-    : [];
+  //       return {
+  //         id: v.id ?? live?.device_data?.id ?? live?.id ?? index + 1,
+  //         number:
+  //           v.vehicle_name ||
+  //           v.subscription_number ||
+  //           v.imei ||
+  //           live?.device_data?.name ||
+  //           live?.name ||
+  //           "-",
+  //         reg:
+  //           v.subscription_number ||
+  //           live?.device_data?.subscription_number ||
+  //           "-",
+  //         status,
+  //         imei: v.imei,
+  //         company: v.company,
+  //         vts: live || null,
+  //       };
+  //     })
+  //   : [];
 
-  const onlineCount = vehicles.filter((v) => v.status === "Online").length;
-  const suspendedCount = vehicles.filter(
-    (v) => v.status === "Suspended"
-  ).length;
-  const offlineCount = vehicles.filter((v) => v.status === "Offline").length;
-  const total = vehicles.length;
+  // const onlineCount = vehicles.filter((v) => v.status === "Online").length;
+  // const suspendedCount = vehicles.filter(
+  //   (v) => v.status === "Suspended"
+  // ).length;
+  // const offlineCount = vehicles.filter((v) => v.status === "Offline").length;
+  // const total = vehicles.length;
 
   const vehiclesPie = [
-    { name: "Online", value: onlineCount, color: "#1ED760" },
-    { name: "Suspended", value: suspendedCount, color: "#FF4D4F" },
-    { name: "Offline", value: offlineCount, color: "#B0BEC5" },
+    { name: "Online", value: 7, color: "#1ED760" },
+    { name: "Suspended", value: 4, color: "#FF4D4F" },
+    { name: "Offline", value: 3, color: "#B0BEC5" },
   ];
 
-  if (isLoading) return <GlobalLoading message="Loading vehicles..." />;
+  // if (isLoading) return <GlobalLoading message="Loading vehicles..." />;
 
   return (
     <div className="relative min-h-65 flex flex-col items-center justify-between p-2">
@@ -73,9 +73,9 @@ const CounterVehicles = () => {
           Total Number of Vehicles
         </h2>
         <div className="bg-orange-50 text-xs px-2 py-1 rounded-lg flex flex-col justify-center items-center">
-          <span className="text-2xl text-orange-500 font-bold">{total}</span>
+          <span className="text-2xl text-orange-500 font-bold">{7 + 4 + 3}</span>
           <span className="text-[11px] text-gray-600 font-semibold">
-            Vehicle{total !== 1 ? "s" : ""}
+            {/* Vehicle{7 + 4 + 3 !== 1 ? "s" : ""} */}
           </span>
         </div>
       </div>

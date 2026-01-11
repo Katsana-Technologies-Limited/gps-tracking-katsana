@@ -16,7 +16,7 @@ import jsPDF from "jspdf";
 import useCustomerVehicle from "../../hooks/useCustomerVehicle";
 import useVtsDevices from "../../hooks/useVtsDevices";
 import { VehicleMarker } from "../Vehicles/VehicleMarker";
-import useVtsAllDevices from "../../hooks/useVtsAllDevices";
+// import useVtsAllDevices from "../../hooks/useVtsAllDevices";
 
 const BARIKOI_KEY = import.meta.env.VITE_BARIKOI_API_KEY;
 
@@ -37,7 +37,7 @@ const vehicleLayer = {
 const VehiclesStatusMap = () => {
   const mapRef = useRef(null);
   const wrapperRef = useRef(null);
-  const { filteredDevices, isLoading } = useVtsAllDevices();
+  // const { filteredDevices, isLoading } = useVtsAllDevices();
 
   // console.log(filteredDevices);
 

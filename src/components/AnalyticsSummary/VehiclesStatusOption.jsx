@@ -2,7 +2,6 @@ import React, { useMemo, useState, useEffect } from "react";
 import { Check, Search } from "lucide-react";
 import GlobalLoading from "../utils/GlobalLoading";
 import useVtsAllDevices from "../../hooks/useVtsAllDevices";
-import useCustomerVehicle from "../../hooks/useCustomerVehicle";
 
 const TABS = ["All", "Offline", "Online", "Suspended"];
 
@@ -15,9 +14,11 @@ const statusStyle = {
 const VehiclesStatusOption = ({ divhight = 80 }) => {
   const [activeTab, setActiveTab] = useState("All");
   const [query, setQuery] = useState("");
-  const { filteredDevices, isLoading } = useVtsAllDevices();
-  const { data: customerVehicles = [], isLoading: isLoadingCustomer } =
-    useCustomerVehicle();
+  const {
+    filteredDevices,
+    isLoading,
+    customerVehicles = [],
+  } = useVtsAllDevices();
 
   // Defensive VEHICLES mapping
   const VEHICLES = useMemo(() => {
@@ -104,8 +105,7 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
     else setSelected(filteredVehicles.map((v) => v.id));
   };
 
-  if (isLoading || isLoadingCustomer)
-    return <GlobalLoading message="Loading vehicles..." />;
+  if (isLoading) return <GlobalLoading message="Loading vehicles..." />;
 
   return (
     <div className={`h-full max-h-[${divhight}px] flex flex-col gap-3 p-3`}>
