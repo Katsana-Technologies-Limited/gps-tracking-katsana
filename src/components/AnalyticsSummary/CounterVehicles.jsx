@@ -3,7 +3,7 @@ import GlobalLoading from "../utils/GlobalLoading";
 import useCustomerVehicle from "../../hooks/useCustomerVehicle";
 
 const CounterVehicles = () => {
-  const { data } = useCustomerVehicle();
+  const { data, isLoading } = useCustomerVehicle();
   console.log(data);
 
   const vehiclesPie = [
@@ -12,7 +12,7 @@ const CounterVehicles = () => {
     { name: "Offline", value: 3, color: "#B0BEC5" },
   ];
 
-  // if (isLoading) return <GlobalLoading message="Loading vehicles..." />;
+  if (isLoading) return <GlobalLoading message="Loading vehicles..." />;
 
   return (
     <div className="relative min-h-65 flex flex-col items-center justify-between p-2">
@@ -21,7 +21,9 @@ const CounterVehicles = () => {
           Total Number of Vehicles
         </h2>
         <div className="bg-orange-50 text-xs px-2 py-1 rounded-lg flex flex-col justify-center items-center">
-          <span className="text-2xl text-orange-500 font-bold">{7 + 4 + 3}</span>
+          <span className="text-2xl text-orange-500 font-bold">
+            {7 + 4 + 3}
+          </span>
           <span className="text-[11px] text-gray-600 font-semibold">
             {/* Vehicle{7 + 4 + 3 !== 1 ? "s" : ""} */}
           </span>
