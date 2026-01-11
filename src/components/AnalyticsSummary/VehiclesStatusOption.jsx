@@ -1,7 +1,6 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { Check, Search } from "lucide-react";
 import GlobalLoading from "../utils/GlobalLoading";
-import useVtsAllDevices from "../../hooks/useVtsAllDevices";
 
 const TABS = ["All", "Offline", "Online", "Suspended"];
 
@@ -14,11 +13,10 @@ const statusStyle = {
 const VehiclesStatusOption = ({ divhight = 80 }) => {
   const [activeTab, setActiveTab] = useState("All");
   const [query, setQuery] = useState("");
-  const {
-    filteredDevices,
-    isLoading,
-    customerVehicles = [],
-  } = useVtsAllDevices();
+  // TODO: Provide filteredDevices, isLoading, and customerVehicles from another source or props
+  const filteredDevices = [];
+  const isLoading = false;
+  const customerVehicles = [];
 
   // Defensive VEHICLES mapping
   const VEHICLES = useMemo(() => {
