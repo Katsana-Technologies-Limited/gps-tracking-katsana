@@ -28,11 +28,13 @@ export default function TrackingSidebar({ isOpen, setIsOpen }) {
   const handleExpand = (to) => {
     if (!isOpen) {
       setIsOpen(true);
+      setExpanded({ [to]: true });
+    } else {
+      setExpanded((prev) => {
+        if (prev[to]) return {};
+        return { [to]: true };
+      });
     }
-    setExpanded((prev) => {
-      if (prev[to]) return {};
-      return { [to]: true };
-    });
   };
 
   const handleRouteClick = (label) => {
