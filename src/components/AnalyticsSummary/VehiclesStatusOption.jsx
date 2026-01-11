@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { setSelectedVehicleInfo } from "../../slices/vehiclesSlice";
+import { setSelectedImeis } from "../../slices/vehiclesSlice";
 import { Check, Search } from "lucide-react";
 import GlobalLoading from "../utils/GlobalLoading";
 import useCustomerVehicle from "../../hooks/useCustomerVehicle";
@@ -56,7 +56,7 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
 
   const { data: customerVehicles, isLoading: isLoadingVehicles } =
     useCustomerVehicle();
-    
+
   const customerVehiclesSafe = useMemo(() => {
     return Array.isArray(customerVehicles) ? customerVehicles : [];
   }, [customerVehicles]);
@@ -122,6 +122,17 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
       !selected.every((id, i) => id === filteredIds[i])
     ) {
       setSelected(filteredIds);
+      // After updating selection, dispatch selected IMEIs
+      const selectedImeis = VEHICLES.filter((v) =>
+        filteredIds.includes(v.id)
+      ).map((v) => v.imei);
+      dispatch(setSelectedImeis(selectedImeis));
+    } else {
+      // Keep Redux in sync if selection didn't change but vehicles did
+      const selectedImeis = VEHICLES.filter((v) => selected.includes(v.id)).map(
+        (v) => v.imei
+      );
+      dispatch(setSelectedImeis(selectedImeis));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filteredVehicles]);
@@ -131,25 +142,28 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
       const newSelected = prev.includes(id)
         ? prev.filter((v) => v !== id)
         : [...prev, id];
-      const vehicle = VEHICLES.find((v) => v.id === id);
-      if (vehicle) {
-        // Only send the main info required
-        dispatch(
-          setSelectedVehicleInfo({
-            id: vehicle.id,
-            imei: vehicle.imei,
-            suspended: vehicle.suspended,
-            vehicle_name: vehicle.vehicle_name,
-          })
-        );
-      }
+      // After updating selection, dispatch selected IMEIs
+      const selectedImeis = VEHICLES.filter((v) =>
+        newSelected.includes(v.id)
+      ).map((v) => v.imei);
+      dispatch(setSelectedImeis(selectedImeis));
       return newSelected;
     });
   };
 
   const toggleAll = () => {
-    if (selected.length === filteredVehicles.length) setSelected([]);
-    else setSelected(filteredVehicles.map((v) => v.id));
+    let newSelected;
+    if (selected.length === filteredVehicles.length) {
+      newSelected = [];
+    } else {
+      newSelected = filteredVehicles.map((v) => v.id);
+    }
+    setSelected(newSelected);
+    // After updating selection, dispatch selected IMEIs
+    const selectedImeis = VEHICLES.filter((v) =>
+      newSelected.includes(v.id)
+    ).map((v) => v.imei);
+    dispatch(setSelectedImeis(selectedImeis));
   };
 
   if (isLoadingVehicles) return <GlobalLoading message="Loading vehicles..." />;

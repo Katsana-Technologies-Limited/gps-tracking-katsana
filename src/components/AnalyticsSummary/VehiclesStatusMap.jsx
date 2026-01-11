@@ -16,6 +16,7 @@ import {
 import jsPDF from "jspdf";
 import useCustomerVehicle from "../../hooks/useCustomerVehicle";
 import { VehicleMarker } from "../Vehicles/VehicleMarker";
+import useSelectedImeis from "../../hooks/useSelectedImeis";
 
 const BARIKOI_KEY = import.meta.env.VITE_BARIKOI_API_KEY;
 
@@ -28,9 +29,11 @@ const VehiclesStatusMap = () => {
   const wrapperRef = useRef(null);
   const [satellite, setSatellite] = useState(false);
   const [controlsOpen, setControlsOpen] = useState(false);
+  const selectedImeis = useSelectedImeis();
+  console.log(selectedImeis);
 
   const { data: vehiclesData } = useCustomerVehicle();
-  console.log("vehiclesData", vehiclesData);
+  // console.log("vehiclesData", vehiclesData);
 
   // const imeis = useMemo(() => {
   //   if (!vehiclesData || !Array.isArray(vehiclesData)) return [];
@@ -41,7 +44,7 @@ const VehiclesStatusMap = () => {
     return vehiclesData.map((v) => v.imei).filter(Boolean);
   }, [vehiclesData]);
 
-  console.log("imesis update", imeis);
+  // console.log("imesis update", imeis);
 
   // FAKE VTS DATA FOR DEMO/TESTING
   const vtsData = {

@@ -2,11 +2,11 @@ import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import GlobalLoading from "../utils/GlobalLoading";
 import useCustomerVehicle from "../../hooks/useCustomerVehicle";
 import useVtsAllDevices from "../../hooks/useVtsAllDevices";
-import useSelectedVehicleInfo from "../../hooks/useSelectedVehicleInfo";
+import useSelectedImeis from "../../hooks/useSelectedImeis";
 
 const CounterVehicles = () => {
-  const selectedVehicleInfo = useSelectedVehicleInfo();
-  console.log(selectedVehicleInfo);
+  const selectedImeis = useSelectedImeis();
+  console.log(selectedImeis);
   const { data = [], isLoading } = useCustomerVehicle();
   const { allDevices } = useVtsAllDevices();
 
