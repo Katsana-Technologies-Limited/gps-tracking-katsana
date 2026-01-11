@@ -7,8 +7,7 @@ export const VehicleMarker = ({ count = 1 }) => {
       <div
         className="
         absolute 
-        top-6.7
-        right-7.1
+        top-[-6px] right-[-6px]
         rounded-full 
         text-white 
         text-sm 
@@ -19,6 +18,7 @@ export const VehicleMarker = ({ count = 1 }) => {
         shadow-lg
         z-20
       "
+        // style={{ top: "-6px", right: "-6px" }}
       >
         {count}
       </div>

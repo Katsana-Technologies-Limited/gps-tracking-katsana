@@ -48,10 +48,15 @@ const useVtsAllDevices = () => {
   }, [allDevices, customerImeis]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
+    // const interval = setInterval(() => {
+    //   refetchDevices();
+    // }, 10000);
+
+    if (document.visibilityState === "visible") {
       refetchDevices();
-    }, 10000);
-    return () => clearInterval(interval);
+    }
+
+    // return () => clearInterval(interval);
   }, [refetchDevices]);
 
   return {
