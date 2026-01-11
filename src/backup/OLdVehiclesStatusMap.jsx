@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useRef, useState, useMemo } from "react";
+import { useRef, useState, useMemo, useEffect } from "react";
 import { Map, Marker } from "react-bkoi-gl";
+import maplibregl from "maplibre-gl";
 import "react-bkoi-gl/styles";
 import {
   Share2,
@@ -16,6 +17,7 @@ import {
 import jsPDF from "jspdf";
 import useCustomerVehicle from "../../hooks/useCustomerVehicle";
 import { VehicleMarker } from "../Vehicles/VehicleMarker";
+import useVtsAllDevices from "../../hooks/useVtsAllDevices";
 
 const BARIKOI_KEY = import.meta.env.VITE_BARIKOI_API_KEY;
 
@@ -28,14 +30,14 @@ const VehiclesStatusMap = () => {
   const wrapperRef = useRef(null);
   const [satellite, setSatellite] = useState(false);
   const [controlsOpen, setControlsOpen] = useState(false);
+  const [mode, setMode] = useState("INIT");
+  // INIT | CLUSTER | SINGLE | VEHICLE
+
+  const [selectedVehicleId, setSelectedVehicleId] = useState(null);
 
   const { data: vehiclesData } = useCustomerVehicle();
   console.log("vehiclesData", vehiclesData);
-
-  // const imeis = useMemo(() => {
-  //   if (!vehiclesData || !Array.isArray(vehiclesData)) return [];
-  //   return vehiclesData.map((v) => v.imei).filter(Boolean);
-  // }, [vehiclesData]);
+  const { allDevices, filteredDevices } = useVtsAllDevices();
 
   const imeis = useMemo(() => {
     return vehiclesData.map((v) => v.imei).filter(Boolean);
@@ -43,33 +45,61 @@ const VehiclesStatusMap = () => {
 
   console.log("imesis update", imeis);
 
-  // FAKE VTS DATA FOR DEMO/TESTING
-  const vtsData = {
-    123456789012345: {
-      lat: 23.823731,
-      lng: 90.36402,
-      count: 2,
-    },
-    987654321098765: {
-      lat: 23.825,
-      lng: 90.366,
-      count: 1,
-    },
+  const onlineDevices = useMemo(() => {
+    if (!filteredDevices?.length) return [];
+
+    return filteredDevices.filter(
+      (d) =>
+        d.online === "online" &&
+        d.lat &&
+        d.lng &&
+        Number(d.lat) !== 0 &&
+        Number(d.lng) !== 0
+    );
+  }, [filteredDevices]);
+
+  const onlineCount = onlineDevices.length;
+
+  console.log("DEBUG onlineCount:", onlineCount);
+
+  console.log("DEBUG allDevices from DB:", allDevices);
+  console.log("DEBUG filteredDevices:", filteredDevices);
+
+  const flyToVehicle = (v) => {
+    mapRef.current?.flyTo({
+      center: [v.lng, v.lat],
+      zoom: 15,
+      speed: 1.2,
+      curve: 1.4,
+    });
   };
 
-  const markers = useMemo(() => {
-    if (!vehiclesData) return [];
-    return vehiclesData
-      .map((v) => {
-        const d = vtsData[v.imei];
-        if (!d) return null;
-        return {
-          imei: v.imei,
-          ...d,
-        };
-      })
-      .filter(Boolean);
-  }, [vehiclesData]);
+  const fitToAllVehicles = (devices) => {
+    if (!devices.length || !mapRef.current) return;
+
+    const map = mapRef.current.getMap();
+    const bounds = devices.reduce(
+      (b, d) => b.extend([d.lng, d.lat]),
+      new maplibregl.LngLatBounds(
+        [devices[0].lng, devices[0].lat],
+        [devices[0].lng, devices[0].lat]
+      )
+    );
+
+    map.fitBounds(bounds, {
+      padding: 120,
+      duration: 1200,
+    });
+  };
+
+  useEffect(() => {
+    if (onlineCount > 1 && mode !== "CLUSTER") setMode("CLUSTER");
+    // else if (onlineCount === 1 && mode !== "VEHICLE") {
+    //   setSelectedVehicle(onlineDevices[0]);
+    //   setMode("VEHICLE");
+    //   flyToVehicle(onlineDevices[0]);
+    // }
+  }, [onlineCount]);
 
   const initialViewState = {
     longitude: 90.3563,
@@ -121,16 +151,58 @@ const VehiclesStatusMap = () => {
         attributionControl={false}
       >
         {/* 🚗 VEHICLE MARKERS */}
-        {markers.map((m) => (
+        {mode === "CLUSTER" && (
           <Marker
-            key={m.imei}
-            longitude={m.lng}
-            latitude={m.lat}
+            longitude={onlineDevices[0].lng}
+            latitude={onlineDevices[0].lat}
             anchor="center"
+            onClick={() => {
+              setSelectedVehicleId(null);
+              setMode("SINGLE");
+              fitToAllVehicles(onlineDevices);
+            }}
           >
-            <VehicleMarker count={m.count} />
+            <VehicleMarker count={onlineCount} />
           </Marker>
-        ))}
+        )}
+
+        {mode !== "CLUSTER" &&
+          onlineDevices.map((v) => {
+            const id = v.device_data?.imei ?? v.id;
+            return (
+              <Marker
+                key={id}
+                longitude={v.lng}
+                latitude={v.lat}
+                anchor="bottom"
+                // onClick={() => {
+                //   setSelectedVehicleId((prev) =>
+                //     prev === (v.device_data?.imei ?? v.id)
+                //       ? null
+                //       : v.device_data?.imei ?? v.id
+                //   );
+                // }}
+
+                onClick={() => {
+                  setSelectedVehicleId((prev) => {
+                    if (prev === id) {
+                      return null; // hide → no fly
+                    } else {
+                      flyToVehicle(v); // show → fly
+                      return id;
+                    }
+                  });
+                }}
+              >
+                <img src="/car-icon.svg" className="w-8 h-8 cursor-pointer" />
+
+                {/* 🔥 CARD POPUP (RELATIVE TO THIS CAR) */}
+                {selectedVehicleId === (v.device_data?.imei ?? v.id) && (
+                  <VehicleInfoCard vehicle={v} />
+                )}
+              </Marker>
+            );
+          })}
       </Map>
 
       {/* 🗺️ Map / Satellite Toggle */}
@@ -240,6 +312,72 @@ const VehiclesStatusMap = () => {
             <Printer size={21} /> <span>Print</span>
           </button>
         </div>
+      </div>
+    </div>
+  );
+};
+
+const VehicleInfoCard = ({ vehicle }) => {
+  return (
+    <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-[360px] rounded-2xl shadow-2xl bg-white overflow-hidden z-30 pointer-events-auto">
+      {/* 🟡 Header */}
+      <div className="bg-yellow-400 px-4 py-3 flex items-center justify-between">
+        <div>
+          <p className="text-sm font-semibold">{vehicle.name ?? "TMV 44837"}</p>
+          <p className="text-xs">
+            {vehicle.device_data?.plate_number ?? "DM NA 13-0756"}
+          </p>
+        </div>
+        <img src="/car-icon.svg" className="w-7 h-7" />
+      </div>
+
+      {/* 📊 Body */}
+      <div className="p-4 grid grid-cols-2 gap-3">
+        <div className="bg-amber-50 rounded-xl p-3 flex flex-col items-center justify-center">
+          <p className="text-2xl font-bold">{Math.round(vehicle.speed ?? 0)}</p>
+          <p className="text-xs text-gray-500">km/h</p>
+        </div>
+
+        <div className="text-xs text-gray-600">
+          <p className="font-medium text-black mb-1">
+            {vehicle.address ?? "Unknown location"}
+          </p>
+          <p>
+            {vehicle.lat?.toFixed(5)}, {vehicle.lng?.toFixed(5)}
+          </p>
+          <p className="mt-1 text-[11px] text-gray-400">
+            {vehicle.time ?? "Just now"}
+          </p>
+        </div>
+
+        <div
+          className={`col-span-2 rounded-xl px-3 py-2 text-sm font-medium ${
+            vehicle.engine_status
+              ? "bg-green-100 text-green-700"
+              : "bg-red-100 text-red-600"
+          }`}
+        >
+          Engine Status: {vehicle.engine_status ? "On" : "Off"}
+        </div>
+      </div>
+
+      {/* 🔘 Actions */}
+      <div className="border-t px-4 py-3 grid grid-cols-5 gap-3 text-gray-500">
+        <button className="flex flex-col items-center text-xs">
+          📍<span>Map</span>
+        </button>
+        <button className="flex flex-col items-center text-xs">
+          🕒<span>History</span>
+        </button>
+        <button className="flex flex-col items-center text-xs">
+          ⏱<span>Idle</span>
+        </button>
+        <button className="flex flex-col items-center text-xs">
+          📈<span>Speed</span>
+        </button>
+        <button className="flex flex-col items-center text-xs">
+          📌<span>Locate</span>
+        </button>
       </div>
     </div>
   );
