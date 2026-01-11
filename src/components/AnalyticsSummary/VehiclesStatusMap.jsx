@@ -30,7 +30,18 @@ const VehiclesStatusMap = () => {
   const [controlsOpen, setControlsOpen] = useState(false);
 
   const { data: vehiclesData } = useCustomerVehicle();
+  console.log(vehiclesData);
 
+  // const imeis = vehiclesData
+  //   ? vehiclesData.map((v) => v.imei).filter(Boolean)
+  //   : [];
+
+  const imeis = useMemo(() => {
+    if (!vehiclesData || !Array.isArray(vehiclesData)) return [];
+    return vehiclesData.map((v) => v.imei).filter(Boolean);
+  }, [vehiclesData]);
+
+  // FAKE VTS DATA FOR DEMO/TESTING
   const vtsData = {
     123456789012345: {
       lat: 23.823731,
