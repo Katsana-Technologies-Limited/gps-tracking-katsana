@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Map, Source, Layer, Marker } from "react-bkoi-gl";
 import "react-bkoi-gl/styles";
 import {
@@ -14,9 +14,7 @@ import {
 } from "lucide-react";
 import jsPDF from "jspdf";
 import useCustomerVehicle from "../../hooks/useCustomerVehicle";
-import useVtsDevices from "../../hooks/useVtsDevices";
 import { VehicleMarker } from "../Vehicles/VehicleMarker";
-// import useVtsAllDevices from "../../hooks/useVtsAllDevices";
 
 const BARIKOI_KEY = import.meta.env.VITE_BARIKOI_API_KEY;
 
@@ -37,33 +35,42 @@ const vehicleLayer = {
 const VehiclesStatusMap = () => {
   const mapRef = useRef(null);
   const wrapperRef = useRef(null);
-  // const { filteredDevices, isLoading } = useVtsAllDevices();
-
-  // console.log(filteredDevices);
-
   const [satellite, setSatellite] = useState(false);
   const [moveHandel, setMoveHandel] = useState(false);
 
   const { data: vehiclesData } = useCustomerVehicle();
 
-  const imeis = useMemo(() => {
-    if (!vehiclesData) return [];
-    return vehiclesData.map((v) => v.imei).filter(Boolean);
-  }, [vehiclesData]);
+  const imeis = vehiclesData
+    ? vehiclesData.map((v) => v.imei).filter(Boolean)
+    : [];
 
-  const { data: vtsData } = useVtsDevices(imeis);
+  // FAKE VTS DATA FOR DEMO/TESTING
+  const vtsData = {
+    123456789012345: [
+      {
+        imei: "123456789012345",
+        name: "Toyota Camry",
+        lat: 23.823731,
+        lng: 90.36402,
+      },
+    ],
+    987654321098765: [
+      {
+        imei: "987654321098765",
+        name: "Honda City",
+        lat: 23.825,
+        lng: 90.366,
+      },
+    ],
+  };
 
   /** 🔥 Convert API data → GeoJSON */
-  const vehiclesGeoJSON = useMemo(() => {
-    if (!vtsData) {
-      return { type: "FeatureCollection", features: [] };
-    }
-
+  let vehiclesGeoJSON = { type: "FeatureCollection", features: [] };
+  if (vtsData) {
     const features = imeis
       .map((imei) => {
         const vts = vtsData[imei]?.[0];
         if (!vts?.lat || !vts?.lng) return null;
-
         return {
           type: "Feature",
           properties: {
@@ -77,12 +84,11 @@ const VehiclesStatusMap = () => {
         };
       })
       .filter(Boolean);
-
-    return {
+    vehiclesGeoJSON = {
       type: "FeatureCollection",
       features,
     };
-  }, [vtsData, imeis]);
+  }
 
   const initialViewState = {
     longitude: 90.3563,

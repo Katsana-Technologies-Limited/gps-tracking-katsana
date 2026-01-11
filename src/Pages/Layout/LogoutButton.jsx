@@ -1,7 +1,9 @@
 import { LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useAxios } from "../../hooks/useAxios";
 
 export default function LogoutButton({ collapsed = false }) {
+  const navigate = useNavigate();
   const axiosUrl = useAxios();
 
   const handleLogout = async () => {
@@ -11,7 +13,7 @@ export default function LogoutButton({ collapsed = false }) {
       console.log(e);
     }
     localStorage.clear();
-    window.location.href = "/";
+    navigate("/");
   };
 
   return (

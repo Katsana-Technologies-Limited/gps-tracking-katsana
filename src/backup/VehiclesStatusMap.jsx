@@ -1,19 +1,6 @@
-import axios from "axios";
-import { useEffect, useRef, useState, useCallback, useMemo } from "react";
-import {
-  Share2,
-  Printer,
-  Scan,
-  ChevronLeft,
-  ChevronRight,
-  ChevronUp,
-  ChevronDown,
-  Plus,
-  Minus,
-} from "lucide-react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import jsPDF from "jspdf";
 import useCustomerVehicle from "../../hooks/useCustomerVehicle";
-import useVtsDevices from "../../hooks/useVtsDevices";
 
 const BARIKOI_KEY = import.meta.env.VITE_BARIKOI_API_KEY;
 // function useBarikoiAddresses(vehicleCoords) {
@@ -96,21 +83,30 @@ const VehiclesStatusMap = () => {
     return vehiclesData.map((v) => v.imei).filter(Boolean);
   }, [vehiclesData]);
 
-  // Fetch VTS data for all IMEIs every 10 seconds
-  const { data: vtsData } = useVtsDevices(imeis);
-  // console.log(vtsData);
+  // FAKE VTS DATA FOR DEMO/TESTING
+  const vtsData = useMemo(
+    () => ({
+      123456789012345: [
+        {
+          imei: "123456789012345",
+          name: "Toyota Camry",
+          lat: 23.823731,
+          lng: 90.36402,
+        },
+      ],
+      987654321098765: [
+        {
+          imei: "987654321098765",
+          name: "Honda City",
+          lat: 23.825,
+          lng: 90.366,
+        },
+      ],
+    }),
+    []
+  );
   // Prepare Barikoi reverse geocode hooks for each vehicle
-  // const vehicleAddresses = useMemo(() => {
-  //   if (!imeis.length || !vtsData) return {};
-  //   const result = {};
-  //   imeis.forEach((imei) => {
-  //     const vts = vtsData[imei]?.[0];
-  //     if (vts && vts.lat && vts.lng) {
-  //       result[imei] = { lat: vts.lat, lng: vts.lng };
-  //     }
-  //   });
-    return result;
-  }, [imeis, vtsData]);
+  // const vehicleAddresses = {};
 
   // Use the custom hook to get all addresses
   // const { addresses: barikoiAddresses, loading: barikoiLoading } =

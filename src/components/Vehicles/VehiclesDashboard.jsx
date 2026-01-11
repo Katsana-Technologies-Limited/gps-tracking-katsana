@@ -12,10 +12,67 @@ export default function VehiclesDashboard() {
   const [page, setPage] = useState(1);
   const [reloadTimer, setReloadTimer] = useState(60);
   const [isReloading, setIsReloading] = useState(false);
-  // TODO: Provide filteredDevices, isLoading, and customerVehicles from another source or props
-  const filteredDevices = [];
-  const isLoading = false;
-  const customerVehicles = [];
+
+  const filteredDevices = useMemo(
+    () => [
+      {
+        id: 1,
+        imei: "123456789012345",
+        device_data: {
+          id: 1,
+          imei: "123456789012345",
+          name: "Toyota Camry",
+          subscription_number: "REG1234",
+        },
+        online: "online",
+        lat: 3.139,
+        lng: 101.6869,
+        speed: 60,
+        time: "2026-01-11 10:00:00",
+        company: "Katsana",
+      },
+      {
+        id: 2,
+        imei: "987654321098765",
+        device_data: {
+          id: 2,
+          imei: "987654321098765",
+          name: "Honda City",
+          subscription_number: "REG5678",
+        },
+        online: "offline",
+        lat: 3.15,
+        lng: 101.7,
+        speed: 0,
+        time: "2026-01-11 09:45:00",
+        company: "Katsana",
+      },
+    ],
+    []
+  );
+  const customerVehicles = useMemo(
+    () => [
+      {
+        id: 1,
+        imei: "123456789012345",
+        company: "Katsana",
+        vehicle_name: "Toyota Camry",
+        subscription_number: "REG1234",
+        lat: 3.139,
+        lng: 101.6869,
+      },
+      {
+        id: 2,
+        imei: "987654321098765",
+        company: "Katsana",
+        vehicle_name: "Honda City",
+        subscription_number: "REG5678",
+        lat: 3.15,
+        lng: 101.7,
+      },
+    ],
+    []
+  );
 
   const [enrichedDevices, setEnrichedDevices] = useState([]);
   useEffect(() => {
