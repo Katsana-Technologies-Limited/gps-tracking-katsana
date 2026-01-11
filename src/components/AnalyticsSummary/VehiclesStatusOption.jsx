@@ -1,7 +1,6 @@
-import React, { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Check, Search } from "lucide-react";
 import GlobalLoading from "../utils/GlobalLoading";
-
 const TABS = ["All", "Offline", "Online", "Suspended"];
 
 const statusStyle = {
@@ -13,23 +12,61 @@ const statusStyle = {
 const VehiclesStatusOption = ({ divhight = 80 }) => {
   const [activeTab, setActiveTab] = useState("All");
   const [query, setQuery] = useState("");
-  // TODO: Provide filteredDevices, isLoading, and customerVehicles from another source or props
-  const filteredDevices = [];
+
   const isLoading = false;
-  const customerVehicles = [];
+  const filteredDevices = useMemo(
+    () => [
+      {
+        id: 1,
+        imei: "123456789012345",
+        device_data: {
+          id: 1,
+          imei: "123456789012345",
+          name: "Toyota Camry",
+          subscription_number: "REG1234",
+        },
+        online: "online",
+        company: "Katsana",
+      },
+      {
+        id: 2,
+        imei: "987654321098765",
+        device_data: {
+          id: 2,
+          imei: "987654321098765",
+          name: "Honda City",
+          subscription_number: "REG5678",
+        },
+        online: "offline",
+        company: "Katsana",
+      },
+    ],
+    []
+  );
+  const customerVehicles = useMemo(
+    () => [
+      {
+        id: 1,
+        imei: "123456789012345",
+        company: "Katsana",
+        vehicle_name: "Toyota Camry",
+        subscription_number: "REG1234",
+      },
+      {
+        id: 2,
+        imei: "987654321098765",
+        company: "Katsana",
+        vehicle_name: "Honda City",
+        subscription_number: "REG5678",
+      },
+    ],
+    []
+  );
 
-  // Defensive VEHICLES mapping
   const VEHICLES = useMemo(() => {
-    const safeCustomerVehicles = Array.isArray(customerVehicles)
-      ? customerVehicles
-      : [];
-    const safeFilteredDevices = Array.isArray(filteredDevices)
-      ? filteredDevices
-      : [];
-
     if (activeTab === "All") {
-      return safeCustomerVehicles.map((v, index) => {
-        const live = safeFilteredDevices.find(
+      return customerVehicles.map((v, index) => {
+        const live = filteredDevices.find(
           (d) => (d.device_data?.imei || d.imei) === v.imei
         );
         return {
@@ -56,7 +93,7 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
         };
       });
     } else {
-      return safeFilteredDevices.map((device, index) => ({
+      return filteredDevices.map((device, index) => ({
         id: device.device_data?.id ?? device.id ?? index + 1,
         number: device.device_data?.name || device.name || "-",
         reg: device.device_data?.subscription_number || "-",
@@ -86,11 +123,15 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
     return list;
   }, [VEHICLES, activeTab, query]);
 
-  const [selected, setSelected] = useState([]);
-  useEffect(
-    () => setSelected(filteredVehicles.map((v) => v.id)),
-    [filteredVehicles]
+  const [selected, setSelected] = useState(() =>
+    filteredVehicles.map((v) => v.id)
   );
+  useEffect(() => {
+    const filteredIds = filteredVehicles.map((v) => v.id);
+    if (selected.length === 0 && filteredIds.length > 0) {
+      setSelected(filteredIds);
+    }
+  }, [filteredVehicles]);
 
   const toggleVehicle = (id) => {
     setSelected((prev) =>

@@ -358,7 +358,7 @@ export default function VehiclesDashboard() {
         <div className="xl:col-span-2">
           {/* Desktop */}
           <div className="hidden xl:block bg-white rounded-xl shadow-sm h-[calc(100vh-140px)]">
-            <VehiclesStatusOption />
+            {/* <VehiclesStatusOption /> */}
           </div>
 
           {/* Mobile / Tablet */}
