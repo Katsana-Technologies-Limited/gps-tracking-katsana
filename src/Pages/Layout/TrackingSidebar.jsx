@@ -38,6 +38,7 @@ export default function TrackingSidebar({ isOpen, setIsOpen }) {
   };
 
   const handleRouteClick = (label) => {
+    setExpanded({});
     if (label === "Analytics & Summary") {
       if (!isOpen) setIsOpen(true);
     } else {
