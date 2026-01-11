@@ -1,16 +1,37 @@
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import GlobalLoading from "../utils/GlobalLoading";
 import useCustomerVehicle from "../../hooks/useCustomerVehicle";
+import useVtsAllDevices from "../../hooks/useVtsAllDevices";
 
 const CounterVehicles = () => {
-  const { data, isLoading } = useCustomerVehicle();
-  console.log(data);
+  const { data = [], isLoading } = useCustomerVehicle();
+  const { allDevices } = useVtsAllDevices();
+  
+  const suspendedCount = Array.isArray(data)
+    ? data.filter((v) => v.suspended === true).length
+    : 0;
+
+  let onlineCount = 0;
+  let offlineCount = 0;
+  if (Array.isArray(allDevices)) {
+    allDevices.forEach((device) => {
+      if (device.online === "online") {
+        onlineCount++;
+      } else {
+        offlineCount++;
+      }
+    });
+  }
+  console.log("DEBUG vehicles from DB:", data);
+  console.log("DEBUG onlineCount:", onlineCount, "offlineCount:", offlineCount);
 
   const vehiclesPie = [
-    { name: "Online", value: 7, color: "#1ED760" },
-    { name: "Suspended", value: 4, color: "#FF4D4F" },
-    { name: "Offline", value: 3, color: "#B0BEC5" },
+    { name: "Online", value: onlineCount, color: "#1ED760" },
+    { name: "Suspended", value: suspendedCount, color: "#FF4D4F" },
+    { name: "Offline", value: offlineCount, color: "#B0BEC5" },
   ];
+
+  const totalVehicles = Array.isArray(data) ? data.length : 0;
 
   if (isLoading) return <GlobalLoading message="Loading vehicles..." />;
 
@@ -22,7 +43,7 @@ const CounterVehicles = () => {
         </h2>
         <div className="bg-orange-50 text-xs px-2 py-1 rounded-lg flex flex-col justify-center items-center">
           <span className="text-2xl text-orange-500 font-bold">
-            {7 + 4 + 3}
+            {totalVehicles}
           </span>
           <span className="text-[11px] text-gray-600 font-semibold">
             {/* Vehicle{7 + 4 + 3 !== 1 ? "s" : ""} */}
