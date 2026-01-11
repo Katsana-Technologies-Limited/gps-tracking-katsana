@@ -15,6 +15,7 @@ const statusStyle = {
 const VehiclesStatusOption = ({ divhight = 80 }) => {
   const [activeTab, setActiveTab] = useState("All");
   const [query, setQuery] = useState("");
+  const { allDevices } = useVtsAllDevices();
 
   // const { data: customerVehicles = [], isLoading: isLoadingVehicles } =
   //   useCustomerVehicle();
