@@ -212,25 +212,25 @@ const VehiclesStatusMap = () => {
             </button>
             <button
               onClick={() => mapRef.current?.panBy([-120, 0])}
-              className="absolute -left-35 top-[-7px] -translate-y-1/2   cursor-pointer bg-white rounded-full p-2"
+              className="absolute -left-35 -top-1.75 -translate-y-1/2   cursor-pointer bg-white rounded-full p-2"
             >
               <ChevronLeft />
             </button>
             <button
               onClick={() => mapRef.current?.panBy([120, 0])}
-              className="absolute right-12.5 top-[-7px] -translate-y-1/2 cursor-pointer bg-white rounded-full p-2"
+              className="absolute right-12.5 -top-1.75 -translate-y-1/2 cursor-pointer bg-white rounded-full p-2"
             >
               <ChevronRight />
             </button>
             <button
               onClick={() => mapRef.current?.panBy([0, -120])}
-              className="absolute -top-20 left-[-78px] -translate-x-1/2 cursor-pointer bg-white rounded-full p-2"
+              className="absolute -top-20 -left-19.5 -translate-x-1/2 cursor-pointer bg-white rounded-full p-2"
             >
               <ChevronUp />
             </button>
             <button
               onClick={() => mapRef.current?.panBy([0, 120])}
-              className="absolute -bottom-5 left-[-78px] -translate-x-1/2 cursor-pointer  bg-white rounded-full p-2"
+              className="absolute -bottom-5 -left-19.5 -translate-x-1/2 cursor-pointer  bg-white rounded-full p-2"
             >
               <ChevronDown />
             </button>
