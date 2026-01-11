@@ -1,4 +1,6 @@
 import { useMemo, useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { setSelectedVehicleInfo } from "../../slices/vehiclesSlice";
 import { Check, Search } from "lucide-react";
 import GlobalLoading from "../utils/GlobalLoading";
 import useCustomerVehicle from "../../hooks/useCustomerVehicle";
@@ -13,6 +15,7 @@ const statusStyle = {
 };
 
 const VehiclesStatusOption = ({ divhight = 80 }) => {
+  const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState("All");
   const [query, setQuery] = useState("");
   const { allDevices } = useVtsAllDevices();
@@ -53,7 +56,7 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
 
   const { data: customerVehicles, isLoading: isLoadingVehicles } =
     useCustomerVehicle();
-
+    
   const customerVehiclesSafe = useMemo(() => {
     return Array.isArray(customerVehicles) ? customerVehicles : [];
   }, [customerVehicles]);
@@ -124,9 +127,24 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
   }, [filteredVehicles]);
 
   const toggleVehicle = (id) => {
-    setSelected((prev) =>
-      prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id]
-    );
+    setSelected((prev) => {
+      const newSelected = prev.includes(id)
+        ? prev.filter((v) => v !== id)
+        : [...prev, id];
+      const vehicle = VEHICLES.find((v) => v.id === id);
+      if (vehicle) {
+        // Only send the main info required
+        dispatch(
+          setSelectedVehicleInfo({
+            id: vehicle.id,
+            imei: vehicle.imei,
+            suspended: vehicle.suspended,
+            vehicle_name: vehicle.vehicle_name,
+          })
+        );
+      }
+      return newSelected;
+    });
   };
 
   const toggleAll = () => {

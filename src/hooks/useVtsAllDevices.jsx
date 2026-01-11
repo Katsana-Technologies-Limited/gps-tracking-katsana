@@ -64,6 +64,20 @@ const useVtsAllDevices = () => {
       refetchDevices();
       refetchVehicles();
     },
+    /**
+     * Get a device by IMEI from filteredDevices
+     * @param {string} imei
+     * @returns {object|null}
+     */
+    getDeviceByImei: (imei) => {
+      if (!imei) return null;
+      return (
+        filteredDevices.find((device) => {
+          const deviceImei = device?.device_data?.imei ?? device?.imei ?? null;
+          return deviceImei === imei;
+        }) || null
+      );
+    },
   };
 };
 
