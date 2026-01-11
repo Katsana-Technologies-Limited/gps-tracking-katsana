@@ -39,10 +39,16 @@ const VehiclesStatusMap = () => {
   const [moveHandel, setMoveHandel] = useState(false);
 
   const { data: vehiclesData } = useCustomerVehicle();
+  console.log(vehiclesData);
 
-  const imeis = vehiclesData
-    ? vehiclesData.map((v) => v.imei).filter(Boolean)
-    : [];
+  // const imeis = vehiclesData
+  //   ? vehiclesData.map((v) => v.imei).filter(Boolean)
+  //   : [];
+
+  const imeis = useMemo(() => {
+    if (!vehiclesData || !Array.isArray(vehiclesData)) return [];
+    return vehiclesData.map((v) => v.imei).filter(Boolean);
+  }, [vehiclesData]);
 
   // FAKE VTS DATA FOR DEMO/TESTING
   const vtsData = {
