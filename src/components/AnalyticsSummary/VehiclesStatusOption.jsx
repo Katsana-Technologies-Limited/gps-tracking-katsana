@@ -15,20 +15,59 @@ const statusStyle = {
 const VehiclesStatusOption = ({ divhight = 80 }) => {
   const [activeTab, setActiveTab] = useState("All");
   const [query, setQuery] = useState("");
-
-  const { data: customerVehicles = [], isLoading: isLoadingVehicles } =
-    useCustomerVehicle();
   const { allDevices } = useVtsAllDevices();
 
-  // Merge DB vehicles and VTS devices for status
+  // const { data: customerVehicles = [], isLoading: isLoadingVehicles } =
+  //   useCustomerVehicle();
+  // const { allDevices } = useVtsAllDevices();
+
+  // // Merge DB vehicles and VTS devices for status
+  // const VEHICLES = useMemo(() => {
+  //   return customerVehicles.map((v, index) => {
+  //     const live = Array.isArray(allDevices)
+  //       ? allDevices.find((d) => (d.device_data?.imei || d.imei) === v.imei)
+  //       : null;
+  //     let status = "Unknown";
+  //     if (v.suspended) status = "Suspended";
+  //     else if (live) status = live.online === "online" ? "Online" : "Offline";
+  //     return {
+  //       id: v.id ?? live?.device_data?.id ?? live?.id ?? index + 1,
+  //       number:
+  //         v.vehicle_name ||
+  //         v.subscription_number ||
+  //         v.imei ||
+  //         live?.device_data?.name ||
+  //         live?.name ||
+  //         "-",
+  //       reg:
+  //         v.subscription_number ||
+  //         live?.device_data?.subscription_number ||
+  //         "-",
+  //       status,
+  //       imei: v.imei,
+  //       company: v.company,
+  //       vts: live || null,
+  //     };
+  //   });
+  // }, [customerVehicles, allDevices]);
+
+  const { data: customerVehicles, isLoading: isLoadingVehicles } =
+    useCustomerVehicle();
+
+  const customerVehiclesSafe = useMemo(() => {
+    return Array.isArray(customerVehicles) ? customerVehicles : [];
+  }, [customerVehicles]);
+
   const VEHICLES = useMemo(() => {
-    return customerVehicles.map((v, index) => {
+    return customerVehiclesSafe.map((v, index) => {
       const live = Array.isArray(allDevices)
         ? allDevices.find((d) => (d.device_data?.imei || d.imei) === v.imei)
         : null;
+
       let status = "Unknown";
       if (v.suspended) status = "Suspended";
       else if (live) status = live.online === "online" ? "Online" : "Offline";
+
       return {
         id: v.id ?? live?.device_data?.id ?? live?.id ?? index + 1,
         number:
@@ -48,7 +87,7 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
         vts: live || null,
       };
     });
-  }, [customerVehicles, allDevices]);
+  }, [customerVehiclesSafe, allDevices]);
 
   // Tab and query filtering
   const filteredVehicles = useMemo(() => {

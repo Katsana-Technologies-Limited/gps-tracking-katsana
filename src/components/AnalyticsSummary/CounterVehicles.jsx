@@ -6,7 +6,7 @@ import useVtsAllDevices from "../../hooks/useVtsAllDevices";
 const CounterVehicles = () => {
   const { data = [], isLoading } = useCustomerVehicle();
   const { allDevices } = useVtsAllDevices();
-  
+
   const suspendedCount = Array.isArray(data)
     ? data.filter((v) => v.suspended === true).length
     : 0;
@@ -23,6 +23,7 @@ const CounterVehicles = () => {
     });
   }
 
+  console.log("DEBUG allDevices from DB:", allDevices);
   const vehiclesPie = [
     { name: "Online", value: onlineCount, color: "#1ED760" },
     { name: "Suspended", value: suspendedCount, color: "#FF4D4F" },
