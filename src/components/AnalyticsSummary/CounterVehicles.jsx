@@ -23,7 +23,7 @@ const CounterVehicles = () => {
     });
   }
 
-  console.log("DEBUG allDevices from DB:", allDevices);
+  // console.log("DEBUG allDevices from DB:", allDevices);
   const vehiclesPie = [
     { name: "Online", value: onlineCount, color: "#1ED760" },
     { name: "Suspended", value: suspendedCount, color: "#FF4D4F" },
