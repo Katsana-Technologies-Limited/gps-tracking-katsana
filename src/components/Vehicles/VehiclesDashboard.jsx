@@ -37,36 +37,75 @@ function getRenewalInfo(expiryDate) {
 export default function VehiclesDashboard() {
   const { data: customerVehicles = [], isLoading } = useCustomerVehicle();
   const { allDevices = [] } = useVtsAllDevices();
-  console.log(allDevices);
+
+  console.log("Customer Vehicles:", customerVehicles);
+  console.log("All Devices:", allDevices);
 
   const [selectedIds] = useState([]);
   const [activeTab] = useState("All");
   const [page, setPage] = useState(1);
   const [reloadTimer, setReloadTimer] = useState(60);
   const [isReloading, setIsReloading] = useState(false);
+  const [currentTime, setCurrentTime] = useState(Math.floor(Date.now() / 1000));
+
+  // Update current time periodically
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(Math.floor(Date.now() / 1000));
+    }, 60000); // Update every minute
+
+    return () => clearInterval(interval);
+  }, []);
 
   // Enrich vehicles
   const enrichedDevices = useMemo(() => {
     if (!Array.isArray(customerVehicles)) return [];
+
+    const now = currentTime; // Use the state value
+
     return customerVehicles.map((vehicle) => {
+      // Find matching device by imei
       const liveDevice = Array.isArray(allDevices)
         ? allDevices.find((d) => {
-            const deviceImei = d.device_data?.imei || d.imei || d.imei_number;
-            return deviceImei === vehicle.imei;
+            // Try different possible imei fields in device data
+            const deviceImei =
+              d.device_data?.imei ||
+              d.imei ||
+              d.imei_number ||
+              d.device_data?.imei_number;
+            return (
+              deviceImei && deviceImei.toString() === vehicle.imei.toString()
+            );
           })
         : null;
+
       let deviceStatus = "Unknown";
       if (vehicle.suspended) {
         deviceStatus = "Suspended";
       } else if (liveDevice) {
-        deviceStatus = liveDevice.online === "online" ? "Online" : "Offline";
+        // Check if device is online/offline
+        deviceStatus =
+          liveDevice.online === "online" || liveDevice.online === "ack"
+            ? "Online"
+            : "Offline";
+      } else {
+        deviceStatus = "Offline"; // No matching device found
       }
+
       let speedStatus = "Engine Off";
-      if (liveDevice?.speed && parseFloat(liveDevice.speed) > 0) {
-        speedStatus = `${liveDevice.speed} km/h`;
+      let speedValue = 0;
+
+      if (liveDevice?.speed !== undefined && liveDevice?.speed !== null) {
+        const speedNum = parseFloat(liveDevice.speed);
+        if (!isNaN(speedNum) && speedNum > 0) {
+          speedStatus = `${speedNum} km/h`;
+          speedValue = speedNum;
+        }
       }
+
       const lat = liveDevice?.lat ?? vehicle.lat ?? "-";
       const lng = liveDevice?.lng ?? vehicle.lng ?? "-";
+
       let date = "-";
       let time = "-";
       if (liveDevice?.time) {
@@ -75,13 +114,30 @@ export default function VehiclesDashboard() {
         time = timestamp.toLocaleTimeString("en-GB", {
           hour: "2-digit",
           minute: "2-digit",
-          second: "2-digit",
           hour12: true,
         });
       }
+
       const expiryDate = vehicle.expire_date
         ? formatDate(vehicle.expire_date)
         : "-";
+
+      // Check if engine turned off within 5 min
+      let isRecentEngineOff = false;
+      if (speedValue === 0 && liveDevice?.timestamp) {
+        try {
+          const lastUpdate = liveDevice.timestamp; // Device timestamp is in seconds
+          const diffSeconds = now - lastUpdate;
+
+          if (!isNaN(diffSeconds) && diffSeconds <= 5 * 60) {
+            // 5 minutes in seconds
+            isRecentEngineOff = true;
+          }
+        } catch (e) {
+          console.error("Error checking recent engine off:", e);
+        }
+      }
+
       return {
         ...vehicle,
         id: vehicle.id,
@@ -91,9 +147,11 @@ export default function VehiclesDashboard() {
         lat,
         lng,
         speed: speedStatus,
+        speedValue: speedValue,
         date,
         time,
         deviceStatus,
+        liveDevice, // Store the live device reference for later use
         expiry: expiryDate,
         renewal:
           !vehicle.suspended &&
@@ -102,9 +160,10 @@ export default function VehiclesDashboard() {
         isExpired: vehicle.expire_date
           ? new Date(vehicle.expire_date) < new Date()
           : false,
+        isRecentEngineOff,
       };
     });
-  }, [customerVehicles, allDevices]);
+  }, [customerVehicles, allDevices, currentTime]);
 
   useEffect(() => {
     if (!isReloading) return;
@@ -138,6 +197,53 @@ export default function VehiclesDashboard() {
   }, [enrichedDevices, activeTab, selectedIds]);
 
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  // Function to determine speed status colors
+  const getSpeedStatusInfo = (vehicle) => {
+    const isOffline = vehicle.deviceStatus === "Offline";
+    const isEngineOff =
+      vehicle.speed === "Engine Off" || vehicle.speedValue === 0;
+    const speedVal = vehicle.speedValue;
+
+    // Determine colors based on requirements
+    let bgColorClass = "";
+    let textColorClass = "";
+    let displayText = isEngineOff ? "Engine Off" : vehicle.speed;
+
+    if (isOffline) {
+      // Grey: Vehicle Offline
+      bgColorClass = "bg-gray-100";
+      textColorClass = "text-gray-600";
+    } else if (isEngineOff && vehicle.isRecentEngineOff) {
+      // Orange: engine turned off within 5 min
+      bgColorClass = "bg-orange-100";
+      textColorClass = "text-orange-600";
+    } else if (isEngineOff) {
+      // Red: Engine Off
+      bgColorClass = "bg-red-100";
+      textColorClass = "text-red-600";
+    } else if (speedVal <= 5) {
+      // Blue: 5km or less
+      bgColorClass = "bg-blue-100";
+      textColorClass = "text-blue-600";
+    } else if (speedVal > 5) {
+      // Green: 5km or greater
+      bgColorClass = "bg-green-100";
+      textColorClass = "text-green-600";
+    } else {
+      // Default
+      bgColorClass = "bg-gray-100";
+      textColorClass = "text-gray-600";
+    }
+
+    return {
+      bgColorClass,
+      textColorClass,
+      displayText,
+      isOffline,
+      isEngineOff,
+    };
+  };
 
   if (isLoading) return <GlobalLoading message="Loading vehicles..." />;
 
@@ -186,72 +292,9 @@ export default function VehiclesDashboard() {
               <tbody>
                 {paginated.map((vehicle) => {
                   const speedMeta = getSpeedMeta(vehicle.speed);
+                  const speedStatusInfo = getSpeedStatusInfo(vehicle);
                   const isOnline = vehicle.deviceStatus === "Online";
                   const isSuspended = vehicle.deviceStatus === "Suspended";
-                  const isOffline = vehicle.deviceStatus === "Offline";
-                  const isEngineOff = vehicle.speed === "Engine Off";
-
-                  // Parse speed value
-                  let speedVal = 0;
-                  if (!isEngineOff && typeof vehicle.speed === "string") {
-                    const match = vehicle.speed.match(/([\d.]+)/);
-                    if (match) speedVal = parseFloat(match[1]);
-                  }
-
-                  // Check if engine turned off within 5 min
-                  let isRecentEngineOff = false;
-                  if (isEngineOff && vehicle.time && vehicle.date) {
-                    try {
-                      const now = new Date();
-                      const lastUpdate = new Date(
-                        `${vehicle.date} ${vehicle.time}`
-                      );
-                      const diffMs = now - lastUpdate;
-                      if (!isNaN(diffMs) && diffMs <= 5 * 60 * 1000) {
-                        isRecentEngineOff = true;
-                      }
-                    } catch (e) {
-                      console.error("Error parsing date:", e);
-                    }
-                  }
-
-                  // Determine colors based on your requirements
-                  let iconColorClass = "";
-                  let textBgClass = "";
-                  let textColorClass = "";
-                  let displayText = isEngineOff ? "Engine Off" : vehicle.speed;
-
-                  if (isOffline) {
-                    // Grey: Vehicle Offline - icon should be gray-800
-                    iconColorClass = "text-gray-800";
-                    textBgClass = "bg-gray-100";
-                    textColorClass = "text-gray-600";
-                  } else if (isEngineOff && isRecentEngineOff) {
-                    // Orange: engine turned off within 5 min
-                    iconColorClass = "text-orange-500";
-                    textBgClass = "bg-orange-100";
-                    textColorClass = "text-orange-600";
-                  } else if (isEngineOff) {
-                    // Red: Engine Off
-                    iconColorClass = "text-red-500";
-                    textBgClass = "bg-red-100";
-                    textColorClass = "text-red-600";
-                  } else if (speedVal <= 5) {
-                    // Blue: 5km or less
-                    iconColorClass = "text-blue-500";
-                    textBgClass = "bg-blue-100";
-                    textColorClass = "text-blue-600";
-                  } else if (speedVal > 5) {
-                    // Green: 5km or greater
-                    iconColorClass = "text-green-500";
-                    textBgClass = "bg-green-100";
-                    textColorClass = "text-green-600";
-                  } else {
-                    // Default
-                    iconColorClass = "text-gray-500";
-                    textBgClass = "bg-gray-100";
-                    textColorClass = "text-gray-600";
-                  }
 
                   return (
                     <tr
@@ -268,57 +311,28 @@ export default function VehiclesDashboard() {
                         </div>
                       </td>
                       <td className="p-4 max-w-xs">
-                        {(() => {
-                          // Find the live device for this vehicle
-                          const liveDevice = Array.isArray(allDevices)
-                            ? allDevices.find((d) => {
-                                const deviceImei =
-                                  d.device_data?.imei ||
-                                  d.imei ||
-                                  d.imei_number;
-                                return deviceImei === vehicle.imei;
-                              })
-                            : null;
-                          const lat =
-                            !isSuspended && liveDevice?.lat
-                              ? liveDevice.lat
-                              : vehicle.lat;
-                          const lng =
-                            !isSuspended && liveDevice?.lng
-                              ? liveDevice.lng
-                              : vehicle.lng;
-                          return (
-                            <NearbyLandmarkCell
-                              lat={lat}
-                              lng={lng}
-                              suspended={isSuspended}
-                            />
-                          );
-                        })()}
+                        <NearbyLandmarkCell
+                          lat={vehicle.lat}
+                          lng={vehicle.lng}
+                          suspended={isSuspended}
+                        />
                       </td>
                       <td className="p-4 text-nowrap">
                         <div className="flex flex-col items-center gap-1">
-                          {/* For image icons, we need to apply color differently */}
-                          {isOffline ? (
-                            <div className={`w-8 h-8 ${iconColorClass}`}>
-                              {/* You might need to use an SVG icon or a different approach for colored icons */}
-                              <img
-                                src={speedMeta.icon}
-                                className="w-full h-full filter grayscale"
-                                alt="speed"
-                              />
-                            </div>
-                          ) : (
-                            <img
-                              src={speedMeta.icon}
-                              className="w-8 h-8"
-                              alt="speed"
-                            />
-                          )}
+                          {/* Apply grayscale filter for offline vehicles */}
+                          <img
+                            src={speedMeta.icon}
+                            className={`w-8 h-8 ${
+                              speedStatusInfo.isOffline
+                                ? "filter grayscale"
+                                : ""
+                            }`}
+                            alt="speed"
+                          />
                           <span
-                            className={`px-3 py-1 rounded-full text-xs font-semibold ${textBgClass} ${textColorClass}`}
+                            className={`px-3 py-1 rounded-full text-xs font-semibold ${speedStatusInfo.bgColorClass} ${speedStatusInfo.textColorClass}`}
                           >
-                            {displayText}
+                            {speedStatusInfo.displayText}
                           </span>
                         </div>
                       </td>
