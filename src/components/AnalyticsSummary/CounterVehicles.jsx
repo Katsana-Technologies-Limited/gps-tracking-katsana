@@ -35,7 +35,7 @@ const CounterVehicles = () => {
 
   const totalVehicles = Array.isArray(data) ? data.length : 0;
 
-  if (isLoading) return <LottieLoading />
+  if (isLoading) return <LottieLoading />;
 
   return (
     <div className="relative min-h-65 flex flex-col items-center justify-between p-2">
