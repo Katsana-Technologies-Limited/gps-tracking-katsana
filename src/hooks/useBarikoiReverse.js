@@ -4,30 +4,47 @@ import axios from "axios";
 const BARIKOI_KEY = import.meta.env.VITE_BARIKOI_API_KEY;
 
 export function formatBarikoiPlace(place) {
-  // Try to build a name: [POI, area/city, (distance or lat/lng)]
+  // Defensive: try a variety of fields
   if (!place) return "";
-  let main = place.address || place.name || "";
-  if (!main && place.poi) main = place.poi;
-  if (!main && place.road) main = place.road;
-  // Add area/city if available and not duplicate
-  let area = place.area && !main.includes(place.area) ? place.area : "";
-  let city = place.city && !main.includes(place.city) ? place.city : "";
 
-  // Compose distance if available
+  // Pick the best available top label
+  let main =
+    place.address ||
+    place.poi ||
+    place.name ||
+    place.road ||
+    place.area ||
+    place.sub_area ||
+    "";
+
+  // Compose area/city as suffix if distinct
+  let area = place.area && main && !main.includes(place.area) ? place.area : "";
+  let city = place.city && main && !main.includes(place.city) ? place.city : "";
+
+  // Compose distance if available and numeric
   let km = "";
-  if (place.distance_in_km) {
-    km = `(${parseFloat(place.distance_in_km).toFixed(3)}km)`;
+  let rawDistance =
+    place.distance_in_km ||
+    place.distance ||
+    (typeof place.dist === "number" ? String(place.dist) : "");
+  if (rawDistance && !isNaN(rawDistance)) {
+    const parsed = parseFloat(rawDistance);
+    if (!isNaN(parsed)) km = `(${parsed.toFixed(3)}km)`;
   }
+
+  // Fallback: if nothing meaningful, try area only or city only
   if (!main && area) main = area;
   if (!main && city) main = city;
-  if (!main) main = ""; // fallback to empty
 
-  // Full format: Place, City (km) OR just fallback to lat/lng elsewhere
-  let str = main;
-  if (area && main) str += ", " + area;
-  if (city && (main || area)) str += ", " + city;
-  if (km && main) str += ` ${km}`;
-  return str.trim();
+  // If _still_ nothing, return empty for fallback outside
+  if (!main) return "";
+
+  // Compose full string
+  let out = main;
+  if (area && area !== main) out += ", " + area;
+  if (city && city !== main && city !== area) out += ", " + city;
+  if (km) out += ` ${km}`;
+  return out.trim();
 }
 
 export default function useBarikoiReverse(lat, lng, enabled = true) {
@@ -38,11 +55,13 @@ export default function useBarikoiReverse(lat, lng, enabled = true) {
         `https://barikoi.xyz/v1/api/search/reverse/geocode/${BARIKOI_KEY}/place`,
         { params: { longitude: lng, latitude: lat } }
       );
-      // Always prefer "place" if present
-      return res.data.place || res.data;
+      // prefer `place`, but sometimes returns array or different shape
+      return Array.isArray(res.data.place)
+        ? res.data.place[0]
+        : res.data.place || res.data;
     },
     enabled: !!lat && !!lng && !!BARIKOI_KEY && enabled,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
   });
   return { place: query.data, loading: query.isLoading, error: query.error };
 }

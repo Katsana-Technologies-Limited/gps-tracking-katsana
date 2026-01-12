@@ -217,7 +217,11 @@ export default function VehiclesDashboard() {
                             alt="speed"
                           />
                           <span
-                            className={`px-3 py-1 rounded-full text-xs font-semibold ${speedMeta.bg} ${speedMeta.text}`}
+                            className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                              vehicle.speed === "Engine Off"
+                                ? "bg-gray-100 text-gray-800"
+                                : "bg-green-100 text-green-600"
+                            }`}
                           >
                             {vehicle.speed === "Engine Off"
                               ? "Engine Off"
