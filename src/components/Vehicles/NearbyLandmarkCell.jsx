@@ -1,11 +1,7 @@
-import React from "react";
-import useBarikoiReverse, {
-  formatBarikoiPlace,
-} from "../../hooks/useBarikoiReverse";
+import useBarikoiReverse from "../../hooks/useBarikoiReverse";
 
 export default function NearbyLandmarkCell({ lat, lng, suspended }) {
   const { place, loading } = useBarikoiReverse(lat, lng);
-  const fullPlace = formatBarikoiPlace(place);
 
   if (suspended) {
     return (
@@ -25,13 +21,22 @@ export default function NearbyLandmarkCell({ lat, lng, suspended }) {
 
   return (
     <div>
-      <div className="text-sm text-gray-700 font-normal truncate">
-        {fullPlace ? (
-          fullPlace
-        ) : (
-          <span className="text-xs text-gray-400">Location not found</span>
-        )}
-      </div>
+      {place && (place.name || place.Address) ? (
+        <>
+          {place.name && (
+            <div className="text-sm text-gray-700 font-semibold truncate">
+              {place.name}
+            </div>
+          )}
+          {place.Address && (
+            <div className="text-xs text-gray-500 truncate">
+              {place.Address}
+            </div>
+          )}
+        </>
+      ) : (
+        <div className="text-xs text-gray-400">Location not found</div>
+      )}
       <a
         href={`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`}
         target="_blank"

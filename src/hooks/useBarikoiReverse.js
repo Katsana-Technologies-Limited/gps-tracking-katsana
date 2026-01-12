@@ -30,62 +30,23 @@ import axios from "axios";
 
 const BARIKOI_KEY = import.meta.env.VITE_BARIKOI_API_KEY;
 
-export function formatBarikoiPlace(place) {
-  // Defensive: try a variety of fields
-  if (!place) return "";
-
-  // Pick the best available top label
-  let main =
-    place.address ||
-    place.poi ||
-    place.name ||
-    place.road ||
-    place.area ||
-    place.sub_area ||
-    "";
-
-  // Compose area/city as suffix if distinct
-  let area = place.area && main && !main.includes(place.area) ? place.area : "";
-  let city = place.city && main && !main.includes(place.city) ? place.city : "";
-
-  // Compose distance if available and numeric
-  let km = "";
-  let rawDistance =
-    place.distance_in_km ||
-    place.distance ||
-    (typeof place.dist === "number" ? String(place.dist) : "");
-  if (rawDistance && !isNaN(rawDistance)) {
-    const parsed = parseFloat(rawDistance);
-    if (!isNaN(parsed)) km = `(${parsed.toFixed(3)}km)`;
-  }
-
-  // Fallback: if nothing meaningful, try area only or city only
-  if (!main && area) main = area;
-  if (!main && city) main = city;
-
-  // If _still_ nothing, return empty for fallback outside
-  if (!main) return "";
-
-  // Compose full string
-  let out = main;
-  if (area && area !== main) out += ", " + area;
-  if (city && city !== main && city !== area) out += ", " + city;
-  if (km) out += ` ${km}`;
-  return out.trim();
-}
-
 export default function useBarikoiReverse(lat, lng, enabled = true) {
   const query = useQuery({
-    queryKey: ["barikoi-reverse", lat, lng],
+    queryKey: ["barikoi-nearby-v2", lat, lng],
     queryFn: async () => {
       const res = await axios.get(
-        `https://barikoi.xyz/v1/api/search/reverse/geocode/${BARIKOI_KEY}/place`,
-        { params: { longitude: lng, latitude: lat } }
+        `https://barikoi.xyz/v2/api/search/nearby/0.5/1`,
+        {
+          params: {
+            api_key: BARIKOI_KEY,
+            longitude: lng,
+            latitude: lat,
+          },
+        }
       );
-      // prefer `place`, but sometimes returns array or different shape
-      return Array.isArray(res.data.place)
-        ? res.data.place[0]
-        : res.data.place || res.data;
+      return Array.isArray(res.data.places) && res.data.places.length > 0
+        ? res.data.places[0]
+        : null;
     },
     enabled: !!lat && !!lng && !!BARIKOI_KEY && enabled,
     staleTime: 5 * 60 * 1000,
