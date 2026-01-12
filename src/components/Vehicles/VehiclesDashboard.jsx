@@ -7,6 +7,7 @@ import useCustomerVehicle from "../../hooks/useCustomerVehicle";
 import useVtsAllDevices from "../../hooks/useVtsAllDevices";
 import GlobalLoading from "../utils/GlobalLoading";
 import NearbyLandmarkCell from "./NearbyLandmarkCell";
+import useSelectedImeis from "../../hooks/useSelectedImeis";
 
 const PAGE_SIZE = 5;
 
@@ -38,24 +39,15 @@ export default function VehiclesDashboard() {
   const { data: customerVehicles = [], isLoading } = useCustomerVehicle();
   const { allDevices = [] } = useVtsAllDevices();
 
-  console.log("Customer Vehicles:", customerVehicles);
-  console.log("All Devices:", allDevices);
-
-  const [selectedIds] = useState([]);
+  // Use selected IMEIs from Redux
+  const selectedImeis = useSelectedImeis();
   const [activeTab] = useState("All");
   const [page, setPage] = useState(1);
   const [reloadTimer, setReloadTimer] = useState(60);
   const [isReloading, setIsReloading] = useState(false);
-  const [currentTime, setCurrentTime] = useState(Math.floor(Date.now() / 1000));
-
-  // Update current time periodically
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTime(Math.floor(Date.now() / 1000));
-    }, 60000); // Update every minute
-
-    return () => clearInterval(interval);
-  }, []);
+  const [currentTime, setCurrentTime] = useState(() =>
+    Math.floor(Date.now() / 1000)
+  );
 
   // Enrich vehicles
   const enrichedDevices = useMemo(() => {
@@ -184,17 +176,20 @@ export default function VehiclesDashboard() {
     // trigger refetch if needed
   };
 
+  // Only show selected vehicles (by IMEI). If none selected, show none.
   const filtered = useMemo(() => {
+    const imeis = selectedImeis || [];
     let list =
       activeTab === "All"
         ? enrichedDevices
         : enrichedDevices.filter((v) => v.deviceStatus === activeTab);
-
-    if (selectedIds.length > 0) {
-      list = list.filter((v) => selectedIds.includes(v.id));
+    if (imeis.length > 0) {
+      list = list.filter((v) => imeis.includes(v.imei));
+    } else {
+      list = [];
     }
     return list;
-  }, [enrichedDevices, activeTab, selectedIds]);
+  }, [enrichedDevices, activeTab, selectedImeis]);
 
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 

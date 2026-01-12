@@ -34,10 +34,10 @@ const VehiclesStatusMap = () => {
   const [satellite, setSatellite] = useState(false);
   const [controlsOpen, setControlsOpen] = useState(false);
   const selectedImeis = useSelectedImeis();
-  console.log(selectedImeis);
+  // console.log(selectedImeis);
 
   const { data: vehiclesData } = useCustomerVehicle();
-  console.log("vehiclesData", vehiclesData);
+  // console.log("vehiclesData", vehiclesData);
 
   // const imeis = useMemo(() => {
   //   if (!vehiclesData || !Array.isArray(vehiclesData)) return [];
