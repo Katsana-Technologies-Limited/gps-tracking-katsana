@@ -48,15 +48,25 @@ const useVtsAllDevices = () => {
   }, [allDevices, customerImeis]);
 
   useEffect(() => {
-    // const interval = setInterval(() => {
-    //   refetchDevices();
-    // }, 10000);
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        refetchDevices();
+      }
+    };
 
-    if (document.visibilityState === "visible") {
-      refetchDevices();
-    }
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
-    // return () => clearInterval(interval);
+    // Refetch every 10 seconds
+    const interval = setInterval(() => {
+      if (document.visibilityState === "visible") {
+        refetchDevices();
+      }
+    }, 10000); // 10 seconds
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, [refetchDevices]);
 
   return {

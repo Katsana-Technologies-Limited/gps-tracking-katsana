@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo, useState } from "react";
+/* eslint-disable no-unused-vars */
+import React, { useMemo, useState } from "react";
 import VehiclesStatusOption from "../AnalyticsSummary/VehiclesStatusOption";
 import { getSpeedMeta } from "../../utilits/vehicleHelpers";
 import { RotateCw } from "lucide-react";
@@ -45,15 +46,10 @@ export default function VehiclesDashboard() {
   const [page, setPage] = useState(1);
   const [reloadTimer, setReloadTimer] = useState(60);
   const [isReloading, setIsReloading] = useState(false);
-  const [currentTime, setCurrentTime] = useState(() =>
-    Math.floor(Date.now() / 1000)
-  );
 
   // Enrich vehicles
   const enrichedDevices = useMemo(() => {
     if (!Array.isArray(customerVehicles)) return [];
-
-    const now = currentTime; // Use the state value
 
     return customerVehicles.map((vehicle) => {
       // Find matching device by imei
@@ -114,22 +110,6 @@ export default function VehiclesDashboard() {
         ? formatDate(vehicle.expire_date)
         : "-";
 
-      // Check if engine turned off within 5 min
-      let isRecentEngineOff = false;
-      if (speedValue === 0 && liveDevice?.timestamp) {
-        try {
-          const lastUpdate = liveDevice.timestamp; // Device timestamp is in seconds
-          const diffSeconds = now - lastUpdate;
-
-          if (!isNaN(diffSeconds) && diffSeconds <= 5 * 60) {
-            // 5 minutes in seconds
-            isRecentEngineOff = true;
-          }
-        } catch (e) {
-          console.error("Error checking recent engine off:", e);
-        }
-      }
-
       return {
         ...vehicle,
         id: vehicle.id,
@@ -143,7 +123,7 @@ export default function VehiclesDashboard() {
         date,
         time,
         deviceStatus,
-        liveDevice, // Store the live device reference for later use
+        liveDevice,
         expiry: expiryDate,
         renewal:
           !vehicle.suspended &&
@@ -152,23 +132,9 @@ export default function VehiclesDashboard() {
         isExpired: vehicle.expire_date
           ? new Date(vehicle.expire_date) < new Date()
           : false,
-        isRecentEngineOff,
       };
     });
-  }, [customerVehicles, allDevices, currentTime]);
-
-  useEffect(() => {
-    if (!isReloading) return;
-    if (reloadTimer === 0) {
-      setTimeout(() => {
-        setReloadTimer(60);
-        setIsReloading(false);
-      }, 0);
-      return;
-    }
-    const t = setTimeout(() => setReloadTimer((p) => p - 1), 1000);
-    return () => clearTimeout(t);
-  }, [isReloading, reloadTimer]);
+  }, [customerVehicles, allDevices]);
 
   const handleReload = () => {
     if (isReloading) return;
@@ -209,12 +175,8 @@ export default function VehiclesDashboard() {
       // Grey: Vehicle Offline
       bgColorClass = "bg-gray-100";
       textColorClass = "text-gray-600";
-    } else if (isEngineOff && vehicle.isRecentEngineOff) {
-      // Orange: engine turned off within 5 min
-      bgColorClass = "bg-orange-100";
-      textColorClass = "text-orange-600";
     } else if (isEngineOff) {
-      // Red: Engine Off
+      // Red: Engine Off (Since API refreshes every 10s, we always show red for engine off)
       bgColorClass = "bg-red-100";
       textColorClass = "text-red-600";
     } else if (speedVal <= 5) {
