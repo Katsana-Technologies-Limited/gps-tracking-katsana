@@ -1,10 +1,10 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { setSelectedImeis } from "../../slices/vehiclesSlice";
 import { Check, Search } from "lucide-react";
-import GlobalLoading from "../utils/GlobalLoading";
 import useCustomerVehicle from "../../hooks/useCustomerVehicle";
 import useVtsAllDevices from "../../hooks/useVtsAllDevices";
+import LottieLoading from "../utils/LottieLoading";
 
 const TABS = ["All", "Offline", "Online", "Suspended"];
 
@@ -111,30 +111,18 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
     return list;
   }, [VEHICLES, activeTab, query]);
 
-  const [selected, setSelected] = useState(() =>
-    filteredVehicles.map((v) => v.id)
-  );
-  useEffect(() => {
-    const filteredIds = filteredVehicles.map((v) => v.id);
-    if (
-      selected.length !== filteredIds.length ||
-      !selected.every((id, i) => id === filteredIds[i])
-    ) {
-      setSelected(filteredIds);
-      // After updating selection, dispatch selected IMEIs
-      const selectedImeis = VEHICLES.filter((v) =>
-        filteredIds.includes(v.id)
-      ).map((v) => v.imei);
-      dispatch(setSelectedImeis(selectedImeis));
-    } else {
-      // Keep Redux in sync if selection didn't change but vehicles did
-      const selectedImeis = VEHICLES.filter((v) => selected.includes(v.id)).map(
+  // Only select all on first render, never in effect
+  const [selected, setSelected] = useState(() => {
+    const ids = filteredVehicles.map((v) => v.id);
+    // Dispatch initial selection to Redux
+    if (ids.length > 0) {
+      const selectedImeis = VEHICLES.filter((v) => ids.includes(v.id)).map(
         (v) => v.imei
       );
       dispatch(setSelectedImeis(selectedImeis));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filteredVehicles]);
+    return ids;
+  });
 
   const toggleVehicle = (id) => {
     setSelected((prev) => {
@@ -165,7 +153,7 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
     dispatch(setSelectedImeis(selectedImeis));
   };
 
-  if (isLoadingVehicles) return <GlobalLoading message="Loading vehicles..." />;
+  if (isLoadingVehicles) return <LottieLoading />;
 
   return (
     <div className={`h-full max-h-[${divhight}px] flex flex-col gap-3 p-3`}>

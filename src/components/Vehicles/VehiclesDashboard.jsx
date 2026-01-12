@@ -6,9 +6,9 @@ import { RotateCw } from "lucide-react";
 import VehicleStatusDrawer from "./VehicleStatusDrawer";
 import useCustomerVehicle from "../../hooks/useCustomerVehicle";
 import useVtsAllDevices from "../../hooks/useVtsAllDevices";
-import GlobalLoading from "../utils/GlobalLoading";
 import NearbyLandmarkCell from "./NearbyLandmarkCell";
 import useSelectedImeis from "../../hooks/useSelectedImeis";
+import LottieLoading from "../utils/LottieLoading";
 
 const PAGE_SIZE = 5;
 
@@ -200,7 +200,7 @@ export default function VehiclesDashboard() {
     };
   };
 
-  if (isLoading) return <GlobalLoading message="Loading vehicles..." />;
+  if (isLoading) return <LottieLoading />;
 
   return (
     <div className="space-y-4 scrollbar-thin">

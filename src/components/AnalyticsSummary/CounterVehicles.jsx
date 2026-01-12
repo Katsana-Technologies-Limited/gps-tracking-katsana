@@ -1,8 +1,8 @@
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
-import GlobalLoading from "../utils/GlobalLoading";
 import useCustomerVehicle from "../../hooks/useCustomerVehicle";
 import useVtsAllDevices from "../../hooks/useVtsAllDevices";
 import useSelectedImeis from "../../hooks/useSelectedImeis";
+import LottieLoading from "../utils/LottieLoading";
 
 const CounterVehicles = () => {
   const selectedImeis = useSelectedImeis();
@@ -35,7 +35,7 @@ const CounterVehicles = () => {
 
   const totalVehicles = Array.isArray(data) ? data.length : 0;
 
-  if (isLoading) return <GlobalLoading message="Loading vehicles..." />;
+  if (isLoading) return <LottieLoading />
 
   return (
     <div className="relative min-h-65 flex flex-col items-center justify-between p-2">

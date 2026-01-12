@@ -1,6 +1,6 @@
 import { Navigate } from "react-router-dom";
 import useDataQuery from "../hooks/useDataQuery";
-import GlobalLoading from "../components/utils/GlobalLoading";
+import LottieLoading from "../components/utils/LottieLoading";
 
 const ProtectedRoute = ({ children }) => {
   const { data, isLoading, error } = useDataQuery(
@@ -9,7 +9,7 @@ const ProtectedRoute = ({ children }) => {
     true
   );
 
-  if (isLoading) return <GlobalLoading message="Verifying authentication..." />;
+  if (isLoading) return <LottieLoading />;
   if (error || !data) return <Navigate to="/" />;
   return children;
 };
