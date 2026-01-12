@@ -36,8 +36,8 @@ function getRenewalInfo(expiryDate) {
 
 export default function VehiclesDashboard() {
   const { data: customerVehicles = [], isLoading } = useCustomerVehicle();
-  console.log(customerVehicles);
   const { allDevices = [] } = useVtsAllDevices();
+  console.log(allDevices);
 
   const [selectedIds, setSelectedIds] = useState([]);
   const [activeTab, setActiveTab] = useState("All");
@@ -274,25 +274,16 @@ export default function VehiclesDashboard() {
                           >
                             {vehicle.deviceStatus}
                           </span>
-                          {isOnline ? (
-                            <>
-                              {vehicle.expiry !== "-" && (
-                                <span className="text-xs text-gray-500">
-                                  Expiry: {vehicle.expiry}
-                                </span>
-                              )}
-                              {vehicle.renewal && (
-                                <span
-                                  className={`text-xs font-medium ${
-                                    vehicle.isExpired
-                                      ? "text-red-500"
-                                      : "text-orange-500"
-                                  }`}
-                                >
-                                  {vehicle.renewal}
-                                </span>
-                              )}
-                            </>
+                          {!isSuspended && vehicle.renewal ? (
+                            <span
+                              className={`text-xs font-medium ${
+                                vehicle.isExpired
+                                  ? "text-red-500"
+                                  : "text-orange-500"
+                              }`}
+                            >
+                              {vehicle.renewal}
+                            </span>
                           ) : (
                             vehicle.expiry !== "-" && (
                               <span className="text-xs text-red-500">
