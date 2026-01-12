@@ -37,7 +37,7 @@ const VehiclesStatusMap = () => {
   console.log(selectedImeis);
 
   const { data: vehiclesData } = useCustomerVehicle();
-  // console.log("vehiclesData", vehiclesData);
+  console.log("vehiclesData", vehiclesData);
 
   // const imeis = useMemo(() => {
   //   if (!vehiclesData || !Array.isArray(vehiclesData)) return [];
@@ -49,9 +49,6 @@ const VehiclesStatusMap = () => {
 
   // INIT | CLUSTER | SINGLE | VEHICLE
   const [selectedVehicleId, setSelectedVehicleId] = useState(null);
-
-  const { data: vehiclesData } = useCustomerVehicle();
-  console.log("vehiclesData", vehiclesData);
   const { allDevices, filteredDevices } = useVtsAllDevices();
 
   // const imeis = useMemo(() => {
