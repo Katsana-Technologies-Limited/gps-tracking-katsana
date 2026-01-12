@@ -39,8 +39,7 @@ function getRenewalInfo(expiryDate) {
 export default function VehiclesDashboard() {
   const { data: customerVehicles = [], isLoading } = useCustomerVehicle();
   const { filteredDevices = [] } = useVtsAllDevices();
-console.log(filteredDevices);
-  // Use selected IMEIs from Redux
+  
   const selectedImeis = useSelectedImeis();
   const [activeTab] = useState("All");
   const [page, setPage] = useState(1);
