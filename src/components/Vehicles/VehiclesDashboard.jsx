@@ -39,8 +39,8 @@ export default function VehiclesDashboard() {
   const { allDevices = [] } = useVtsAllDevices();
   console.log(allDevices);
 
-  const [selectedIds, setSelectedIds] = useState([]);
-  const [activeTab, setActiveTab] = useState("All");
+  const [selectedIds] = useState([]);
+  const [activeTab] = useState("All");
   const [page, setPage] = useState(1);
   const [reloadTimer, setReloadTimer] = useState(60);
   const [isReloading, setIsReloading] = useState(false);
@@ -239,17 +239,56 @@ export default function VehiclesDashboard() {
                             className="w-8 h-8"
                             alt="speed"
                           />
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                              vehicle.speed === "Engine Off"
-                                ? "bg-gray-100 text-gray-800"
-                                : "bg-green-100 text-green-600"
-                            }`}
-                          >
-                            {vehicle.speed === "Engine Off"
-                              ? "Engine Off"
-                              : `${vehicle.speed}`}
-                          </span>
+                          {(() => {
+                            // Determine color and label
+                            const isOffline =
+                              vehicle.deviceStatus === "Offline";
+                            const isEngineOff = vehicle.speed === "Engine Off";
+                            let speedVal = 0;
+                            if (
+                              !isEngineOff &&
+                              typeof vehicle.speed === "string"
+                            ) {
+                              const match = vehicle.speed.match(/([\d.]+)/);
+                              if (match) speedVal = parseFloat(match[1]);
+                            }
+                            // Check if engine turned off within 5 min
+                            let isRecentEngineOff = false;
+                            if (isEngineOff && vehicle.time && vehicle.date) {
+                              // Combine date and time to get last update
+                              const now = new Date();
+                              const lastUpdate = new Date(
+                                `${vehicle.date} ${vehicle.time}`
+                              );
+                              const diffMs = now - lastUpdate;
+                              if (!isNaN(diffMs) && diffMs <= 5 * 60 * 1000) {
+                                isRecentEngineOff = true;
+                              }
+                            }
+                            let colorClass = "";
+                            if (isOffline) {
+                              colorClass = "bg-gray-200 text-gray-500"; // Grey
+                            } else if (isEngineOff && isRecentEngineOff) {
+                              colorClass = "bg-orange-100 text-orange-600"; // Orange
+                            } else if (isEngineOff) {
+                              colorClass = "bg-red-100 text-red-600"; // Red
+                            } else if (speedVal <= 5) {
+                              colorClass = "bg-blue-100 text-blue-600"; // Blue
+                            } else if (speedVal > 5) {
+                              colorClass = "bg-green-100 text-green-600"; // Green
+                            } else {
+                              colorClass = "bg-gray-100 text-gray-800";
+                            }
+                            return (
+                              <span
+                                className={`px-3 py-1 rounded-full text-xs font-semibold ${colorClass}`}
+                              >
+                                {isEngineOff
+                                  ? "Engine Off"
+                                  : `${vehicle.speed}`}
+                              </span>
+                            );
+                          })()}
                         </div>
                       </td>
                       <td className="p-4">
