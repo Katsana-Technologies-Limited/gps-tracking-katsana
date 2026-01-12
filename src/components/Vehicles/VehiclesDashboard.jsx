@@ -38,7 +38,7 @@ function getRenewalInfo(expiryDate) {
 
 export default function VehiclesDashboard() {
   const { data: customerVehicles = [], isLoading } = useCustomerVehicle();
-  const { allDevices = [] } = useVtsAllDevices();
+  const { filteredDevices = [] } = useVtsAllDevices();
 
   // Use selected IMEIs from Redux
   const selectedImeis = useSelectedImeis();
@@ -52,10 +52,9 @@ export default function VehiclesDashboard() {
     if (!Array.isArray(customerVehicles)) return [];
 
     return customerVehicles.map((vehicle) => {
-      // Find matching device by imei
-      const liveDevice = Array.isArray(allDevices)
-        ? allDevices.find((d) => {
-            // Try different possible imei fields in device data
+      // Find matching device by imei from filteredDevices (only selected IMEIs)
+      const liveDevice = Array.isArray(filteredDevices)
+        ? filteredDevices.find((d) => {
             const deviceImei =
               d.device_data?.imei ||
               d.imei ||
@@ -71,13 +70,12 @@ export default function VehiclesDashboard() {
       if (vehicle.suspended) {
         deviceStatus = "Suspended";
       } else if (liveDevice) {
-        // Check if device is online/offline
         deviceStatus =
           liveDevice.online === "online" || liveDevice.online === "ack"
             ? "Online"
             : "Offline";
       } else {
-        deviceStatus = "Offline"; // No matching device found
+        deviceStatus = "Offline";
       }
 
       let speedStatus = "Engine Off";
@@ -134,7 +132,7 @@ export default function VehiclesDashboard() {
           : false,
       };
     });
-  }, [customerVehicles, allDevices]);
+  }, [customerVehicles, filteredDevices]);
 
   const handleReload = () => {
     if (isReloading) return;

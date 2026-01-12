@@ -1,6 +1,7 @@
 import { useMemo, useEffect } from "react";
 import useDataQuery from "./useDataQuery";
 import useCustomerVehicle from "./useCustomerVehicle";
+import useSelectedImeis from "./useSelectedImeis";
 
 const useVtsAllDevices = () => {
   const {
@@ -21,6 +22,7 @@ const useVtsAllDevices = () => {
     return Array.isArray(customerVehicles) ? customerVehicles : [];
   }, [customerVehicles]);
 
+  // Get all devices
   const allDevices = useMemo(() => {
     if (!Array.isArray(allDevicesData)) return [];
     return allDevicesData.reduce((acc, group) => {
@@ -31,21 +33,20 @@ const useVtsAllDevices = () => {
     }, []);
   }, [allDevicesData]);
 
-  const customerImeis = useMemo(() => {
-    return customerVehiclesSafe
-      .filter((v) => v?.suspended === false)
-      .map((v) => v?.imei)
-      .filter(Boolean);
-  }, [customerVehiclesSafe]);
+  const selectedImeisRaw = useSelectedImeis();
+  const selectedImeis = useMemo(
+    () => selectedImeisRaw || [],
+    [selectedImeisRaw]
+  );
 
   const filteredDevices = useMemo(() => {
-    if (!allDevices.length || !customerImeis.length) return [];
-    const imeiSet = new Set(customerImeis);
+    if (!allDevices.length || !selectedImeis.length) return [];
+    const imeiSet = new Set(selectedImeis);
     return allDevices.filter((device) => {
       const imei = device?.device_data?.imei ?? device?.imei ?? null;
       return imei && imeiSet.has(imei);
     });
-  }, [allDevices, customerImeis]);
+  }, [allDevices, selectedImeis]);
 
   useEffect(() => {
     const handleVisibilityChange = () => {
