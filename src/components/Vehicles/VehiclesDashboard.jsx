@@ -206,6 +206,7 @@ export default function VehiclesDashboard() {
               </thead>
               <tbody>
                 {paginated.map((vehicle) => {
+                  const speedMeta = getSpeedMeta(vehicle.speed);
                   const isOnline = vehicle.deviceStatus === "Online";
                   const isSuspended = vehicle.deviceStatus === "Suspended";
                   const isExpired = vehicle.isExpired;
@@ -246,17 +247,18 @@ export default function VehiclesDashboard() {
                           </a>
                         </div>
                       </td>
-                      {/* SPEED STATUS */}
-                      <td className="p-4">
-                        <div className="flex flex-col items-start gap-1">
+                      {/* SPEED */}
+                      <td className="p-4 text-nowrap">
+                        <div className="flex flex-col items-center gap-1">
+                          <img
+                            src={speedMeta.icon}
+                            className="w-8 h-8"
+                            alt="speed"
+                          />
                           <span
-                            className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              vehicle.speed === "Engine Off"
-                                ? "bg-gray-100 text-gray-600"
-                                : "bg-green-100 text-green-700"
-                            }`}
+                            className={`px-3 py-1 rounded-full text-xs font-semibold ${speedMeta.bg} ${speedMeta.text}`}
                           >
-                            {vehicle.speed}
+                            {vehicle.speed} km/h
                           </span>
                         </div>
                       </td>
