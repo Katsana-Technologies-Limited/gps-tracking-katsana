@@ -358,7 +358,7 @@ const VehiclesStatusMap = () => {
 
 const VehicleInfoCard = ({ vehicle }) => {
   return (
-    <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-[360px] rounded-2xl shadow-2xl bg-white overflow-hidden z-30 pointer-events-auto">
+    <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-90 rounded-2xl shadow-2xl bg-white overflow-hidden z-30 pointer-events-auto">
       {/* 🟡 Header */}
       <div className="bg-yellow-400 px-4 py-3 flex items-center justify-between">
         <div>
