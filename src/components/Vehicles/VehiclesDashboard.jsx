@@ -12,20 +12,19 @@ const PAGE_SIZE = 5;
 export default function VehiclesDashboard() {
   const { data: customerVehicles = [], isLoading } = useCustomerVehicle();
   const { allDevices = [] } = useVtsAllDevices();
+  console.log(allDevices);
   const [selectedIds, setSelectedIds] = useState([]);
   const [activeTab, setActiveTab] = useState("All");
   const [page, setPage] = useState(1);
   const [reloadTimer, setReloadTimer] = useState(60);
   const [isReloading, setIsReloading] = useState(false);
 
-  // Helper function to format date
   const formatDate = (dateString) => {
     if (!dateString) return "-";
     const date = new Date(dateString);
-    return date.toLocaleDateString("en-GB"); // DD/MM/YYYY format
+    return date.toLocaleDateString("en-GB");
   };
 
-  // Helper function to calculate renewal days
   const getRenewalInfo = (expiryDate) => {
     if (!expiryDate) return "";
     const today = new Date();
@@ -233,24 +232,11 @@ export default function VehiclesDashboard() {
                         </div>
                       </td>
                       <td className="p-4 max-w-xs">
-                        <p className="text-gray-700">{vehicle.landmark}</p>
-                        <div className="flex items-center gap-1 mt-1">
-                          <img
-                            src="/icons/vehicel/location-pin.svg"
-                            className="w-3 h-3"
-                            alt="location"
-                          />
-                          <a
-                            href={`https://www.google.com/maps/search/?api=1&query=${vehicle.lat},${vehicle.lng}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-xs text-gray-500 hover:text-orange-500 truncate"
-                          >
-                            {vehicle.lat !== "-" && vehicle.lng !== "-"
-                              ? `${vehicle.lat}, ${vehicle.lng}`
-                              : "No coordinates available"}
-                          </a>
-                        </div>
+                        {vehicle.deviceStatus === "Suspended" ? (
+                          <span className="inline-block px-2 py-0.5 bg-red-100 text-red-500 text-xs rounded font-semibold">
+                            Renew Subscription
+                          </span>
+                        ) : null}
                       </td>
                       {/* SPEED */}
                       <td className="p-4 text-nowrap">
