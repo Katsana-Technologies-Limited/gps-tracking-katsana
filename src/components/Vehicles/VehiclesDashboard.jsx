@@ -51,13 +51,11 @@ export default function VehiclesDashboard() {
     return customerVehicles.map((vehicle) => {
       const liveDevice = Array.isArray(allDevices)
         ? allDevices.find((d) => {
-            // Try different possible imei fields
             const deviceImei = d.device_data?.imei || d.imei || d.imei_number;
             return deviceImei === vehicle.imei;
           })
         : null;
 
-      // Determine device status
       let deviceStatus = "Unknown";
       if (vehicle.suspended) {
         deviceStatus = "Suspended";
@@ -65,17 +63,14 @@ export default function VehiclesDashboard() {
         deviceStatus = liveDevice.online === "online" ? "Online" : "Offline";
       }
 
-      // Determine speed status
       let speedStatus = "Engine Off";
       if (liveDevice?.speed && parseFloat(liveDevice.speed) > 0) {
         speedStatus = `${liveDevice.speed} km/h`;
       }
 
-      // Get coordinates
       const lat = liveDevice?.lat || vehicle.lat || "-";
       const lng = liveDevice?.lng || vehicle.lng || "-";
 
-      // Get timestamp
       let date = "-";
       let time = "-";
       if (liveDevice?.time) {
@@ -89,13 +84,23 @@ export default function VehiclesDashboard() {
         });
       }
 
-      // Format expiry date
       const expiryDate = vehicle.expire_date
         ? formatDate(vehicle.expire_date)
         : "-";
-      const renewalInfo = vehicle.expire_date
-        ? getRenewalInfo(vehicle.expire_date)
-        : "";
+
+      // Use real renewal_in from backend if present and not suspended
+      let renewalInfo = "";
+      if (
+        !vehicle.suspended &&
+        typeof vehicle.renewal_in === "number" &&
+        vehicle.renewal_in >= 0
+      ) {
+        if (vehicle.renewal_in === 1) {
+          renewalInfo = "Renewal in 1 day";
+        } else if (vehicle.renewal_in > 1) {
+          renewalInfo = `Renewal in ${vehicle.renewal_in} days`;
+        }
+      }
 
       return {
         ...vehicle,
