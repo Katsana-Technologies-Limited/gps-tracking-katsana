@@ -188,6 +188,70 @@ export default function VehiclesDashboard() {
                   const speedMeta = getSpeedMeta(vehicle.speed);
                   const isOnline = vehicle.deviceStatus === "Online";
                   const isSuspended = vehicle.deviceStatus === "Suspended";
+                  const isOffline = vehicle.deviceStatus === "Offline";
+                  const isEngineOff = vehicle.speed === "Engine Off";
+
+                  // Parse speed value
+                  let speedVal = 0;
+                  if (!isEngineOff && typeof vehicle.speed === "string") {
+                    const match = vehicle.speed.match(/([\d.]+)/);
+                    if (match) speedVal = parseFloat(match[1]);
+                  }
+
+                  // Check if engine turned off within 5 min
+                  let isRecentEngineOff = false;
+                  if (isEngineOff && vehicle.time && vehicle.date) {
+                    try {
+                      const now = new Date();
+                      const lastUpdate = new Date(
+                        `${vehicle.date} ${vehicle.time}`
+                      );
+                      const diffMs = now - lastUpdate;
+                      if (!isNaN(diffMs) && diffMs <= 5 * 60 * 1000) {
+                        isRecentEngineOff = true;
+                      }
+                    } catch (e) {
+                      console.error("Error parsing date:", e);
+                    }
+                  }
+
+                  // Determine colors based on your requirements
+                  let iconColorClass = "";
+                  let textBgClass = "";
+                  let textColorClass = "";
+                  let displayText = isEngineOff ? "Engine Off" : vehicle.speed;
+
+                  if (isOffline) {
+                    // Grey: Vehicle Offline - icon should be gray-800
+                    iconColorClass = "text-gray-800";
+                    textBgClass = "bg-gray-100";
+                    textColorClass = "text-gray-600";
+                  } else if (isEngineOff && isRecentEngineOff) {
+                    // Orange: engine turned off within 5 min
+                    iconColorClass = "text-orange-500";
+                    textBgClass = "bg-orange-100";
+                    textColorClass = "text-orange-600";
+                  } else if (isEngineOff) {
+                    // Red: Engine Off
+                    iconColorClass = "text-red-500";
+                    textBgClass = "bg-red-100";
+                    textColorClass = "text-red-600";
+                  } else if (speedVal <= 5) {
+                    // Blue: 5km or less
+                    iconColorClass = "text-blue-500";
+                    textBgClass = "bg-blue-100";
+                    textColorClass = "text-blue-600";
+                  } else if (speedVal > 5) {
+                    // Green: 5km or greater
+                    iconColorClass = "text-green-500";
+                    textBgClass = "bg-green-100";
+                    textColorClass = "text-green-600";
+                  } else {
+                    // Default
+                    iconColorClass = "text-gray-500";
+                    textBgClass = "bg-gray-100";
+                    textColorClass = "text-gray-600";
+                  }
 
                   return (
                     <tr
@@ -234,61 +298,28 @@ export default function VehiclesDashboard() {
                       </td>
                       <td className="p-4 text-nowrap">
                         <div className="flex flex-col items-center gap-1">
-                          <img
-                            src={speedMeta.icon}
-                            className="w-8 h-8"
-                            alt="speed"
-                          />
-                          {(() => {
-                            // Determine color and label
-                            const isOffline =
-                              vehicle.deviceStatus === "Offline";
-                            const isEngineOff = vehicle.speed === "Engine Off";
-                            let speedVal = 0;
-                            if (
-                              !isEngineOff &&
-                              typeof vehicle.speed === "string"
-                            ) {
-                              const match = vehicle.speed.match(/([\d.]+)/);
-                              if (match) speedVal = parseFloat(match[1]);
-                            }
-                            // Check if engine turned off within 5 min
-                            let isRecentEngineOff = false;
-                            if (isEngineOff && vehicle.time && vehicle.date) {
-                              // Combine date and time to get last update
-                              const now = new Date();
-                              const lastUpdate = new Date(
-                                `${vehicle.date} ${vehicle.time}`
-                              );
-                              const diffMs = now - lastUpdate;
-                              if (!isNaN(diffMs) && diffMs <= 5 * 60 * 1000) {
-                                isRecentEngineOff = true;
-                              }
-                            }
-                            let colorClass = "";
-                            if (isOffline) {
-                              colorClass = "bg-gray-200 text-gray-500"; // Grey
-                            } else if (isEngineOff && isRecentEngineOff) {
-                              colorClass = "bg-orange-100 text-orange-600"; // Orange
-                            } else if (isEngineOff) {
-                              colorClass = "bg-red-100 text-red-600"; // Red
-                            } else if (speedVal <= 5) {
-                              colorClass = "bg-blue-100 text-blue-600"; // Blue
-                            } else if (speedVal > 5) {
-                              colorClass = "bg-green-100 text-green-600"; // Green
-                            } else {
-                              colorClass = "bg-gray-100 text-gray-800";
-                            }
-                            return (
-                              <span
-                                className={`px-3 py-1 rounded-full text-xs font-semibold ${colorClass}`}
-                              >
-                                {isEngineOff
-                                  ? "Engine Off"
-                                  : `${vehicle.speed}`}
-                              </span>
-                            );
-                          })()}
+                          {/* For image icons, we need to apply color differently */}
+                          {isOffline ? (
+                            <div className={`w-8 h-8 ${iconColorClass}`}>
+                              {/* You might need to use an SVG icon or a different approach for colored icons */}
+                              <img
+                                src={speedMeta.icon}
+                                className="w-full h-full filter grayscale"
+                                alt="speed"
+                              />
+                            </div>
+                          ) : (
+                            <img
+                              src={speedMeta.icon}
+                              className="w-8 h-8"
+                              alt="speed"
+                            />
+                          )}
+                          <span
+                            className={`px-3 py-1 rounded-full text-xs font-semibold ${textBgClass} ${textColorClass}`}
+                          >
+                            {displayText}
+                          </span>
                         </div>
                       </td>
                       <td className="p-4">

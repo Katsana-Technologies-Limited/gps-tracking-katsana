@@ -111,7 +111,6 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
     return list;
   }, [VEHICLES, activeTab, query]);
 
-  // Select All by default, only update if filteredVehicles changes and selection is out of sync
   const [selected, setSelected] = useState(() =>
     filteredVehicles.map((v) => v.id)
   );
