@@ -258,7 +258,9 @@ export default function VehiclesDashboard() {
                           <span
                             className={`px-3 py-1 rounded-full text-xs font-semibold ${speedMeta.bg} ${speedMeta.text}`}
                           >
-                            {vehicle.speed} km/h
+                            {vehicle.speed === "Engine Off"
+                              ? "Engine Off"
+                              : `${vehicle.speed} km/h`}
                           </span>
                         </div>
                       </td>
@@ -271,7 +273,7 @@ export default function VehiclesDashboard() {
                         </div>
                       </td>
                       <td className="p-4">
-                        <div className="flex flex-col gap-2">
+                        <div className="flex flex-col gap-2 justify-center items-center">
                           <span
                             className={`px-2 py-1 rounded-full text-xs w-fit font-medium
                             ${
