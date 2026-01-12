@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import React, { useEffect, useMemo, useState } from "react";
 import VehiclesStatusOption from "../AnalyticsSummary/VehiclesStatusOption";
 import { getSpeedMeta } from "../../utilits/vehicleHelpers";
@@ -7,46 +6,47 @@ import VehicleStatusDrawer from "./VehicleStatusDrawer";
 import useCustomerVehicle from "../../hooks/useCustomerVehicle";
 import useVtsAllDevices from "../../hooks/useVtsAllDevices";
 import GlobalLoading from "../utils/GlobalLoading";
+import NearbyLandmarkCell from "./NearbyLandmarkCell";
 
 const PAGE_SIZE = 5;
+
+function formatDate(dateString) {
+  if (!dateString) return "-";
+  const date = new Date(dateString);
+  return date.toLocaleDateString("en-GB");
+}
+
+function getRenewalInfo(expiryDate) {
+  if (!expiryDate) return "";
+  const today = new Date();
+  const expiry = new Date(expiryDate);
+  const diffTime = expiry - today;
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays > 0) {
+    return `Renewal in ${diffDays} day${diffDays !== 1 ? "s" : ""}`;
+  } else if (diffDays === 0) {
+    return "Expires today";
+  } else {
+    return `Expired ${Math.abs(diffDays)} day${
+      Math.abs(diffDays) !== 1 ? "s" : ""
+    } ago`;
+  }
+}
+
 export default function VehiclesDashboard() {
   const { data: customerVehicles = [], isLoading } = useCustomerVehicle();
   const { allDevices = [] } = useVtsAllDevices();
-  console.log(allDevices);
+
   const [selectedIds, setSelectedIds] = useState([]);
   const [activeTab, setActiveTab] = useState("All");
   const [page, setPage] = useState(1);
   const [reloadTimer, setReloadTimer] = useState(60);
   const [isReloading, setIsReloading] = useState(false);
 
-  const formatDate = (dateString) => {
-    if (!dateString) return "-";
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-GB");
-  };
-
-  const getRenewalInfo = (expiryDate) => {
-    if (!expiryDate) return "";
-    const today = new Date();
-    const expiry = new Date(expiryDate);
-    const diffTime = expiry - today;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays > 0) {
-      return `Renewal in ${diffDays} day${diffDays !== 1 ? "s" : ""}`;
-    } else if (diffDays === 0) {
-      return "Expires today";
-    } else {
-      return `Expired ${Math.abs(diffDays)} day${
-        Math.abs(diffDays) !== 1 ? "s" : ""
-      } ago`;
-    }
-  };
-
-  // Compute enrichedDevices with useMemo
+  // Enrich vehicles
   const enrichedDevices = useMemo(() => {
     if (!Array.isArray(customerVehicles)) return [];
-
     return customerVehicles.map((vehicle) => {
       const liveDevice = Array.isArray(allDevices)
         ? allDevices.find((d) => {
@@ -54,22 +54,18 @@ export default function VehiclesDashboard() {
             return deviceImei === vehicle.imei;
           })
         : null;
-
       let deviceStatus = "Unknown";
       if (vehicle.suspended) {
         deviceStatus = "Suspended";
       } else if (liveDevice) {
         deviceStatus = liveDevice.online === "online" ? "Online" : "Offline";
       }
-
       let speedStatus = "Engine Off";
       if (liveDevice?.speed && parseFloat(liveDevice.speed) > 0) {
         speedStatus = `${liveDevice.speed} km/h`;
       }
-
-      const lat = liveDevice?.lat || vehicle.lat || "-";
-      const lng = liveDevice?.lng || vehicle.lng || "-";
-
+      const lat = liveDevice?.lat ?? vehicle.lat ?? "-";
+      const lng = liveDevice?.lng ?? vehicle.lng ?? "-";
       let date = "-";
       let time = "-";
       if (liveDevice?.time) {
@@ -82,40 +78,26 @@ export default function VehiclesDashboard() {
           hour12: true,
         });
       }
-
       const expiryDate = vehicle.expire_date
         ? formatDate(vehicle.expire_date)
         : "-";
-
-      // Use real renewal_in from backend if present and not suspended
-      let renewalInfo = "";
-      if (
-        !vehicle.suspended &&
-        typeof vehicle.renewal_in === "number" &&
-        vehicle.renewal_in >= 0
-      ) {
-        if (vehicle.renewal_in === 1) {
-          renewalInfo = "Renewal in 1 day";
-        } else if (vehicle.renewal_in > 1) {
-          renewalInfo = `Renewal in ${vehicle.renewal_in} days`;
-        }
-      }
-
       return {
         ...vehicle,
         id: vehicle.id,
         customer: vehicle.company || "N/A",
         vehicle: vehicle.vehicle_name || "N/A",
         reg: vehicle.subscription_number || "N/A",
-        landmark: vehicle.landmark || "Location not available",
-        lat: lat,
-        lng: lng,
+        lat,
+        lng,
         speed: speedStatus,
-        date: date,
-        time: time,
-        deviceStatus: deviceStatus,
+        date,
+        time,
+        deviceStatus,
         expiry: expiryDate,
-        renewal: renewalInfo,
+        renewal:
+          !vehicle.suspended &&
+          vehicle.expire_date &&
+          getRenewalInfo(vehicle.expire_date),
         isExpired: vehicle.expire_date
           ? new Date(vehicle.expire_date) < new Date()
           : false,
@@ -139,8 +121,7 @@ export default function VehiclesDashboard() {
   const handleReload = () => {
     if (isReloading) return;
     setIsReloading(true);
-    // You might want to add actual data refresh logic here
-    // For example, refetch queries or update state
+    // trigger refetch if needed
   };
 
   const filtered = useMemo(() => {
@@ -179,7 +160,7 @@ export default function VehiclesDashboard() {
             />
             Reload {isReloading && `(${reloadTimer}s)`}
           </button>
-          <button className="px-4 py-2 cursor-pointer rounded-lg bg-linear-to-r from-orange-400 to-orange-500 text-white font-medium flex gap-2 border border-gray-300 hover:from-orange-500 hover:to-orange-600">
+          <button className="px-4 py-2 cursor-pointer rounded-lg bg-gradient-to-r from-orange-400 to-orange-500 text-white font-medium flex gap-2 border border-gray-300 hover:from-orange-500 hover:to-orange-600">
             <img src="/icons/vehicel/export.svg" alt="export" />
             Export
           </button>
@@ -198,14 +179,7 @@ export default function VehiclesDashboard() {
                   <th className="p-4 text-left">Speed Status</th>
                   <th className="p-4 text-left">Date | Time</th>
                   <th className="p-4 text-left">Device Status</th>
-                  <th
-                    className={`
-                      p-4 border-l border-gray-200
-                      lg:sticky lg:right-0 lg:bg-orange-50 lg:z-20
-                    `}
-                  >
-                    Actions
-                  </th>
+                  <th className="p-4 text-left">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -213,16 +187,13 @@ export default function VehiclesDashboard() {
                   const speedMeta = getSpeedMeta(vehicle.speed);
                   const isOnline = vehicle.deviceStatus === "Online";
                   const isSuspended = vehicle.deviceStatus === "Suspended";
-                  const isExpired = vehicle.isExpired;
 
                   return (
                     <tr
                       key={vehicle.id}
                       className="border-b border-gray-200 last:border-0 hover:bg-gray-50"
                     >
-                      <td className="p-4 text-nowrap">
-                        <div className="font-medium">{vehicle.customer}</div>
-                      </td>
+                      <td className="p-4 font-medium">{vehicle.customer}</td>
                       <td className="p-4">
                         <div className="font-medium text-gray-800">
                           {vehicle.vehicle}
@@ -232,13 +203,12 @@ export default function VehiclesDashboard() {
                         </div>
                       </td>
                       <td className="p-4 max-w-xs">
-                        {vehicle.deviceStatus === "Suspended" ? (
-                          <span className="inline-block px-2 py-0.5 bg-red-100 text-red-500 text-xs rounded font-semibold">
-                            Renew Subscription
-                          </span>
-                        ) : null}
+                        <NearbyLandmarkCell
+                          lat={vehicle.lat}
+                          lng={vehicle.lng}
+                          suspended={isSuspended}
+                        />
                       </td>
-                      {/* SPEED */}
                       <td className="p-4 text-nowrap">
                         <div className="flex flex-col items-center gap-1">
                           <img
@@ -251,7 +221,7 @@ export default function VehiclesDashboard() {
                           >
                             {vehicle.speed === "Engine Off"
                               ? "Engine Off"
-                              : `${vehicle.speed} km/h`}
+                              : `${vehicle.speed}`}
                           </span>
                         </div>
                       </td>
@@ -305,63 +275,33 @@ export default function VehiclesDashboard() {
                           )}
                         </div>
                       </td>
-                      <td
-                        className="
-                          p-4 border-l border-gray-200
-                          lg:sticky lg:right-0 lg:bg-white lg:z-10
-                        "
-                      >
+                      <td className="p-4">
                         <div className="flex gap-3">
-                          <button
-                            className="p-1 hover:bg-gray-100 rounded"
-                            title="View Location"
-                          >
-                            <img
-                              src="/icons/vehicel/location-pin.svg"
-                              className="w-5 h-5"
-                              alt="Location"
-                            />
-                          </button>
-                          <button
-                            className="p-1 hover:bg-gray-100 rounded"
-                            title="Time Duration"
-                          >
-                            <img
-                              src="/icons/vehicel/time-duration.svg"
-                              className="w-5 h-5"
-                              alt="Duration"
-                            />
-                          </button>
-                          <button
-                            className="p-1 hover:bg-gray-100 rounded"
-                            title="Calendar"
-                          >
-                            <img
-                              src="/icons/vehicel/calendar-minimalistic.svg"
-                              className="w-5 h-5"
-                              alt="Calendar"
-                            />
-                          </button>
-                          <button
-                            className="p-1 hover:bg-gray-100 rounded"
-                            title="Stop Timer"
-                          >
-                            <img
-                              src="/icons/vehicel/stop-timer.svg"
-                              className="w-5 h-5"
-                              alt="Stop Timer"
-                            />
-                          </button>
-                          <button
-                            className="p-1 hover:bg-gray-100 rounded"
-                            title="Route History"
-                          >
-                            <img
-                              src="/icons/vehicel/locations-route.svg"
-                              className="w-5 h-5"
-                              alt="Route"
-                            />
-                          </button>
+                          <img
+                            src="/icons/vehicel/location-pin.svg"
+                            className="w-5 h-5"
+                            alt=""
+                          />
+                          <img
+                            src="/icons/vehicel/time-duration.svg"
+                            className="w-5 h-5"
+                            alt=""
+                          />
+                          <img
+                            src="/icons/vehicel/calendar-minimalistic.svg"
+                            className="w-5 h-5"
+                            alt=""
+                          />
+                          <img
+                            src="/icons/vehicel/stop-timer.svg"
+                            className="w-5 h-5"
+                            alt=""
+                          />
+                          <img
+                            src="/icons/vehicel/locations-route.svg"
+                            className="w-5 h-5"
+                            alt=""
+                          />
                         </div>
                       </td>
                     </tr>
@@ -370,7 +310,6 @@ export default function VehiclesDashboard() {
               </tbody>
             </table>
           </div>
-
           {/* PAGINATION */}
           <div className="flex justify-end gap-2 p-4">
             {Array.from({ length: Math.ceil(filtered.length / PAGE_SIZE) }).map(
@@ -392,7 +331,6 @@ export default function VehiclesDashboard() {
             )}
           </div>
         </div>
-
         <div className="xl:col-span-1">
           <div className="hidden xl:block bg-white border border-gray-300 rounded-xl shadow-sm h-[calc(100vh-140px)] scrollbar-thin">
             <VehiclesStatusOption />
