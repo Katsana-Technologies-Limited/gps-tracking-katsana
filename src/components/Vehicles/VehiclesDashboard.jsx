@@ -1,43 +1,106 @@
-/* eslint-disable no-unused-vars */
 import React, { useEffect, useMemo, useState } from "react";
 import VehiclesStatusOption from "../AnalyticsSummary/VehiclesStatusOption";
-import { getSpeedMeta, mockReverseGeocode } from "../../utilits/vehicleHelpers";
+import { getSpeedMeta } from "../../utilits/vehicleHelpers";
 import { RotateCw } from "lucide-react";
 import VehicleStatusDrawer from "./VehicleStatusDrawer";
 import useCustomerVehicle from "../../hooks/useCustomerVehicle";
 import useVtsAllDevices from "../../hooks/useVtsAllDevices";
 import GlobalLoading from "../utils/GlobalLoading";
+import NearbyLandmarkCell from "./NearbyLandmarkCell";
 
 const PAGE_SIZE = 5;
+
+function formatDate(dateString) {
+  if (!dateString) return "-";
+  const date = new Date(dateString);
+  return date.toLocaleDateString("en-GB");
+}
+
+function getRenewalInfo(expiryDate) {
+  if (!expiryDate) return "";
+  const today = new Date();
+  const expiry = new Date(expiryDate);
+  const diffTime = expiry - today;
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays > 0) {
+    return `Renewal in ${diffDays} day${diffDays !== 1 ? "s" : ""}`;
+  } else if (diffDays === 0) {
+    return "Expires today";
+  } else {
+    return `Expired ${Math.abs(diffDays)} day${
+      Math.abs(diffDays) !== 1 ? "s" : ""
+    } ago`;
+  }
+}
+
 export default function VehiclesDashboard() {
   const { data: customerVehicles = [], isLoading } = useCustomerVehicle();
-  const { allDevices } = useVtsAllDevices();
+  const { allDevices = [] } = useVtsAllDevices();
+
   const [selectedIds, setSelectedIds] = useState([]);
   const [activeTab, setActiveTab] = useState("All");
   const [page, setPage] = useState(1);
   const [reloadTimer, setReloadTimer] = useState(60);
   const [isReloading, setIsReloading] = useState(false);
 
-  // Compute enrichedDevices with useMemo (no hooks in conditionals)
+  // Enrich vehicles
   const enrichedDevices = useMemo(() => {
     if (!Array.isArray(customerVehicles)) return [];
-    return customerVehicles.map((v, index) => {
-      const live = Array.isArray(allDevices)
-        ? allDevices.find((d) => (d.device_data?.imei || d.imei) === v.imei)
+    return customerVehicles.map((vehicle) => {
+      const liveDevice = Array.isArray(allDevices)
+        ? allDevices.find((d) => {
+            const deviceImei = d.device_data?.imei || d.imei || d.imei_number;
+            return deviceImei === vehicle.imei;
+          })
         : null;
-      let status = "Unknown";
-      if (v.suspended) status = "Suspended";
-      else if (live) status = live.online === "online" ? "Online" : "Offline";
+      let deviceStatus = "Unknown";
+      if (vehicle.suspended) {
+        deviceStatus = "Suspended";
+      } else if (liveDevice) {
+        deviceStatus = liveDevice.online === "online" ? "Online" : "Offline";
+      }
+      let speedStatus = "Engine Off";
+      if (liveDevice?.speed && parseFloat(liveDevice.speed) > 0) {
+        speedStatus = `${liveDevice.speed} km/h`;
+      }
+      const lat = liveDevice?.lat ?? vehicle.lat ?? "-";
+      const lng = liveDevice?.lng ?? vehicle.lng ?? "-";
+      let date = "-";
+      let time = "-";
+      if (liveDevice?.time) {
+        const timestamp = new Date(liveDevice.time);
+        date = timestamp.toLocaleDateString("en-GB");
+        time = timestamp.toLocaleTimeString("en-GB", {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: true,
+        });
+      }
+      const expiryDate = vehicle.expire_date
+        ? formatDate(vehicle.expire_date)
+        : "-";
       return {
-        ...v,
-        customer: v.company || v.imei || "",
-        vehicle: v.vehicle_name || v.imei || "",
-        reg: v.subscription_number || "",
-        deviceStatus: status,
-        speed: live?.speed ?? "-",
-        time: live?.time ?? "-",
-        lat: live?.lat ?? v.lat,
-        lng: live?.lng ?? v.lng,
+        ...vehicle,
+        id: vehicle.id,
+        customer: vehicle.company || "N/A",
+        vehicle: vehicle.vehicle_name || "N/A",
+        reg: vehicle.subscription_number || "N/A",
+        lat,
+        lng,
+        speed: speedStatus,
+        date,
+        time,
+        deviceStatus,
+        expiry: expiryDate,
+        renewal:
+          !vehicle.suspended &&
+          vehicle.expire_date &&
+          getRenewalInfo(vehicle.expire_date),
+        isExpired: vehicle.expire_date
+          ? new Date(vehicle.expire_date) < new Date()
+          : false,
       };
     });
   }, [customerVehicles, allDevices]);
@@ -55,18 +118,10 @@ export default function VehiclesDashboard() {
     return () => clearTimeout(t);
   }, [isReloading, reloadTimer]);
 
-  useEffect(() => {
-    if (isReloading && reloadTimer === 0) {
-      setTimeout(() => {
-        setReloadTimer(60);
-        setIsReloading(false);
-      }, 0);
-    }
-  }, [isReloading, reloadTimer]);
-
   const handleReload = () => {
     if (isReloading) return;
     setIsReloading(true);
+    // trigger refetch if needed
   };
 
   const filtered = useMemo(() => {
@@ -115,50 +170,67 @@ export default function VehiclesDashboard() {
         <div className="xl:col-span-3">
           {/* 📋 TABLE */}
           <div className="bg-white border border-gray-300 rounded-xl shadow-sm relative overflow-x-auto scrollbar-thin">
-            <table className="min-w-225 w-full text-sm">
+            <table className="min-w-full w-full text-sm">
               <thead className="bg-orange-50 text-gray-600">
                 <tr className="border-b border-gray-200">
-                  <th className="p-4 text-left">Customer</th>
+                  <th className="p-4 text-left">Customer Name</th>
                   <th className="p-4 text-left">Vehicle</th>
                   <th className="p-4 text-left">Nearby Landmark</th>
-                  <th className="p-4 text-left">Speed</th>
+                  <th className="p-4 text-left">Speed Status</th>
                   <th className="p-4 text-left">Date | Time</th>
-                  <th className="p-4 text-left">Device</th>
-                  <th
-                    className={`
-                      p-4 border-l border-gray-200
-                      lg:sticky lg:right-0 lg:bg-orange-50 lg:z-20
-                    `}
-                  >
-                    Actions
-                  </th>
+                  <th className="p-4 text-left">Device Status</th>
+                  <th className="p-4 text-left">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {paginated.map((v) => {
-                  const speedMeta = getSpeedMeta(v.speed);
+                {paginated.map((vehicle) => {
+                  const speedMeta = getSpeedMeta(vehicle.speed);
+                  const isOnline = vehicle.deviceStatus === "Online";
+                  const isSuspended = vehicle.deviceStatus === "Suspended";
+
                   return (
                     <tr
-                      key={v.id}
-                      className="border-b border-gray-200 last:border-0"
+                      key={vehicle.id}
+                      className="border-b border-gray-200 last:border-0 hover:bg-gray-50"
                     >
-                      <td className="p-4 text-nowrap">{v.customer}</td>
+                      <td className="p-4 font-medium">{vehicle.customer}</td>
                       <td className="p-4">
-                        <div className="font-medium">{v.vehicle}</div>
-                        <div className="text-xs text-gray-400">{v.reg}</div>
+                        <div className="font-medium text-gray-800">
+                          {vehicle.vehicle}
+                        </div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          {vehicle.reg}
+                        </div>
                       </td>
-                      <td className="p-4">
-                        <p>{v.landmark}</p>
-                        <a
-                          href={`https://www.google.com/maps/search/?api=1&query=${v.lat},${v.lng}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs text-gray-500 hover:text-orange-500"
-                        >
-                          {v.lat}, {v.lng}
-                        </a>
+                      <td className="p-4 max-w-xs">
+                        {(() => {
+                          // Find the live device for this vehicle
+                          const liveDevice = Array.isArray(allDevices)
+                            ? allDevices.find((d) => {
+                                const deviceImei =
+                                  d.device_data?.imei ||
+                                  d.imei ||
+                                  d.imei_number;
+                                return deviceImei === vehicle.imei;
+                              })
+                            : null;
+                          const lat =
+                            !isSuspended && liveDevice?.lat
+                              ? liveDevice.lat
+                              : vehicle.lat;
+                          const lng =
+                            !isSuspended && liveDevice?.lng
+                              ? liveDevice.lng
+                              : vehicle.lng;
+                          return (
+                            <NearbyLandmarkCell
+                              lat={lat}
+                              lng={lng}
+                              suspended={isSuspended}
+                            />
+                          );
+                        })()}
                       </td>
-                      {/* SPEED */}
                       <td className="p-4 text-nowrap">
                         <div className="flex flex-col items-center gap-1">
                           <img
@@ -167,38 +239,69 @@ export default function VehiclesDashboard() {
                             alt="speed"
                           />
                           <span
-                            className={`px-3 py-1 rounded-full text-xs font-semibold ${speedMeta.bg} ${speedMeta.text}`}
-                          >
-                            {v.speed} km/h
-                          </span>
-                        </div>
-                      </td>
-                      <td className="p-4">{v.time}</td>
-                      <td className="p-4">
-                        <div className="flex flex-col gap-2">
-                          <span
-                            className={`px-2 py-1 rounded-full text-xs w-fit
-                            ${
-                              v.deviceStatus === "Online"
-                                ? "bg-green-100 text-green-700"
-                                : v.deviceStatus === "Offline"
-                                ? "bg-gray-200 text-gray-600"
-                                : "bg-red-100 text-red-600"
+                            className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                              vehicle.speed === "Engine Off"
+                                ? "bg-gray-100 text-gray-800"
+                                : "bg-green-100 text-green-600"
                             }`}
                           >
-                            {v.deviceStatus}
-                          </span>
-                          <span className="text-xs text-gray-400">
-                            Expire: {v.time}
+                            {vehicle.speed === "Engine Off"
+                              ? "Engine Off"
+                              : `${vehicle.speed}`}
                           </span>
                         </div>
                       </td>
-                      <td
-                        className="
-                          p-4 border-l border-gray-200
-                          lg:sticky lg:right-0 lg:bg-white lg:z-10
-                        "
-                      >
+                      <td className="p-4">
+                        <div className="flex flex-col">
+                          <span className="text-gray-700">{vehicle.date}</span>
+                          <span className="text-xs text-gray-500">
+                            {vehicle.time}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="p-4">
+                        <div className="flex flex-col gap-2 justify-center items-center">
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs w-fit font-medium
+                            ${
+                              isOnline
+                                ? "bg-green-100 text-green-700"
+                                : isSuspended
+                                ? "bg-red-100 text-red-600"
+                                : "bg-gray-100 text-gray-600"
+                            }`}
+                          >
+                            {vehicle.deviceStatus}
+                          </span>
+                          {isOnline ? (
+                            <>
+                              {vehicle.expiry !== "-" && (
+                                <span className="text-xs text-gray-500">
+                                  Expiry: {vehicle.expiry}
+                                </span>
+                              )}
+                              {vehicle.renewal && (
+                                <span
+                                  className={`text-xs font-medium ${
+                                    vehicle.isExpired
+                                      ? "text-red-500"
+                                      : "text-orange-500"
+                                  }`}
+                                >
+                                  {vehicle.renewal}
+                                </span>
+                              )}
+                            </>
+                          ) : (
+                            vehicle.expiry !== "-" && (
+                              <span className="text-xs text-red-500">
+                                Expired On: {vehicle.expiry}
+                              </span>
+                            )
+                          )}
+                        </div>
+                      </td>
+                      <td className="p-4">
                         <div className="flex gap-3">
                           <img
                             src="/icons/vehicel/location-pin.svg"
