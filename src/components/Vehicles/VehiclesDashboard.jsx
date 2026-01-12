@@ -160,7 +160,7 @@ export default function VehiclesDashboard() {
             />
             Reload {isReloading && `(${reloadTimer}s)`}
           </button>
-          <button className="px-4 py-2 cursor-pointer rounded-lg bg-gradient-to-r from-orange-400 to-orange-500 text-white font-medium flex gap-2 border border-gray-300 hover:from-orange-500 hover:to-orange-600">
+          <button className="px-4 py-2 cursor-pointer rounded-lg bg-linear-to-r from-orange-400 to-orange-500 text-white font-medium flex gap-2 border border-gray-300 hover:from-orange-500 hover:to-orange-600">
             <img src="/icons/vehicel/export.svg" alt="export" />
             Export
           </button>
@@ -203,11 +203,33 @@ export default function VehiclesDashboard() {
                         </div>
                       </td>
                       <td className="p-4 max-w-xs">
-                        <NearbyLandmarkCell
-                          lat={vehicle.lat}
-                          lng={vehicle.lng}
-                          suspended={isSuspended}
-                        />
+                        {(() => {
+                          // Find the live device for this vehicle
+                          const liveDevice = Array.isArray(allDevices)
+                            ? allDevices.find((d) => {
+                                const deviceImei =
+                                  d.device_data?.imei ||
+                                  d.imei ||
+                                  d.imei_number;
+                                return deviceImei === vehicle.imei;
+                              })
+                            : null;
+                          const lat =
+                            !isSuspended && liveDevice?.lat
+                              ? liveDevice.lat
+                              : vehicle.lat;
+                          const lng =
+                            !isSuspended && liveDevice?.lng
+                              ? liveDevice.lng
+                              : vehicle.lng;
+                          return (
+                            <NearbyLandmarkCell
+                              lat={lat}
+                              lng={lng}
+                              suspended={isSuspended}
+                            />
+                          );
+                        })()}
                       </td>
                       <td className="p-4 text-nowrap">
                         <div className="flex flex-col items-center gap-1">
