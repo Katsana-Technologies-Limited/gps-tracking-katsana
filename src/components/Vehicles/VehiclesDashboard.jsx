@@ -38,9 +38,9 @@ function getRenewalInfo(expiryDate) {
 
 export default function VehiclesDashboard() {
   const { data: customerVehicles = [], isLoading } = useCustomerVehicle();
-  console.log("customerVehicles", customerVehicles);
+  // console.log("customerVehicles", customerVehicles);
   const { filteredDevices = [] } = useVtsAllDevices();
-  console.log("filteredDevices", filteredDevices);
+  // console.log("filteredDevices", filteredDevices);
   const selectedImeis = useSelectedImeis();
   const [activeTab] = useState("All");
   const [page, setPage] = useState(1);

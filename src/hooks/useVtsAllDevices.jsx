@@ -37,8 +37,8 @@ const useVtsAllDevices = () => {
   const selectedImeis = useMemo(
     () => selectedImeisRaw || [],
     [selectedImeisRaw]
-  );
-
+  ); 
+    
   const filteredDevices = useMemo(() => {
     if (!allDevices.length || !selectedImeis.length) return [];
     const imeiSet = new Set(selectedImeis);

@@ -1,10 +1,10 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { setSelectedImeis } from "../../slices/vehiclesSlice";
 import { Check, Search } from "lucide-react";
+import LottieLoading from "../utils/LottieLoading";
 import useCustomerVehicle from "../../hooks/useCustomerVehicle";
 import useVtsAllDevices from "../../hooks/useVtsAllDevices";
-import LottieLoading from "../utils/LottieLoading";
 
 const TABS = ["All", "Offline", "Online", "Suspended"];
 
@@ -18,59 +18,20 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
   const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState("All");
   const [query, setQuery] = useState("");
+
+  const { data: customerVehicles = [], isLoading: isLoadingVehicles } =
+    useCustomerVehicle();
   const { allDevices } = useVtsAllDevices();
 
-  // const { data: customerVehicles = [], isLoading: isLoadingVehicles } =
-  //   useCustomerVehicle();
-  // const { allDevices } = useVtsAllDevices();
-
-  // // Merge DB vehicles and VTS devices for status
-  // const VEHICLES = useMemo(() => {
-  //   return customerVehicles.map((v, index) => {
-  //     const live = Array.isArray(allDevices)
-  //       ? allDevices.find((d) => (d.device_data?.imei || d.imei) === v.imei)
-  //       : null;
-  //     let status = "Unknown";
-  //     if (v.suspended) status = "Suspended";
-  //     else if (live) status = live.online === "online" ? "Online" : "Offline";
-  //     return {
-  //       id: v.id ?? live?.device_data?.id ?? live?.id ?? index + 1,
-  //       number:
-  //         v.vehicle_name ||
-  //         v.subscription_number ||
-  //         v.imei ||
-  //         live?.device_data?.name ||
-  //         live?.name ||
-  //         "-",
-  //       reg:
-  //         v.subscription_number ||
-  //         live?.device_data?.subscription_number ||
-  //         "-",
-  //       status,
-  //       imei: v.imei,
-  //       company: v.company,
-  //       vts: live || null,
-  //     };
-  //   });
-  // }, [customerVehicles, allDevices]);
-
-  const { data: customerVehicles, isLoading: isLoadingVehicles } =
-    useCustomerVehicle();
-
-  const customerVehiclesSafe = useMemo(() => {
-    return Array.isArray(customerVehicles) ? customerVehicles : [];
-  }, [customerVehicles]);
-
+  // Merge DB vehicles and VTS devices for status
   const VEHICLES = useMemo(() => {
-    return customerVehiclesSafe.map((v, index) => {
+    return customerVehicles.map((v, index) => {
       const live = Array.isArray(allDevices)
         ? allDevices.find((d) => (d.device_data?.imei || d.imei) === v.imei)
         : null;
-
       let status = "Unknown";
       if (v.suspended) status = "Suspended";
       else if (live) status = live.online === "online" ? "Online" : "Offline";
-
       return {
         id: v.id ?? live?.device_data?.id ?? live?.id ?? index + 1,
         number:
@@ -90,7 +51,7 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
         vts: live || null,
       };
     });
-  }, [customerVehiclesSafe, allDevices]);
+  }, [customerVehicles, allDevices]);
 
   // Tab and query filtering
   const filteredVehicles = useMemo(() => {
@@ -111,46 +72,38 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
     return list;
   }, [VEHICLES, activeTab, query]);
 
-  // Only select all on first render, never in effect
-  const [selected, setSelected] = useState(() => {
-    const ids = filteredVehicles.map((v) => v.id);
-    // Dispatch initial selection to Redux
-    if (ids.length > 0) {
-      const selectedImeis = VEHICLES.filter((v) => ids.includes(v.id)).map(
-        (v) => v.imei
-      );
-      dispatch(setSelectedImeis(selectedImeis));
+  // Select All by default, only update if filteredVehicles changes and selection is out of sync
+  const [selected, setSelected] = useState(() =>
+    filteredVehicles.map((v) => v.id)
+  );
+  useEffect(() => {
+    const filteredIds = filteredVehicles.map((v) => v.id);
+    if (
+      selected.length !== filteredIds.length ||
+      !selected.every((id, i) => id === filteredIds[i])
+    ) {
+      setSelected(filteredIds);
     }
-    return ids;
-  });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filteredVehicles]);
+
+  useEffect(() => {
+    const imeis = filteredVehicles
+      .filter((v) => selected.includes(v.id))
+      .map((v) => v.imei)
+      .filter(Boolean);
+    dispatch(setSelectedImeis(imeis));
+  }, [filteredVehicles, selected, dispatch]);
 
   const toggleVehicle = (id) => {
-    setSelected((prev) => {
-      const newSelected = prev.includes(id)
-        ? prev.filter((v) => v !== id)
-        : [...prev, id];
-      // After updating selection, dispatch selected IMEIs
-      const selectedImeis = VEHICLES.filter((v) =>
-        newSelected.includes(v.id)
-      ).map((v) => v.imei);
-      dispatch(setSelectedImeis(selectedImeis));
-      return newSelected;
-    });
+    setSelected((prev) =>
+      prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id]
+    );
   };
 
   const toggleAll = () => {
-    let newSelected;
-    if (selected.length === filteredVehicles.length) {
-      newSelected = [];
-    } else {
-      newSelected = filteredVehicles.map((v) => v.id);
-    }
-    setSelected(newSelected);
-    // After updating selection, dispatch selected IMEIs
-    const selectedImeis = VEHICLES.filter((v) =>
-      newSelected.includes(v.id)
-    ).map((v) => v.imei);
-    dispatch(setSelectedImeis(selectedImeis));
+    if (selected.length === filteredVehicles.length) setSelected([]);
+    else setSelected(filteredVehicles.map((v) => v.id));
   };
 
   if (isLoadingVehicles) return <LottieLoading />;
