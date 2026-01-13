@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React, { useMemo, useState } from "react";
 import VehiclesStatusOption from "../../AnalyticsSummary/VehiclesStatusOption";
-import { getSpeedMeta } from "../../../utilits/vehicleHelpers";
+// import { getSpeedMeta } from "../../../utilits/vehicleHelpers";
 import { RotateCw } from "lucide-react";
 import VehicleStatusDrawer from "../VehicleStatusDrawer";
 import useCustomerVehicle from "../../../hooks/useCustomerVehicle";
@@ -42,7 +42,7 @@ export default function VehiclesDashboard() {
   const { data: customerVehicles = [], isLoading } = useCustomerVehicle();
   // console.log("customerVehicles", customerVehicles);
   const { filteredDevices = [] } = useVtsAllDevices();
-  console.log("filteredDevices", filteredDevices);
+  // console.log("filteredDevices", filteredDevices);
   const selectedImeis = useSelectedImeis();
   const [activeTab] = useState("All");
   const [page, setPage] = useState(1);
