@@ -1,15 +1,26 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Manrope:wght@200..800&display=swap");
 
 @import "tailwindcss";
+
+@theme {
+  --color-primary-green: #234452;
+
+  /* Manrope রেজিস্টার করা হলো */
+  --font-manrope: "Manrope", sans-serif;
+
+  /* Hind Siliguri রেজিস্টার করা হলো */
+  --font-hind: "Hind Siliguri", sans-serif;
+  --font-hind: "Manrope", sans-serif;
+}
 
 body {
   background-color: #eff2f8;
 }
 
-@theme {
+/* @theme {
   --color-primary-green: #234452;
-  --font-Inter: "Inter", Arial, Helvetica, sans-serif;
-}
+  --font-Inter: "Hind Siliguri", sans-serif;
+} */
 .leaflet-control-container {
   display: none;
 }

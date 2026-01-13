@@ -19,6 +19,7 @@ import useCustomerVehicle from "../../hooks/useCustomerVehicle";
 import { VehicleMarker } from "../Vehicles/VehicleMarker";
 import useSelectedImeis from "../../hooks/useSelectedImeis";
 import useVtsAllDevices from "../../hooks/useVtsAllDevices";
+import VehicleInfoCard from "../Vehicles/VehicleInfoCard";
 
 const BARIKOI_KEY = import.meta.env.VITE_BARIKOI_API_KEY;
 
@@ -43,6 +44,7 @@ const VehiclesStatusMap = () => {
   //   if (!vehiclesData || !Array.isArray(vehiclesData)) return [];
   //   return vehiclesData.map((v) => v.imei).filter(Boolean);
   // }, [vehiclesData]);
+
   const [mode, setMode] = useState("INIT");
   const [cardVehicle, setCardVehicle] = useState(null);
   const [cardPos, setCardPos] = useState(null);
@@ -50,12 +52,6 @@ const VehiclesStatusMap = () => {
   // INIT | CLUSTER | SINGLE | VEHICLE
   const [selectedVehicleId, setSelectedVehicleId] = useState(null);
   const { allDevices, filteredDevices } = useVtsAllDevices();
-
-  // const imeis = useMemo(() => {
-  //   return vehiclesData.map((v) => v.imei).filter(Boolean);
-  // }, [vehiclesData]);
-
-  // console.log("imesis update", imeis);
 
   const onlineDevices = useMemo(() => {
     if (!filteredDevices?.length) return [];
@@ -73,8 +69,9 @@ const VehiclesStatusMap = () => {
   const onlineCount = onlineDevices.length;
   // console.log("DEBUG onlineCount:", onlineCount);
 
-  // console.log("DEBUG allDevices from DB:", allDevices);
+  // console.log("DEBUG selectedVehicleId from DB:", selectedVehicleId);
   // console.log("DEBUG filteredDevices:", filteredDevices);
+  // console.log("DEBUG allDevices:", allDevices);
 
   const flyToVehicle = (v) => {
     mapRef.current?.flyTo({
@@ -122,6 +119,19 @@ const VehiclesStatusMap = () => {
     const p = map.project([v.lng, v.lat]);
     setCardPos({ x: p.x, y: p.y });
   };
+
+  const selectedVehicleFUll = useMemo(() => {
+    if (!selectedVehicleId) return null;
+    const vehicleInfo = vehiclesData?.find((v) => v.imei === selectedVehicleId);
+    const deviceInfo = filteredDevices?.find(
+      (d) => (d.device_data?.imei ?? d.imei) === selectedVehicleId
+    );
+    if (!vehicleInfo && !deviceInfo) return null;
+    return {
+      ...vehicleInfo,
+      ...deviceInfo,
+    };
+  }, [vehiclesData, filteredDevices, selectedVehicleId]);
 
   const initialViewState = {
     longitude: 90.3563,
@@ -197,17 +207,6 @@ const VehiclesStatusMap = () => {
                 longitude={v.lng}
                 latitude={v.lat}
                 anchor="bottom"
-                // onClick={() => {
-                //   setSelectedVehicleId((prev) => {
-                //     if (prev === id) {
-                //       return null; // hide → no fly
-                //     } else {
-                //       flyToVehicle(v); // show → fly
-                //       return id;
-                //     }
-                //   });
-                // }}
-
                 onClick={() => {
                   setSelectedVehicleId((prev) => {
                     if (prev === id) {
@@ -226,7 +225,7 @@ const VehiclesStatusMap = () => {
 
                 {/* 🔥 CARD POPUP (RELATIVE TO THIS CAR) */}
                 {selectedVehicleId === (v.device_data?.imei ?? v.id) && (
-                  <VehicleInfoCard vehicle={v} />
+                  <VehicleInfoCard vehicle={selectedVehicleFUll} />
                 )}
               </Marker>
             );
@@ -350,72 +349,6 @@ const VehiclesStatusMap = () => {
             <Printer size={21} /> <span>Print</span>
           </button>
         </div>
-      </div>
-    </div>
-  );
-};
-
-const VehicleInfoCard = ({ vehicle }) => {
-  return (
-    <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-90 rounded-2xl shadow-2xl bg-white overflow-hidden z-30 pointer-events-auto">
-      {/* 🟡 Header */}
-      <div className="bg-yellow-400 px-4 py-3 flex items-center justify-between">
-        <div>
-          <p className="text-sm font-semibold">{vehicle.name ?? "TMV 44837"}</p>
-          <p className="text-xs">
-            {vehicle.device_data?.plate_number ?? "DM NA 13-0756"}
-          </p>
-        </div>
-        <img src="/car-icon.svg" className="w-7 h-7" />
-      </div>
-
-      {/* 📊 Body */}
-      <div className="p-4 grid grid-cols-2 gap-3">
-        <div className="bg-amber-50 rounded-xl p-3 flex flex-col items-center justify-center">
-          <p className="text-2xl font-bold">{Math.round(vehicle.speed ?? 0)}</p>
-          <p className="text-xs text-gray-500">km/h</p>
-        </div>
-
-        <div className="text-xs text-gray-600">
-          <p className="font-medium text-black mb-1">
-            {vehicle.address ?? "Unknown location"}
-          </p>
-          <p>
-            {vehicle.lat?.toFixed(5)}, {vehicle.lng?.toFixed(5)}
-          </p>
-          <p className="mt-1 text-[11px] text-gray-400">
-            {vehicle.time ?? "Just now"}
-          </p>
-        </div>
-
-        <div
-          className={`col-span-2 rounded-xl px-3 py-2 text-sm font-medium ${
-            vehicle.engine_status
-              ? "bg-green-100 text-green-700"
-              : "bg-red-100 text-red-600"
-          }`}
-        >
-          Engine Status: {vehicle.engine_status ? "On" : "Off"}
-        </div>
-      </div>
-
-      {/* 🔘 Actions */}
-      <div className="border-t px-4 py-3 grid grid-cols-5 gap-3 text-gray-500">
-        <button className="flex flex-col items-center text-xs">
-          📍<span>Map</span>
-        </button>
-        <button className="flex flex-col items-center text-xs">
-          🕒<span>History</span>
-        </button>
-        <button className="flex flex-col items-center text-xs">
-          ⏱<span>Idle</span>
-        </button>
-        <button className="flex flex-col items-center text-xs">
-          📈<span>Speed</span>
-        </button>
-        <button className="flex flex-col items-center text-xs">
-          📌<span>Locate</span>
-        </button>
       </div>
     </div>
   );
