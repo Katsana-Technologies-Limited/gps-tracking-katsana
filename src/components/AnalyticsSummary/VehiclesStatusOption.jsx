@@ -72,15 +72,14 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
     return list;
   }, [VEHICLES, activeTab, query]);
 
-  // Select All by default, only update if filteredVehicles changes and selection is out of sync
-  const [selected, setSelected] = useState(() =>
-    filteredVehicles.map((v) => v.id)
-  );
+  const [selected, setSelected] = useState([]);
+  
   useEffect(() => {
     const filteredIds = filteredVehicles.map((v) => v.id);
     if (
-      selected.length !== filteredIds.length ||
-      !selected.every((id, i) => id === filteredIds[i])
+      selected.length > 0 &&
+      selected.length !== filteredIds.length &&
+      selected.every((id) => filteredIds.includes(id))
     ) {
       setSelected(filteredIds);
     }

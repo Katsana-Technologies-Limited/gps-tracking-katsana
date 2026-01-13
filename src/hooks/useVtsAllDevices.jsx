@@ -37,8 +37,8 @@ const useVtsAllDevices = () => {
   const selectedImeis = useMemo(
     () => selectedImeisRaw || [],
     [selectedImeisRaw]
-  ); 
-    
+  );
+
   const filteredDevices = useMemo(() => {
     if (!allDevices.length || !selectedImeis.length) return [];
     const imeiSet = new Set(selectedImeis);
@@ -57,15 +57,7 @@ const useVtsAllDevices = () => {
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
 
-    // Refetch every 10 seconds
-    const interval = setInterval(() => {
-      if (document.visibilityState === "visible") {
-        refetchDevices();
-      }
-    }, 10000); // 10 seconds
-
     return () => {
-      clearInterval(interval);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [refetchDevices]);
