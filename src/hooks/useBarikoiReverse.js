@@ -12,20 +12,11 @@ export default function useBarikoiReverse(lat, lng, enabled = true) {
         {
           params: {
             api_key: BARIKOI_KEY,
-            longitude: "91.8245",
-            latitude: "22.3565",
+            longitude: lng,
+            latitude: lat,
           },
-          // params: {
-          //   api_key: BARIKOI_KEY,
-          //   longitude: lng,
-          //   latitude: lat,
-          // },
         }
       );
-      // check and try working or not
-      // api_key: BARIKOI_KEY,
-      // longitude: "91.8245",
-      // latitude: "22.3565",
       return res.data?.places?.[0] || null;
     },
     enabled: !!lat && !!lng && lat !== "-" && lng !== "-" && enabled,
