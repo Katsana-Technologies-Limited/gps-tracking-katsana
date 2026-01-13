@@ -38,8 +38,9 @@ function getRenewalInfo(expiryDate) {
 
 export default function VehiclesDashboard() {
   const { data: customerVehicles = [], isLoading } = useCustomerVehicle();
+  console.log(customerVehicles);
   const { filteredDevices = [] } = useVtsAllDevices();
-
+  console.log(filteredDevices);
   const selectedImeis = useSelectedImeis();
   const [activeTab] = useState("All");
   const [page, setPage] = useState(1);
@@ -312,23 +313,26 @@ export default function VehiclesDashboard() {
                           >
                             {vehicle.deviceStatus}
                           </span>
-                          {!isSuspended && vehicle.renewal ? (
-                            <span
-                              className={`text-xs font-medium ${
-                                vehicle.isExpired
-                                  ? "text-red-500"
-                                  : "text-orange-500"
-                              }`}
-                            >
-                              {vehicle.renewal}
-                            </span>
-                          ) : (
-                            vehicle.expiry !== "-" && (
-                              <span className="text-xs text-red-500">
-                                Expired On: {vehicle.expiry}
+                          {vehicle.expiry !== "-" &&
+                            (isSuspended ? (
+                              <span className="text-xs font-medium text-red-500">
+                                Expired on: {vehicle.expiry}
                               </span>
-                            )
-                          )}
+                            ) : (
+                              <>
+                                <span className="text-xs font-medium text-gray-600">
+                                  Expiry: {vehicle.expiry}
+                                </span>
+                                {vehicle.renewal_in !== undefined &&
+                                  vehicle.renewal_in !== null &&
+                                  vehicle.renewal_in <= 5 && (
+                                    <span className="text-xs font-medium text-orange-500 block">
+                                      Renewal in {vehicle.renewal_in} day
+                                      {vehicle.renewal_in !== 1 ? "s" : ""}
+                                    </span>
+                                  )}
+                              </>
+                            ))}
                         </div>
                       </td>
                       <td className="p-4">
