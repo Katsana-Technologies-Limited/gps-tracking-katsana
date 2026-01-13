@@ -40,9 +40,7 @@ function getRenewalInfo(expiryDate) {
 
 export default function VehiclesDashboard() {
   const { data: customerVehicles = [], isLoading } = useCustomerVehicle();
-  // console.log("customerVehicles", customerVehicles);
   const { filteredDevices = [] } = useVtsAllDevices();
-  // console.log("filteredDevices", filteredDevices);
   const selectedImeis = useSelectedImeis();
   const [activeTab] = useState("All");
   const [page, setPage] = useState(1);
@@ -259,6 +257,8 @@ export default function VehiclesDashboard() {
                                 vehicle.suspended
                               ) {
                                 meterColor = "black";
+                              } else if (vehicle.speed === "Engine Off") {
+                                meterColor = "gray";
                               } else if (vehicle.deviceStatus === "Offline") {
                                 meterColor = "red";
                               } else if (

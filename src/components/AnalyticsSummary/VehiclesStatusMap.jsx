@@ -71,11 +71,10 @@ const VehiclesStatusMap = () => {
   }, [filteredDevices]);
 
   const onlineCount = onlineDevices.length;
+  // console.log("DEBUG onlineCount:", onlineCount);
 
-  console.log("DEBUG onlineCount:", onlineCount);
-
-  console.log("DEBUG allDevices from DB:", allDevices);
-  console.log("DEBUG filteredDevices:", filteredDevices);
+  // console.log("DEBUG allDevices from DB:", allDevices);
+  // console.log("DEBUG filteredDevices:", filteredDevices);
 
   const flyToVehicle = (v) => {
     mapRef.current?.flyTo({
@@ -176,8 +175,8 @@ const VehiclesStatusMap = () => {
         {/* 🚗 VEHICLE MARKERS */}
         {mode === "CLUSTER" && (
           <Marker
-            longitude={onlineDevices[0].lng}
-            latitude={onlineDevices[0].lat}
+            longitude={onlineDevices[0]?.lng}
+            latitude={onlineDevices[0]?.lat}
             anchor="center"
             onClick={() => {
               setSelectedVehicleId(null);
