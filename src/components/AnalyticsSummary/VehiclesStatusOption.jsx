@@ -18,79 +18,66 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
   const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState("All");
   const [query, setQuery] = useState("");
+  const [selected, setSelected] = useState([]);
 
-  const { data: customerVehicles = [], isLoading: isLoadingVehicles } =
-    useCustomerVehicle();
+  const { data: customerVehicles = [], isLoading } = useCustomerVehicle();
   const { allDevices } = useVtsAllDevices();
 
-  // Merge DB vehicles and VTS devices for status
+  // Merge DB vehicles and VTS devices
   const VEHICLES = useMemo(() => {
     return customerVehicles.map((v, index) => {
       const live = Array.isArray(allDevices)
         ? allDevices.find((d) => (d.device_data?.imei || d.imei) === v.imei)
         : null;
+
       let status = "Unknown";
       if (v.suspended) status = "Suspended";
       else if (live) status = live.online === "online" ? "Online" : "Offline";
+
       return {
-        id: v.id ?? live?.device_data?.id ?? live?.id ?? index + 1,
-        number:
-          v.vehicle_name ||
-          v.subscription_number ||
-          v.imei ||
-          live?.device_data?.name ||
-          live?.name ||
-          "-",
-        reg:
-          v.subscription_number ||
-          live?.device_data?.subscription_number ||
-          "-",
+        id: v.id ?? live?.id ?? index + 1,
+        number: v.vehicle_name || v.subscription_number || v.imei || "-",
+        reg: v.subscription_number || "-",
         status,
         imei: v.imei,
-        company: v.company,
-        vts: live || null,
       };
     });
   }, [customerVehicles, allDevices]);
 
-  // Tab and query filtering
+  // Filter by tab & search
   const filteredVehicles = useMemo(() => {
     let list = VEHICLES;
-    if (activeTab === "Online")
-      list = list.filter((v) => v.status === "Online");
-    else if (activeTab === "Offline")
-      list = list.filter((v) => v.status === "Offline");
-    else if (activeTab === "Suspended")
-      list = list.filter((v) => v.status === "Suspended");
+
+    if (activeTab !== "All") {
+      list = list.filter((v) => v.status === activeTab);
+    }
+
     if (query) {
       list = list.filter(
         (v) =>
-          (v.number || "").toLowerCase().includes(query.toLowerCase()) ||
-          (v.reg || "").toLowerCase().includes(query.toLowerCase())
+          v.number.toLowerCase().includes(query.toLowerCase()) ||
+          v.reg.toLowerCase().includes(query.toLowerCase())
       );
     }
+
     return list;
   }, [VEHICLES, activeTab, query]);
 
-  const [selected, setSelected] = useState([]);
-  
+  // ✅ SELECT ALL BY DEFAULT (ONCE PER FILTER CHANGE)
   useEffect(() => {
-    const filteredIds = filteredVehicles.map((v) => v.id);
-    if (
-      selected.length > 0 &&
-      selected.length !== filteredIds.length &&
-      selected.every((id) => filteredIds.includes(id))
-    ) {
-      setSelected(filteredIds);
+    if (filteredVehicles.length > 0 && selected.length === 0) {
+      setSelected(filteredVehicles.map((v) => v.id));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filteredVehicles]);
 
+  // Sync selected IMEIs to Redux
   useEffect(() => {
     const imeis = filteredVehicles
       .filter((v) => selected.includes(v.id))
       .map((v) => v.imei)
       .filter(Boolean);
+
     dispatch(setSelectedImeis(imeis));
   }, [filteredVehicles, selected, dispatch]);
 
@@ -101,11 +88,14 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
   };
 
   const toggleAll = () => {
-    if (selected.length === filteredVehicles.length) setSelected([]);
-    else setSelected(filteredVehicles.map((v) => v.id));
+    if (selected.length === filteredVehicles.length) {
+      setSelected([]);
+    } else {
+      setSelected(filteredVehicles.map((v) => v.id));
+    }
   };
 
-  if (isLoadingVehicles) return <LottieLoading />;
+  if (isLoading) return <LottieLoading />;
 
   return (
     <div className={`h-full max-h-[${divhight}px] flex flex-col gap-3 p-3`}>
@@ -150,7 +140,6 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
               filteredVehicles.length > 0
             }
             onChange={toggleAll}
-            className="cursor-pointer"
           />
           Select All
         </label>
@@ -158,6 +147,7 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
       </div>
 
       <div className="text-xs text-gray-500">Group</div>
+
       <div className="flex flex-col gap-2 max-h-125 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
         {filteredVehicles.map((v) => {
           const isSelected = selected.includes(v.id);
