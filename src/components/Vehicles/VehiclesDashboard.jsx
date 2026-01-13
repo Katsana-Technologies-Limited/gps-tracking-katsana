@@ -2,7 +2,7 @@
 import React, { useMemo, useState } from "react";
 // Meter SVG component with dynamic gradient
 function MeterIcon({ color = "green" }) {
-  // Gradients for green, blue, gray
+  // Gradients for green, yellow, red, black, gray
   const gradients = {
     green: (
       <>
@@ -20,19 +20,51 @@ function MeterIcon({ color = "green" }) {
         </linearGradient>
       </>
     ),
-    blue: (
+    yellow: (
       <>
-        <linearGradient id="meterBlue0" x1="38.5" y1="1.79612" x2="-7.10064" y2="21.2426" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#2563eb" />
-          <stop offset="1" stopColor="#60a5fa" />
+        <linearGradient id="meterYellow0" x1="38.5" y1="1.79612" x2="-7.10064" y2="21.2426" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#facc15" />
+          <stop offset="1" stopColor="#fde047" />
         </linearGradient>
-        <linearGradient id="meterBlue1" x1="32.7981" y1="5.43934" x2="-1.80199" y2="19.4172" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#2563eb" />
-          <stop offset="1" stopColor="#60a5fa" />
+        <linearGradient id="meterYellow1" x1="32.7981" y1="5.43934" x2="-1.80199" y2="19.4172" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#facc15" />
+          <stop offset="1" stopColor="#fde047" />
         </linearGradient>
-        <linearGradient id="meterBlue2" x1="12.4303" y1="8.53666" x2="18.1259" y2="20.952" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#2563eb" />
-          <stop offset="1" stopColor="#60a5fa" />
+        <linearGradient id="meterYellow2" x1="12.4303" y1="8.53666" x2="18.1259" y2="20.952" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#facc15" />
+          <stop offset="1" stopColor="#fde047" />
+        </linearGradient>
+      </>
+    ),
+    red: (
+      <>
+        <linearGradient id="meterRed0" x1="38.5" y1="1.79612" x2="-7.10064" y2="21.2426" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#dc2626" />
+          <stop offset="1" stopColor="#f87171" />
+        </linearGradient>
+        <linearGradient id="meterRed1" x1="32.7981" y1="5.43934" x2="-1.80199" y2="19.4172" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#dc2626" />
+          <stop offset="1" stopColor="#f87171" />
+        </linearGradient>
+        <linearGradient id="meterRed2" x1="12.4303" y1="8.53666" x2="18.1259" y2="20.952" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#dc2626" />
+          <stop offset="1" stopColor="#f87171" />
+        </linearGradient>
+      </>
+    ),
+    black: (
+      <>
+        <linearGradient id="meterBlack0" x1="38.5" y1="1.79612" x2="-7.10064" y2="21.2426" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#000" />
+          <stop offset="1" stopColor="#444" />
+        </linearGradient>
+        <linearGradient id="meterBlack1" x1="32.7981" y1="5.43934" x2="-1.80199" y2="19.4172" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#000" />
+          <stop offset="1" stopColor="#444" />
+        </linearGradient>
+        <linearGradient id="meterBlack2" x1="12.4303" y1="8.53666" x2="18.1259" y2="20.952" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#000" />
+          <stop offset="1" stopColor="#444" />
         </linearGradient>
       </>
     ),
@@ -55,11 +87,21 @@ function MeterIcon({ color = "green" }) {
   };
   let grad = gradients.green;
   let fill0 = "url(#meterGreen0)", fill1 = "url(#meterGreen1)", fill2 = "url(#meterGreen2)";
-  if (color === "blue") {
-    grad = gradients.blue;
-    fill0 = "url(#meterBlue0)";
-    fill1 = "url(#meterBlue1)";
-    fill2 = "url(#meterBlue2)";
+  if (color === "yellow") {
+    grad = gradients.yellow;
+    fill0 = "url(#meterYellow0)";
+    fill1 = "url(#meterYellow1)";
+    fill2 = "url(#meterYellow2)";
+  } else if (color === "red") {
+    grad = gradients.red;
+    fill0 = "url(#meterRed0)";
+    fill1 = "url(#meterRed1)";
+    fill2 = "url(#meterRed2)";
+  } else if (color === "black") {
+    grad = gradients.black;
+    fill0 = "url(#meterBlack0)";
+    fill1 = "url(#meterBlack1)";
+    fill2 = "url(#meterBlack2)";
   } else if (color === "gray") {
     grad = gradients.gray;
     fill0 = "url(#meterGray0)";
@@ -369,20 +411,23 @@ export default function VehiclesDashboard() {
                         />
                       </td>
                       <td className="p-4 text-nowrap">
-                        <div className="flex flex-col items-center gap-1">
+                        <div className="flex flex-col items-center">
                           {/* Meter icon: SVG with dynamic gradient color */}
                           <span className="w-8 h-8 flex items-center justify-center">
                             {(() => {
-                              // Color logic: green (>=5), blue (0<speed<5), gray (else)
+                              // Map status to color: moving=green, stopped=yellow, offline=red, engine=yellow, blocked=black
                               let meterColor = "gray";
-                              if (vehicle.deviceStatus === "Offline" || vehicle.deviceStatus === "Suspended") {
-                                meterColor = "gray";
-                              } else if (vehicle.liveDevice?.online === "ack") {
-                                meterColor = "gray";
-                              } else if (vehicle.speedValue >= 5) {
+                              // Determine status
+                              if (vehicle.deviceStatus === "Suspended" || vehicle.deviceStatus === "Blocked" || vehicle.suspended) {
+                                meterColor = "black";
+                              } else if (vehicle.deviceStatus === "Offline") {
+                                meterColor = "red";
+                              } else if (vehicle.deviceStatus === "Idle" || vehicle.liveDevice?.online === "ack" || vehicle.speed === "Engine Idle") {
+                                meterColor = "yellow";
+                              } else if (vehicle.deviceStatus === "Online" && vehicle.speedValue >= 5) {
                                 meterColor = "green";
-                              } else if (vehicle.speedValue > 0 && vehicle.speedValue < 5) {
-                                meterColor = "blue";
+                              } else if (vehicle.deviceStatus === "Online" && vehicle.speedValue < 5) {
+                                meterColor = "yellow";
                               }
                               return <MeterIcon color={meterColor} />;
                             })()}
