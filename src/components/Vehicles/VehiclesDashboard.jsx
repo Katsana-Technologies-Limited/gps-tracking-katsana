@@ -38,9 +38,9 @@ function getRenewalInfo(expiryDate) {
 
 export default function VehiclesDashboard() {
   const { data: customerVehicles = [], isLoading } = useCustomerVehicle();
-  console.log(customerVehicles);
+  console.log("customerVehicles", customerVehicles);
   const { filteredDevices = [] } = useVtsAllDevices();
-  console.log(filteredDevices);
+  console.log("filteredDevices", filteredDevices);
   const selectedImeis = useSelectedImeis();
   const [activeTab] = useState("All");
   const [page, setPage] = useState(1);
@@ -66,22 +66,32 @@ export default function VehiclesDashboard() {
           })
         : null;
 
+      // Device Status logic: Online (green), Idle (yellow/ack), Offline (red), Suspended (red)
       let deviceStatus = "Unknown";
       if (vehicle.suspended) {
         deviceStatus = "Suspended";
       } else if (liveDevice) {
-        deviceStatus =
-          liveDevice.online === "online" || liveDevice.online === "ack"
-            ? "Online"
-            : "Offline";
+        if (liveDevice.online === "online") {
+          deviceStatus = "Online"; // Green
+        } else if (liveDevice.online === "ack") {
+          deviceStatus = "Idle"; // Yellow
+        } else {
+          deviceStatus = "Offline"; // Red
+        }
       } else {
-        deviceStatus = "Offline";
+        deviceStatus = "Offline"; // Red
       }
 
       let speedStatus = "Engine Off";
       let speedValue = 0;
 
-      if (liveDevice?.speed !== undefined && liveDevice?.speed !== null) {
+      if (liveDevice?.online === "ack") {
+        speedStatus = "Engine Idle";
+        speedValue = 0;
+      } else if (
+        liveDevice?.speed !== undefined &&
+        liveDevice?.speed !== null
+      ) {
         const speedNum = parseFloat(liveDevice.speed);
         if (!isNaN(speedNum) && speedNum > 0) {
           speedStatus = `${speedNum} km/h`;
@@ -160,33 +170,37 @@ export default function VehiclesDashboard() {
   // Function to determine speed status colors
   const getSpeedStatusInfo = (vehicle) => {
     const isOffline = vehicle.deviceStatus === "Offline";
+    // If online is ack, always show Engine Idle
+    if (vehicle.liveDevice?.online === "ack") {
+      return {
+        bgColorClass: "bg-orange-100",
+        textColorClass: "text-orange-600",
+        displayText: "Engine Idle",
+        isOffline,
+        isEngineOff: false,
+      };
+    }
     const isEngineOff =
       vehicle.speed === "Engine Off" || vehicle.speedValue === 0;
     const speedVal = vehicle.speedValue;
 
-    // Determine colors based on requirements
     let bgColorClass = "";
     let textColorClass = "";
     let displayText = isEngineOff ? "Engine Off" : vehicle.speed;
 
     if (isOffline) {
-      // Grey: Vehicle Offline
       bgColorClass = "bg-gray-100";
       textColorClass = "text-gray-600";
     } else if (isEngineOff) {
-      // Red: Engine Off (Since API refreshes every 10s, we always show red for engine off)
       bgColorClass = "bg-red-100";
       textColorClass = "text-red-600";
     } else if (speedVal <= 5) {
-      // Blue: 5km or less
       bgColorClass = "bg-blue-100";
       textColorClass = "text-blue-600";
     } else if (speedVal > 5) {
-      // Green: 5km or greater
       bgColorClass = "bg-green-100";
       textColorClass = "text-green-600";
     } else {
-      // Default
       bgColorClass = "bg-gray-100";
       textColorClass = "text-gray-600";
     }
@@ -248,8 +262,15 @@ export default function VehiclesDashboard() {
                 {paginated.map((vehicle) => {
                   const speedMeta = getSpeedMeta(vehicle.speed);
                   const speedStatusInfo = getSpeedStatusInfo(vehicle);
-                  const isOnline = vehicle.deviceStatus === "Online";
-                  const isSuspended = vehicle.deviceStatus === "Suspended";
+                  // Color logic for Device Status
+                  let statusClass = "bg-gray-100 text-gray-600";
+                  if (vehicle.deviceStatus === "Online") {
+                    statusClass = "bg-green-100 text-green-700";
+                  } else if (vehicle.deviceStatus === "Idle") {
+                    statusClass = "bg-yellow-100 text-yellow-700";
+                  } else if (vehicle.deviceStatus === "Offline" || vehicle.deviceStatus === "Suspended") {
+                    statusClass = "bg-red-100 text-red-600";
+                  }
 
                   return (
                     <tr
@@ -269,7 +290,7 @@ export default function VehiclesDashboard() {
                         <NearbyLandmarkCell
                           lat={vehicle.lat}
                           lng={vehicle.lng}
-                          suspended={isSuspended}
+                          suspended={vehicle.deviceStatus === "Suspended"}
                         />
                       </td>
                       <td className="p-4 text-nowrap">
@@ -302,19 +323,12 @@ export default function VehiclesDashboard() {
                       <td className="p-4">
                         <div className="flex flex-col gap-2 justify-center items-center">
                           <span
-                            className={`px-2 py-1 rounded-full text-xs w-fit font-medium
-                            ${
-                              isOnline
-                                ? "bg-green-100 text-green-700"
-                                : isSuspended
-                                ? "bg-red-100 text-red-600"
-                                : "bg-gray-100 text-gray-600"
-                            }`}
+                            className={`px-2 py-1 rounded-full text-xs w-fit font-medium ${statusClass}`}
                           >
                             {vehicle.deviceStatus}
                           </span>
                           {vehicle.expiry !== "-" &&
-                            (isSuspended ? (
+                            (vehicle.deviceStatus === "Suspended" ? (
                               <span className="text-xs font-medium text-red-500">
                                 Expired on: {vehicle.expiry}
                               </span>
