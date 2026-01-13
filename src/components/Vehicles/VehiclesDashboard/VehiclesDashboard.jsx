@@ -10,6 +10,7 @@ import NearbyLandmarkCell from "../NearbyLandmarkCell";
 import useSelectedImeis from "../../../hooks/useSelectedImeis";
 import LottieLoading from "../../utils/LottieLoading";
 import { MeterIcon } from "./MeterIcon";
+import { getSpeedStatusInfo } from "./getSpeedStatusInfo";
 
 const PAGE_SIZE = 5;
 
@@ -48,12 +49,10 @@ export default function VehiclesDashboard() {
   const [reloadTimer, setReloadTimer] = useState(60);
   const [isReloading, setIsReloading] = useState(false);
 
-  // Enrich vehicles
   const enrichedDevices = useMemo(() => {
     if (!Array.isArray(customerVehicles)) return [];
 
     return customerVehicles.map((vehicle) => {
-      // Find matching device by imei from filteredDevices (only selected IMEIs)
       const liveDevice = Array.isArray(filteredDevices)
         ? filteredDevices.find((d) => {
             const deviceImei =
@@ -67,7 +66,6 @@ export default function VehiclesDashboard() {
           })
         : null;
 
-      // Device Status logic: Online (green), Idle (yellow/ack), Offline (red), Suspended (red)
       let deviceStatus = "Unknown";
       if (vehicle.suspended) {
         deviceStatus = "Suspended";
@@ -168,53 +166,6 @@ export default function VehiclesDashboard() {
 
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-  // Function to determine speed status colors
-  function getSpeedStatusInfo(vehicle) {
-    const isOffline = vehicle.deviceStatus === "Offline";
-    // If online is ack, always show Engine Idle
-    if (vehicle.liveDevice?.online === "ack") {
-      return {
-        bgColorClass: "bg-orange-100",
-        textColorClass: "text-orange-600",
-        displayText: "Engine Idle",
-        isOffline,
-        isEngineOff: false,
-      };
-    }
-    const isEngineOff =
-      vehicle.speed === "Engine Off" || vehicle.speedValue === 0;
-    const speedVal = vehicle.speedValue;
-
-    let bgColorClass = "";
-    let textColorClass = "";
-    let displayText = isEngineOff ? "Engine Off" : vehicle.speed;
-
-    if (isOffline) {
-      bgColorClass = "bg-gray-100";
-      textColorClass = "text-gray-600";
-    } else if (isEngineOff) {
-      bgColorClass = "bg-red-100";
-      textColorClass = "text-red-600";
-    } else if (speedVal > 0 && speedVal < 5) {
-      bgColorClass = "bg-blue-100";
-      textColorClass = "text-blue-600";
-    } else if (speedVal >= 5) {
-      bgColorClass = "bg-green-100";
-      textColorClass = "text-green-600";
-    } else {
-      bgColorClass = "bg-gray-100";
-      textColorClass = "text-gray-600";
-    }
-
-    return {
-      bgColorClass,
-      textColorClass,
-      displayText,
-      isOffline,
-      isEngineOff,
-    };
-  }
-
   if (isLoading) return <LottieLoading />;
 
   return (
@@ -261,7 +212,7 @@ export default function VehiclesDashboard() {
               </thead>
               <tbody>
                 {paginated.map((vehicle) => {
-                  const speedMeta = getSpeedMeta(vehicle.speed);
+                  // const speedMeta = getSpeedMeta(vehicle.speed);
                   const speedStatusInfo = getSpeedStatusInfo(vehicle);
                   // Color logic for Device Status
                   let statusClass = "bg-gray-100 text-gray-600";
@@ -269,7 +220,10 @@ export default function VehiclesDashboard() {
                     statusClass = "bg-green-100 text-green-700";
                   } else if (vehicle.deviceStatus === "Idle") {
                     statusClass = "bg-yellow-100 text-yellow-700";
-                  } else if (vehicle.deviceStatus === "Offline" || vehicle.deviceStatus === "Suspended") {
+                  } else if (
+                    vehicle.deviceStatus === "Offline" ||
+                    vehicle.deviceStatus === "Suspended"
+                  ) {
                     statusClass = "bg-red-100 text-red-600";
                   }
 
@@ -296,21 +250,32 @@ export default function VehiclesDashboard() {
                       </td>
                       <td className="p-4 text-nowrap">
                         <div className="flex flex-col items-center">
-                          {/* Meter icon: SVG with dynamic gradient color */}
                           <span className="w-8 h-8 flex items-center justify-center">
                             {(() => {
-                              // Map status to color: moving=green, stopped=yellow, offline=red, engine=yellow, blocked=black
                               let meterColor = "gray";
-                              // Determine status
-                              if (vehicle.deviceStatus === "Suspended" || vehicle.deviceStatus === "Blocked" || vehicle.suspended) {
+                              if (
+                                vehicle.deviceStatus === "Suspended" ||
+                                vehicle.deviceStatus === "Blocked" ||
+                                vehicle.suspended
+                              ) {
                                 meterColor = "black";
                               } else if (vehicle.deviceStatus === "Offline") {
                                 meterColor = "red";
-                              } else if (vehicle.deviceStatus === "Idle" || vehicle.liveDevice?.online === "ack" || vehicle.speed === "Engine Idle") {
+                              } else if (
+                                vehicle.deviceStatus === "Idle" ||
+                                vehicle.liveDevice?.online === "ack" ||
+                                vehicle.speed === "Engine Idle"
+                              ) {
                                 meterColor = "yellow";
-                              } else if (vehicle.deviceStatus === "Online" && vehicle.speedValue >= 5) {
+                              } else if (
+                                vehicle.deviceStatus === "Online" &&
+                                vehicle.speedValue >= 5
+                              ) {
                                 meterColor = "green";
-                              } else if (vehicle.deviceStatus === "Online" && vehicle.speedValue < 5) {
+                              } else if (
+                                vehicle.deviceStatus === "Online" &&
+                                vehicle.speedValue < 5
+                              ) {
                                 meterColor = "yellow";
                               }
                               return <MeterIcon color={meterColor} />;
