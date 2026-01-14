@@ -32,7 +32,11 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
 
       let status = "Unknown";
       if (v.suspended) status = "Suspended";
-      else if (live) status = live.online === "online" ? "Online" : "Offline";
+      else if (live)
+        status =
+          live.online === "online" || live.online === "ack"
+            ? "Online"
+            : "Offline";
 
       return {
         id: v.id ?? live?.id ?? index + 1,
