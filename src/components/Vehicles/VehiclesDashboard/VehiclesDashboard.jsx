@@ -68,15 +68,13 @@ export default function VehiclesDashboard() {
       if (vehicle.suspended) {
         deviceStatus = "Suspended";
       } else if (liveDevice) {
-        if (liveDevice.online === "online") {
-          deviceStatus = "Online"; // Green
-        } else if (liveDevice.online === "ack") {
-          deviceStatus = "Idle"; // Yellow
+        if (liveDevice.online === "online" || liveDevice.online === "ack") {
+          deviceStatus = "Online";
         } else {
-          deviceStatus = "Offline"; // Red
+          deviceStatus = "Offline";
         }
       } else {
-        deviceStatus = "Offline"; // Red
+        deviceStatus = "Offline";
       }
 
       let speedStatus = "Engine Off";
