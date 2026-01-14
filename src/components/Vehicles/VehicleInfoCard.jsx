@@ -28,10 +28,12 @@ const VehicleInfoCard = ({ vehicle }) => {
       </div>
 
       {/* 📊 Body */}
-      <div className="bg-[#FFF9F4] p-4 grid grid-cols-2 gap-3">
-        <Vehiclespeed speed={Math.round(vehicle.speed ?? 0)} />
+      <div className=" grid grid-cols-2 gap-3">
+        <div className="col-span-1">
+          <Vehiclespeed speed={Math.round(vehicle.speed ?? 0)} />
+        </div>
 
-        <div className="text-xs text-gray-600">
+        <div className=" col-span-1 text-xs text-gray-600">
           <p className="font-medium text-black mb-1">
             {vehicle.address ?? "Unknown location"}
           </p>
