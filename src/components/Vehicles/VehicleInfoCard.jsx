@@ -1,12 +1,52 @@
 import React from "react";
 import Vehiclespeed from "./Vehiclespeed";
+import NearByLocation from "./NearByLocation";
+import { MdFlashOn } from "react-icons/md";
+import { LuClock } from "react-icons/lu";
+import { IoCloseCircle } from "react-icons/io5";
+import VehicleActions from "./VehicleActions";
 
-const VehicleInfoCard = ({ vehicle }) => {
-  console.log(vehicle);
+const VehicleInfoCard = ({ vehicle, onClose }) => {
+  // --- Time Calculation Logic ---
+  const formatTime = (timeString) => {
+    if (!timeString) return { formatted: "-", ago: "-" };
+    const date = new Date(timeString);
+
+    // Format: 12:40:13 PM, 14 Jan, 2026
+    const formatted = date.toLocaleString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+
+    // Seconds Ago calculation
+    const now = new Date();
+    const diffInSeconds = Math.floor((now - date) / 1000);
+    const ago = diffInSeconds < 0 ? 0 : diffInSeconds;
+
+    return { formatted, ago };
+  };
+
+  const { formatted, ago } = formatTime(vehicle.time);
   return (
-    <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-md rounded-2xl shadow-2xl px-2.5 pt-4.5 pb-1.5 bg-white overflow-hidden z-30 pointer-events-auto cursor-pointer">
+    <div className="absolute bottom-[0.5px] left-1/2 -translate-x-1/2 w-md rounded-2xl shadow-2xl px-2.5 pt-6 pb-1.5 bg-white overflow-hidden z-30 pointer-events-auto cursor-default">
+      {/* ❌ Close Button (Red marked icon style) */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onClose();
+        }}
+        className="absolute top-1.5 right-0.5 z-50 bg-white rounded-full text-gray-400 hover:text-red-500 shadow-lg cursor-pointer transition-colors"
+      >
+        <IoCloseCircle size={32} />
+      </button>
+
       {/* 🟡 Header */}
-      <div className="bg-[#fe8d1ce1] text-white px-4 py-2 flex items-center justify-evenly rounded-sm">
+      <div className="bg-[#fe8d1ce1] text-white px-4 py-2 flex items-center justify-evenly rounded-sm mb-1">
         <div>
           <p className="text-sm font-semibold">{vehicle.name ?? "TMV 44837"}</p>
           <p className="text-xs">{vehicle.vehicle_name ?? "DM NA 13-0756"}</p>
@@ -28,52 +68,51 @@ const VehicleInfoCard = ({ vehicle }) => {
       </div>
 
       {/* 📊 Body */}
-      <div className=" grid grid-cols-2 gap-3">
-        <div className="col-span-1">
-          <Vehiclespeed speed={Math.round(vehicle.speed ?? 0)} />
-        </div>
-
-        <div className=" col-span-1 text-xs text-gray-600">
-          <p className="font-medium text-black mb-1">
+      <div className="px-1 py-1">
+        <div className=" grid grid-cols-2 gap-1 mb-2">
+          {/* Vehiclespeed componests  */}
+          <div className="col-span-1">
+            <Vehiclespeed speed={Math.round(vehicle.speed ?? 0)} />
+          </div>
+          {/* Near by location data  */}
+          <div className=" col-span-1 flex flex-col items-start  bg-[#FFF9F4] rounded-sm w-full shadow-sm">
+            {/* <p className="font-medium text-black mb-1">
             {vehicle.address ?? "Unknown location"}
-          </p>
-          <p>
-            {vehicle.lat?.toFixed(5)}, {vehicle.lng?.toFixed(5)}
-          </p>
-          <p className="mt-1 text-[11px] text-gray-400">
-            {vehicle.time ?? "Just now"}
-          </p>
+          </p> */}
+            <NearByLocation vehicleData={vehicle} />
+          </div>
         </div>
+        {/* 🟢 Status Cards (Engine & Time) - আপনার রিকোয়েস্ট করা পার্ট */}
+        <div className="grid grid-cols-2 gap-2 mb-2">
+          {/* Left: Engine Status */}
+          <div className="flex items-center gap-2 bg-[#F0F9F6] border border-[#E0F2EB] rounded-lg px-3 py-2 ">
+            <div className="bg-[#10B981] p-1 rounded-full text-white">
+              <MdFlashOn size={16} />
+            </div>
+            <span className="text-sm font-semibold text-[#1F2937]">
+              Engine Status: {vehicle.engine_status ? "On" : "Off"}
+            </span>
+          </div>
 
-        <div
-          className={`col-span-2 rounded-xl px-3 py-2 text-sm font-medium ${
-            vehicle.engine_status
-              ? "bg-green-100 text-green-700"
-              : "bg-red-100 text-red-600"
-          }`}
-        >
-          Engine Status: {vehicle.engine_status ? "On" : "Off"}
+          {/* Right: Current Time & Ago */}
+          <div className="flex items-start gap-2 bg-[#FFFCEB] border border-[#FDF2D0] rounded-lg px-3 py-2">
+            <div className="text-[#F59E0B] mt-0.5">
+              <LuClock size={18} fill="#F59E0B" className="text-white" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[11px] font-bold text-[#1F2937] leading-tight">
+                {formatted}
+              </span>
+              <span className="text-[11px] text-[#4B5563]">
+                ({ago} seconds ago)
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* 🔘 Actions */}
-      <div className="border-t px-4 py-3 grid grid-cols-5 gap-3 text-gray-500">
-        <button className="flex flex-col items-center text-xs">
-          📍<span>Map</span>
-        </button>
-        <button className="flex flex-col items-center text-xs">
-          🕒<span>History</span>
-        </button>
-        <button className="flex flex-col items-center text-xs">
-          ⏱<span>Idle</span>
-        </button>
-        <button className="flex flex-col items-center text-xs">
-          📈<span>Speed</span>
-        </button>
-        <button className="flex flex-col items-center text-xs">
-          📌<span>Locate</span>
-        </button>
-      </div>
+      <VehicleActions vehicle={vehicle} />
     </div>
   );
 };

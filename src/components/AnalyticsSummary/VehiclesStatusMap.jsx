@@ -20,6 +20,9 @@ import { VehicleMarker } from "../Vehicles/VehicleMarker";
 import useSelectedImeis from "../../hooks/useSelectedImeis";
 import useVtsAllDevices from "../../hooks/useVtsAllDevices";
 import VehicleInfoCard from "../Vehicles/VehicleInfoCard";
+import demoData from "./../../../jsonData/get_device.json";
+import { getVehicleWaveColor } from "../Vehicles/statusConfig";
+import VehicleStatusLegend from "../Vehicles/VehicleStatusLegend";
 
 const BARIKOI_KEY = import.meta.env.VITE_BARIKOI_API_KEY;
 
@@ -36,7 +39,6 @@ const VehiclesStatusMap = () => {
   const [controlsOpen, setControlsOpen] = useState(false);
 
   const { data: vehiclesData } = useCustomerVehicle();
-  // console.log("vehiclesData", vehiclesData);
 
   const [mode, setMode] = useState("INIT");
 
@@ -58,11 +60,6 @@ const VehiclesStatusMap = () => {
   }, [filteredDevices]);
 
   const onlineCount = onlineDevices.length;
-  // console.log("DEBUG onlineCount:", onlineCount);
-
-  // console.log("DEBUG selectedVehicleId from DB:", selectedVehicleId);
-  // console.log("DEBUG filteredDevices:", filteredDevices);
-  // console.log("DEBUG allDevices:", allDevices);
 
   const flyToVehicle = (v) => {
     mapRef.current?.flyTo({
@@ -85,11 +82,6 @@ const VehiclesStatusMap = () => {
       )
     );
 
-    // map.fitBounds(bounds, {
-    //   padding: 120,
-    //   duration: 1200,
-    // });
-
     map.fitBounds(bounds, {
       padding: 80,
       duration: 600,
@@ -98,11 +90,6 @@ const VehiclesStatusMap = () => {
 
   useEffect(() => {
     if (onlineCount > 1 && mode !== "CLUSTER") setMode("CLUSTER");
-    // else if (onlineCount === 1 && mode !== "VEHICLE") {
-    //   setSelectedVehicle(onlineDevices[0]);
-    //   setMode("VEHICLE");
-    //   flyToVehicle(onlineDevices[0]);
-    // }
   }, [onlineCount]);
 
   const selectedVehicleFUll = useMemo(() => {
@@ -186,29 +173,73 @@ const VehiclesStatusMap = () => {
         {mode !== "CLUSTER" &&
           onlineDevices.map((v) => {
             const id = v.device_data?.imei ?? v.id;
+            const waveColor = getVehicleWaveColor(v);
+
             return (
               <Marker
                 key={id}
                 longitude={v.lng}
                 latitude={v.lat}
                 anchor="bottom"
-                onClick={() => {
-                  setSelectedVehicleId((prev) => {
-                    if (prev === id) {
-                      return null;
-                    } else {
+              >
+                <div
+                  className="relative flex items-center justify-center cursor-pointer"
+                  onClick={() => {
+                    setSelectedVehicleId((prev) => {
+                      if (prev === id) return null;
                       flyToVehicle(v);
                       return id;
-                    }
-                  });
-                }}
-              >
-                <img src="/car-icon.svg" className="w-8 h-8 cursor-pointer" />
+                    });
+                  }}
+                >
+                  {/* 🌊 Dynamic Wave Animation Rings */}
+                  <div
+                    className="car-status-circle"
+                    style={{ backgroundColor: waveColor }}
+                  ></div>
 
-                {/* 🔥 CARD POPUP (RELATIVE TO THIS CAR) */}
-                {selectedVehicleId === (v.device_data?.imei ?? v.id) && (
-                  <VehicleInfoCard vehicle={selectedVehicleFUll} />
-                )}
+                  <div className="car-wave-container">
+                    <div
+                      className="car-wave-ring"
+                      style={{ backgroundColor: waveColor }}
+                    ></div>
+                    <div
+                      className="car-wave-ring wave-2"
+                      style={{ backgroundColor: waveColor }}
+                    ></div>
+                    <div
+                      className="car-wave-ring wave-3"
+                      style={{ backgroundColor: waveColor }}
+                    ></div>
+                  </div>
+
+                  {/* 🚗 Vehicle Icon (No vibration, just static or simple hover scale) */}
+                  <img
+                    src="/car-icon.svg"
+                    className="w-10 h-10 z-10 hover:scale-110 transition-transform duration-300"
+                    alt="car"
+                  />
+
+                  {/* 🔥 CARD POPUP WITH TOOLTIP POINTER */}
+                  {selectedVehicleId === id && (
+                    <div className="absolute bottom-[45px] left-1/2 -translate-x-1/2 z-50 flex flex-col items-center">
+                      <div className="relative shadow-2xl">
+                        <VehicleInfoCard
+                          vehicle={selectedVehicleFUll}
+                          onClose={() => setSelectedVehicleId(null)}
+                        />
+                      </div>
+                      {/* Tooltip Triangle Pointer */}
+                      <div
+                        className="w-0 h-0 
+      border-l-[12px] border-l-transparent 
+      border-r-[12px] border-r-transparent 
+      border-t-[15px] border-t-white 
+      drop-shadow-lg"
+                      ></div>
+                    </div>
+                  )}
+                </div>
               </Marker>
             );
           })}
@@ -233,7 +264,6 @@ const VehiclesStatusMap = () => {
           Satellite
         </button>
       </div>
-
       {/* 🖥 Fullscreen */}
       <button
         onClick={() => {
@@ -294,16 +324,22 @@ const VehiclesStatusMap = () => {
           </>
         )}
       </div>
-
-      {/* 📤 Share / Print */}
+      {/* 📤 Share / Print  / status */}
+      {/* Mobile (Vehicle speed is greater than or equal to 5KM/H) /  Slow (Vehicle
+      speed is less than 5 KM/H) /  Engine has beed turned off recently  / Off (Engine
+      is currently at the momment turned off) / Offline (Vehicle is Offline and
+      data was received more than 24 hrs ago) */}
       <div>
-        <div className="absolute bottom-6 left-3 z-10  flex flex-col gap-2 cursor-pointer">
+        {/* <div className="absolute bottom-6 left-3 z-10  flex flex-col gap-2 cursor-pointer">
           <div className="w-8 h-8 rounded-xl bg-[#95F0B3]" />
           <div className="w-8 h-8 rounded-xl bg-[#95D8F0]" />
           <div className="w-8 h-8 rounded-xl bg-[#F0C695]" />
           <div className="w-8 h-8 rounded-xl bg-[#F09D95]" />
           <div className="w-8 h-8 rounded-xl bg-[#787878]" />
-        </div>
+        </div> */}
+        {/* VehicleStatusLegend left side */}
+        <VehicleStatusLegend />
+
         <div className="absolute bottom-6 left-15 z-10 flex gap-2 h-9 ">
           <button
             onClick={handleShare}
