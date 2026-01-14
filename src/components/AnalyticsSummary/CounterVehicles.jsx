@@ -3,32 +3,22 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { motion, AnimatePresence } from "framer-motion";
 import useCustomerVehicle from "../../hooks/useCustomerVehicle";
 import useVtsAllDevices from "../../hooks/useVtsAllDevices";
-import useSelectedImeis from "../../hooks/useSelectedImeis";
 import LottieLoading from "../utils/LottieLoading";
 
 const CounterVehicles = () => {
   const { data = [], isLoading } = useCustomerVehicle();
   const { allDevices } = useVtsAllDevices();
 
-  const selectedImeis = useSelectedImeis() || [];
-
-  // Only count vehicles for selected IMEIs when provided, otherwise count all
-  const vehiclesToCount = Array.isArray(data)
-    ? selectedImeis.length > 0
-      ? data.filter((v) => selectedImeis.includes(v.imei))
-      : data
-    : [];
-
+  const vehiclesToCount = Array.isArray(data) ? data : [];
   const suspendedCount = vehiclesToCount.filter(
     (v) => v.suspended === true
   ).length;
 
-  // Calculate online/offline per subscription by matching device IMEI
   let onlineCount = 0;
   let offlineCount = 0;
   vehiclesToCount.forEach((v) => {
-    if (v.suspended) return; // suspended counted separately
-
+    if (v.suspended) return;
+    
     const matching = Array.isArray(allDevices)
       ? allDevices.find((d) => {
           const deviceImei =
@@ -43,7 +33,6 @@ const CounterVehicles = () => {
       : null;
 
     const status = matching ? matching.online : null;
-    // Treat 'ack' as online for summary counts to match deviceStatus mapping
     if (status === "online" || status === "ack") onlineCount++;
     else offlineCount++;
   });
