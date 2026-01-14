@@ -30,7 +30,7 @@ function getRenewalInfo(expiryDate) {
   if (diffDays > 0) {
     return `Renewal in ${diffDays} day${diffDays !== 1 ? "s" : ""}`;
   } else if (diffDays === 0) {
-    return "Expires today";
+    return "Renewal today";
   } else {
     return `Expired ${Math.abs(diffDays)} day${
       Math.abs(diffDays) !== 1 ? "s" : ""
