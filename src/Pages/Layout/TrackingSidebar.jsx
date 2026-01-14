@@ -159,7 +159,15 @@ export default function TrackingSidebar({ isOpen, setIsOpen }) {
                   />
                   {isOpen && (
                     <>
-                      <span className="truncate font-semibold">{label}</span>
+                      <span
+                        className={`truncate ${
+                          isSubActive || pathname === to
+                            ? "font-semibold"
+                            : "font-medium"
+                        }`}
+                      >
+                        {label}
+                      </span>
                       <span className="ml-auto">
                         {isExpanded ? (
                           <ChevronDown size={18} />
@@ -195,7 +203,7 @@ export default function TrackingSidebar({ isOpen, setIsOpen }) {
                               onClick={() => handleRouteClick(label)}
                               className={`flex items-center w-full px-0 py-1.5 rounded-md text-[15px] transition font-medium cursor-pointer ${
                                 isSubRouteActive
-                                  ? "text-[#fe8e1c] font-bold bg-transparent"
+                                  ? "text-[#fe8e1c] bg-transparent"
                                   : "text-gray-700 hover:text-[#fe8e1c]"
                               }`}
                               style={{ minWidth: 0 }}
