@@ -1,6 +1,18 @@
-import React from "react";
-
+import React, { useEffect, useState } from "react";
+// { speed = 0 }
 const Speedometer = ({ speed = 0 }) => {
+  // const [speed, setSpeed] = useState(0);
+
+  // প্রতি ১ সেকেন্ড পরপর র‍্যান্ডম স্পিড জেনারেট করার জন্য useEffect
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     const randomSpeed = Math.floor(Math.random() * 181); // 0 থেকে 180
+  //     setSpeed(randomSpeed);
+  //   }, 1000); // 1000ms = 1 second
+
+  //   return () => clearInterval(interval);
+  // }, []);
+
   const MAX_SPEED = 180;
   // কাঁটার রোটেশন ক্যালকুলেশন
   const needleRotation = (speed / MAX_SPEED) * 180;
@@ -43,7 +55,7 @@ const Speedometer = ({ speed = 0 }) => {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center p-4 bg-[#FFFCEB] rounded-xl w-fit shadow-sm">
+    <div className="flex flex-col items-center justify-center bg-[#FFF9F4] rounded-sm w-full shadow-sm">
       <div className="relative">
         <svg viewBox="0 0 220 160" className="w-56 h-44">
           {/* Background Ticks */}
