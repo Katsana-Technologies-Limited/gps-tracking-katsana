@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useMemo, useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { setSelectedImeis } from "../../slices/vehiclesSlice";
@@ -9,9 +10,9 @@ import useVtsAllDevices from "../../hooks/useVtsAllDevices";
 const TABS = ["All", "Offline", "Online", "Suspended"];
 
 const statusStyle = {
-  Online: { border: "border-green-400", bg: "bg-green-50" },
+  Online: { border: "border-green-400", bg: "bg-white" },
   Offline: { border: "border-gray-200", bg: "bg-white" },
-  Suspended: { border: "border-red-400", bg: "bg-red-50" },
+  Suspended: { border: "border-red-400", bg: "bg-white" },
 };
 
 const VehiclesStatusOption = ({ divhight = 80 }) => {
@@ -67,12 +68,12 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
     return list;
   }, [VEHICLES, activeTab, query]);
 
-  // ✅ SELECT ALL BY DEFAULT (ONCE PER FILTER CHANGE)
   useEffect(() => {
-    if (filteredVehicles.length > 0 && selected.length === 0) {
+    if (filteredVehicles.length > 0) {
       setSelected(filteredVehicles.map((v) => v.id));
+    } else {
+      setSelected([]);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filteredVehicles]);
 
   // Sync selected IMEIs to Redux
