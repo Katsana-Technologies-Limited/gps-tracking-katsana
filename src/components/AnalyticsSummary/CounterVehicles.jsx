@@ -13,26 +13,44 @@ const CounterVehicles = () => {
     ? data.filter((v) => v.suspended === true).length
     : 0;
 
+  // Calculate online/idle/offline per subscription by matching device IMEI
   let onlineCount = 0;
+  let idleCount = 0; // ack
   let offlineCount = 0;
-  if (Array.isArray(allDevices)) {
-    allDevices.forEach((device) => {
-      if (device.online === "online") {
-        onlineCount++;
-      } else {
-        offlineCount++;
-      }
+  if (Array.isArray(data)) {
+    data.forEach((v) => {
+      if (v.suspended) return; // suspended counted separately
+
+      const matching = Array.isArray(allDevices)
+        ? allDevices.find((d) => {
+            const deviceImei =
+              d.device_data?.imei ||
+              d.imei ||
+              d.imei_number ||
+              d.device_data?.imei_number;
+            return (
+              deviceImei &&
+              v.imei &&
+              deviceImei.toString() === v.imei.toString()
+            );
+          })
+        : null;
+
+      const status = matching ? matching.online : null;
+      if (status === "online") onlineCount++;
+      else if (status === "ack") idleCount++;
+      else offlineCount++;
     });
   }
 
   const vehiclesPie = [
     { name: "Online", value: onlineCount, color: "#1ED760" },
+    { name: "Idle", value: idleCount, color: "#F6C94A" },
     { name: "Suspended", value: suspendedCount, color: "#FF4D4F" },
     { name: "Offline", value: offlineCount, color: "#B0BEC5" },
   ];
 
   const totalVehicles = Array.isArray(data) ? data.length : 0;
-
   if (isLoading) return <LottieLoading />;
 
   const CustomTooltip = ({ active, payload }) => (
