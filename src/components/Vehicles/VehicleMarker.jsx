@@ -6,19 +6,8 @@ export const VehicleMarker = ({ count = 1 }) => {
       {/* 🔵 Number Badge */}
       <div
         className="
-        absolute 
-        top-[-6px] right-[-6px]
-        rounded-full 
-        text-white 
-        text-sm 
-        font-bold 
-        flex 
-        items-center 
-        justify-center 
-        shadow-lg
-        z-20
+        absolute  top-6.7 right-7.1  rounded-full  text-white   text-sm   font-bold  flex items-center  justify-center  shadow-lg z-20
       "
-        // style={{ top: "-6px", right: "-6px" }}
       >
         {count}
       </div>
