@@ -129,14 +129,14 @@ const Login = () => {
                     </div>
                   )}
                   <div className="flex items-center justify-center gap-3 text-sm text-gray-600">
-                    <label className="relative inline-flex items-center cursor-pointer">
+                    <label className="relative inline-flex items-center justify-center cursor-pointer">
                       <input
                         type="checkbox"
                         {...register("remember")}
                         className="sr-only peer"
                       />
-                      <div className="w-10 h-5 bg-gray-300 rounded-full peer-checked:bg-orange-500" />
-                      <span className="absolute left-1 top-0.5 w-4 h-4 bg-white rounded-full transition peer-checked:translate-x-5" />
+                      <div className="w-8.5 h-4.5 bg-gray-300 rounded-full transition-colors duration-300 peer-checked:bg-orange-500 peer-focus:ring-1 peer-focus:ring-orange-300" />
+                      <span className="absolute left-0.5 top-1/2 w-3.5 h-3.5 bg-white rounded-full shadow-sm transform -translate-y-1/2 transition-transform duration-300 peer-checked:translate-x-4" />
                     </label>
                     Keep me logged in
                   </div>

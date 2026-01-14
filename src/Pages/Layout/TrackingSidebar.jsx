@@ -183,7 +183,7 @@ export default function TrackingSidebar({ isOpen, setIsOpen }) {
                       {subroutes.map((sub) => {
                         const isSubRouteActive = pathname.startsWith(sub.to);
                         return (
-                          <li key={sub.to} className="flex items-center">
+                          <li key={sub.to} className="flex items-center w-full">
                             <span
                               className="text-[#fe8e1c] text-lg mr-2"
                               style={{ lineHeight: "1" }}
@@ -193,14 +193,14 @@ export default function TrackingSidebar({ isOpen, setIsOpen }) {
                             <Link
                               to={sub.to}
                               onClick={() => handleRouteClick(label)}
-                              className={`block px-0 py-1.5 rounded-md text-[15px] transition font-medium cursor-pointer ${
+                              className={`flex items-center w-full px-0 py-1.5 rounded-md text-[15px] transition font-medium cursor-pointer ${
                                 isSubRouteActive
                                   ? "text-[#fe8e1c] font-bold bg-transparent"
                                   : "text-gray-700 hover:text-[#fe8e1c]"
                               }`}
                               style={{ minWidth: 0 }}
                             >
-                              {sub.label}
+                              <span className="truncate">{sub.label}</span>
                             </Link>
                           </li>
                         );
