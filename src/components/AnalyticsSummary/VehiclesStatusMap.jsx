@@ -34,24 +34,15 @@ const VehiclesStatusMap = () => {
   const wrapperRef = useRef(null);
   const [satellite, setSatellite] = useState(false);
   const [controlsOpen, setControlsOpen] = useState(false);
-  const selectedImeis = useSelectedImeis();
-  // console.log(selectedImeis);
 
   const { data: vehiclesData } = useCustomerVehicle();
   // console.log("vehiclesData", vehiclesData);
 
-  // const imeis = useMemo(() => {
-  //   if (!vehiclesData || !Array.isArray(vehiclesData)) return [];
-  //   return vehiclesData.map((v) => v.imei).filter(Boolean);
-  // }, [vehiclesData]);
-
   const [mode, setMode] = useState("INIT");
-  const [cardVehicle, setCardVehicle] = useState(null);
-  const [cardPos, setCardPos] = useState(null);
 
   // INIT | CLUSTER | SINGLE | VEHICLE
   const [selectedVehicleId, setSelectedVehicleId] = useState(null);
-  const { allDevices, filteredDevices } = useVtsAllDevices();
+  const { filteredDevices } = useVtsAllDevices();
 
   const onlineDevices = useMemo(() => {
     if (!filteredDevices?.length) return [];
@@ -113,12 +104,6 @@ const VehiclesStatusMap = () => {
     //   flyToVehicle(onlineDevices[0]);
     // }
   }, [onlineCount]);
-
-  const updateCardPosition = (v) => {
-    const map = mapRef.current.getMap();
-    const p = map.project([v.lng, v.lat]);
-    setCardPos({ x: p.x, y: p.y });
-  };
 
   const selectedVehicleFUll = useMemo(() => {
     if (!selectedVehicleId) return null;
@@ -210,12 +195,9 @@ const VehiclesStatusMap = () => {
                 onClick={() => {
                   setSelectedVehicleId((prev) => {
                     if (prev === id) {
-                      setCardVehicle(null);
                       return null;
                     } else {
                       flyToVehicle(v);
-                      updateCardPosition(v);
-                      setCardVehicle(v);
                       return id;
                     }
                   });
@@ -231,19 +213,6 @@ const VehiclesStatusMap = () => {
             );
           })}
       </MemoMap>
-
-      {/* {cardVehicle && cardPos && (
-        <div
-          style={{
-            position: "absolute",
-            left: cardPos.x,
-            top: cardPos.y - 160,
-            transform: "translateX(-50%)",
-          }}
-        >
-          <VehicleInfoCard vehicle={cardVehicle} />
-        </div>
-      )} */}
 
       {/* 🗺️ Map / Satellite Toggle */}
       <div className="absolute top-3 left-3 z-20 bg-white rounded-lg shadow  flex">
