@@ -1,6 +1,5 @@
 import { useMemo, useEffect } from "react";
 import useDataQuery from "./useDataQuery";
-import useCustomerVehicle from "./useCustomerVehicle";
 import useSelectedImeis from "./useSelectedImeis";
 
 const useVtsAllDevices = () => {
@@ -9,28 +8,25 @@ const useVtsAllDevices = () => {
     isLoading: isLoadingDevices,
     error: errorDevices,
     refetch: refetchDevices,
-  } = useDataQuery(["vts-all-devices"], "/api/vts/devices-proxy");
+  } = useDataQuery(["vts-all-devices"], "/api/vts/devices-proxy", true, {
+    refetchInterval: 10000,
+    refetchIntervalInBackground: true,
+    staleTime: 0,
+  });
 
-  const {
-    data: customerVehicles,
-    isLoading: isLoadingVehicles,
-    error: errorVehicles,
-    refetch: refetchVehicles,
-  } = useCustomerVehicle();
-
-  const customerVehiclesSafe = useMemo(() => {
-    return Array.isArray(customerVehicles) ? customerVehicles : [];
-  }, [customerVehicles]);
-
-  // Get all devices
   const allDevices = useMemo(() => {
     if (!Array.isArray(allDevicesData)) return [];
-    return allDevicesData.reduce((acc, group) => {
-      if (Array.isArray(group.items)) {
-        acc.push(...group.items);
-      }
-      return acc;
-    }, []);
+
+    if (allDevicesData.length && Array.isArray(allDevicesData[0].items)) {
+      return allDevicesData.reduce((acc, group) => {
+        if (Array.isArray(group.items)) {
+          acc.push(...group.items);
+        }
+        return acc;
+      }, []);
+    }
+
+    return allDevicesData;
   }, [allDevicesData]);
 
   const selectedImeisRaw = useSelectedImeis();
@@ -63,29 +59,11 @@ const useVtsAllDevices = () => {
   }, [refetchDevices]);
 
   return {
-    isLoading: isLoadingDevices || isLoadingVehicles,
-    error: errorDevices || errorVehicles,
+    isLoading: isLoadingDevices,
+    error: errorDevices,
     allDevices,
-    customerVehicles: customerVehiclesSafe,
     filteredDevices,
-    refetch: () => {
-      refetchDevices();
-      refetchVehicles();
-    },
-    /**
-     * Get a device by IMEI from filteredDevices
-     * @param {string} imei
-     * @returns {object|null}
-     */
-    getDeviceByImei: (imei) => {
-      if (!imei) return null;
-      return (
-        filteredDevices.find((device) => {
-          const deviceImei = device?.device_data?.imei ?? device?.imei ?? null;
-          return deviceImei === imei;
-        }) || null
-      );
-    },
+    refetch: refetchDevices,
   };
 };
 

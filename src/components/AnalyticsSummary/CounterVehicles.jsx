@@ -3,44 +3,50 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { motion, AnimatePresence } from "framer-motion";
 import useCustomerVehicle from "../../hooks/useCustomerVehicle";
 import useVtsAllDevices from "../../hooks/useVtsAllDevices";
+import useSelectedImeis from "../../hooks/useSelectedImeis";
 import LottieLoading from "../utils/LottieLoading";
 
 const CounterVehicles = () => {
   const { data = [], isLoading } = useCustomerVehicle();
   const { allDevices } = useVtsAllDevices();
 
-  const suspendedCount = Array.isArray(data)
-    ? data.filter((v) => v.suspended === true).length
-    : 0;
+  const selectedImeis = useSelectedImeis() || [];
+
+  // Only count vehicles for selected IMEIs when provided, otherwise count all
+  const vehiclesToCount = Array.isArray(data)
+    ? selectedImeis.length > 0
+      ? data.filter((v) => selectedImeis.includes(v.imei))
+      : data
+    : [];
+
+  const suspendedCount = vehiclesToCount.filter(
+    (v) => v.suspended === true
+  ).length;
 
   // Calculate online/offline per subscription by matching device IMEI
   let onlineCount = 0;
   let offlineCount = 0;
-  if (Array.isArray(data)) {
-    data.forEach((v) => {
-      if (v.suspended) return; // suspended counted separately
+  vehiclesToCount.forEach((v) => {
+    if (v.suspended) return; // suspended counted separately
 
-      const matching = Array.isArray(allDevices)
-        ? allDevices.find((d) => {
-            const deviceImei =
-              d.device_data?.imei ||
-              d.imei ||
-              d.imei_number ||
-              d.device_data?.imei_number;
-            return (
-              deviceImei &&
-              v.imei &&
-              deviceImei.toString() === v.imei.toString()
-            );
-          })
-        : null;
+    const matching = Array.isArray(allDevices)
+      ? allDevices.find((d) => {
+          const deviceImei =
+            d.device_data?.imei ||
+            d.imei ||
+            d.imei_number ||
+            d.device_data?.imei_number;
+          return (
+            deviceImei && v.imei && deviceImei.toString() === v.imei.toString()
+          );
+        })
+      : null;
 
-      const status = matching ? matching.online : null;
-      // Treat 'ack' as online for summary counts to match deviceStatus mapping
-      if (status === "online" || status === "ack") onlineCount++;
-      else offlineCount++;
-    });
-  }
+    const status = matching ? matching.online : null;
+    // Treat 'ack' as online for summary counts to match deviceStatus mapping
+    if (status === "online" || status === "ack") onlineCount++;
+    else offlineCount++;
+  });
 
   const vehiclesPie = [
     { name: "Online", value: onlineCount, color: "#1ED760" },

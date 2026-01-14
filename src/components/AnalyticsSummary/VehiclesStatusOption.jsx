@@ -45,6 +45,7 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
         reg: v.subscription_number || "-",
         status,
         imei: v.imei,
+        vehicle_type_image: v.vehicle_type_image || null,
       };
     });
   }, [customerVehicles, allDevices]);
@@ -171,7 +172,13 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
             >
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded bg-gray-100 flex items-center justify-center">
-                  <img src="/icons/vehicle.svg" alt="vehicle" />
+                  <img
+                    src={`${import.meta.env.VITE_API_URL}${
+                      v?.vehicle_type_image
+                    }`}
+                    alt="vehicle"
+                    className="max-w-full max-h-full object-contain"
+                  />
                 </div>
                 <div>
                   <div className="text-sm font-medium text-gray-800">
