@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useMemo, useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { setSelectedImeis } from "../../slices/vehiclesSlice";
@@ -72,7 +73,6 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
     setSelected(
       filteredVehicles.length > 0 ? filteredVehicles.map((v) => v.id) : []
     );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab, query]);
 
   useEffect(() => {
