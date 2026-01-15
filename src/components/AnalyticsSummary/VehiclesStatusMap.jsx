@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useRef, useState, useMemo, useEffect } from "react";
 import { Map, Marker } from "react-bkoi-gl";
-import maplibregl from "maplibre-gl";
+import maplibregl, { visit } from "maplibre-gl";
 import "react-bkoi-gl/styles";
 import {
   Share2,
@@ -17,10 +17,8 @@ import {
 import jsPDF from "jspdf";
 import useCustomerVehicle from "../../hooks/useCustomerVehicle";
 import { VehicleMarker } from "../Vehicles/VehicleMarker";
-import useSelectedImeis from "../../hooks/useSelectedImeis";
 import useVtsAllDevices from "../../hooks/useVtsAllDevices";
 import VehicleInfoCard from "../Vehicles/VehicleInfoCard";
-import demoData from "./../../../jsonData/get_device.json";
 import { getVehicleWaveColor } from "../Vehicles/statusConfig";
 import VehicleStatusLegend from "../Vehicles/VehicleStatusLegend";
 
@@ -45,6 +43,7 @@ const VehiclesStatusMap = () => {
   // INIT | CLUSTER | SINGLE | VEHICLE
   const [selectedVehicleId, setSelectedVehicleId] = useState(null);
   const { filteredDevices } = useVtsAllDevices();
+  console.log(vehiclesData);
 
   const onlineDevices = useMemo(() => {
     if (!filteredDevices?.length) return [];
@@ -174,7 +173,7 @@ const VehiclesStatusMap = () => {
           onlineDevices.map((v) => {
             const id = v.device_data?.imei ?? v.id;
             const waveColor = getVehicleWaveColor(v);
-
+            const filterImages = vehiclesData.find((vId) => vId?.imei === id);
             return (
               <Marker
                 key={id}
@@ -215,7 +214,14 @@ const VehiclesStatusMap = () => {
 
                   {/* 🚗 Vehicle Icon (No vibration, just static or simple hover scale) */}
                   <img
-                    src="/car-icon.svg"
+                    // src="/car-icon.svg"
+                    src={
+                      filterImages?.vehicle_type_image
+                        ? `${import.meta.env.VITE_API_URL}${
+                            filterImages?.vehicle_type_image
+                          }`
+                        : "/car-icon.svg"
+                    }
                     className="w-10 h-10 z-10 hover:scale-110 transition-transform duration-300"
                     alt="car"
                   />
@@ -230,13 +236,7 @@ const VehiclesStatusMap = () => {
                         />
                       </div>
                       {/* Tooltip Triangle Pointer */}
-                      <div
-                        className="w-0 h-0 
-      border-l-[12px] border-l-transparent 
-      border-r-[12px] border-r-transparent 
-      border-t-[15px] border-t-white 
-      drop-shadow-lg"
-                      ></div>
+                      <div className="w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent  border-t-[15px] border-t-white  drop-shadow-lg"></div>
                     </div>
                   )}
                 </div>

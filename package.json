@@ -16,6 +16,7 @@
     "@tanstack/react-query": "^5.90.16",
     "axios": "^1.13.2",
     "barikoiapis": "^1.0.8",
+    "bkoi-gl": "^3.1.0",
     "dotenv": "^17.2.3",
     "framer-motion": "^12.26.1",
     "html-to-image": "^1.11.13",

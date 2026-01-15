@@ -2,6 +2,8 @@
 import React, { useRef, useState, useMemo, useEffect } from "react";
 import { Map, Marker } from "react-bkoi-gl";
 import maplibregl from "maplibre-gl";
+// import bkoigl from "bkoi-gl";
+import "bkoi-gl/dist/style/bkoi-gl.css";
 import "react-bkoi-gl/styles";
 import {
   Share2,
@@ -17,11 +19,10 @@ import {
 import jsPDF from "jspdf";
 import useCustomerVehicle from "../../hooks/useCustomerVehicle";
 import { VehicleMarker } from "../Vehicles/VehicleMarker";
-<<<<<<< HEAD
-import useSelectedImeis from "../../hooks/useSelectedImeis";
-=======
 import useVtsAllDevices from "../../hooks/useVtsAllDevices";
->>>>>>> sw
+import VehicleInfoCard from "../Vehicles/VehicleInfoCard";
+import { getVehicleWaveColor } from "../Vehicles/statusConfig";
+import VehicleStatusLegend from "../Vehicles/VehicleStatusLegend";
 
 const BARIKOI_KEY = import.meta.env.VITE_BARIKOI_API_KEY;
 
@@ -31,41 +32,40 @@ const SATELLITE_STYLE = `https://map.barikoi.com/styles/barikoi_satellite/style.
 
 const MemoMap = React.memo(Map);
 
-const VehiclesStatusMap = () => {
+const VehiclesCurrentLocationMap = () => {
   const mapRef = useRef(null);
   const wrapperRef = useRef(null);
+
+  // 🔥 Smooth animation refs
+  const lastPos = useRef([0, 0]);
+  const nextPos = useRef([0, 0]);
+  const startTime = useRef(null);
+  const routeCoords = useRef([]);
+  const animationFrameId = useRef(null);
+
+  // constant varaible
+  const initialViewState = {
+    longitude: 90.3563,
+    latitude: 23.685,
+    zoom: 6,
+    bearing: 0,
+    pitch: 0,
+  };
+  //   state
   const [satellite, setSatellite] = useState(false);
   const [controlsOpen, setControlsOpen] = useState(false);
-<<<<<<< HEAD
-  const selectedImeis = useSelectedImeis();
-  console.log(selectedImeis);
+  const [coords, setCoords] = useState("Initializing…");
 
   const { data: vehiclesData } = useCustomerVehicle();
-  // console.log("vehiclesData", vehiclesData);
 
-  // const imeis = useMemo(() => {
-  //   if (!vehiclesData || !Array.isArray(vehiclesData)) return [];
-  //   return vehiclesData.map((v) => v.imei).filter(Boolean);
-  // }, [vehiclesData]);
-=======
   const [mode, setMode] = useState("INIT");
-  const [cardVehicle, setCardVehicle] = useState(null);
-  const [cardPos, setCardPos] = useState(null);
 
   // INIT | CLUSTER | SINGLE | VEHICLE
   const [selectedVehicleId, setSelectedVehicleId] = useState(null);
+  const { filteredDevices } = useVtsAllDevices();
+  console.log(filteredDevices);
 
-  const { data: vehiclesData } = useCustomerVehicle();
-  console.log("vehiclesData", vehiclesData);
-  const { allDevices, filteredDevices } = useVtsAllDevices();
->>>>>>> sw
-
-  // const imeis = useMemo(() => {
-  //   return vehiclesData.map((v) => v.imei).filter(Boolean);
-  // }, [vehiclesData]);
-
-  // console.log("imesis update", imeis);
-
+  // online device check
   const onlineDevices = useMemo(() => {
     if (!filteredDevices?.length) return [];
 
@@ -79,13 +79,10 @@ const VehiclesStatusMap = () => {
     );
   }, [filteredDevices]);
 
+  //   online device length
   const onlineCount = onlineDevices.length;
 
-  console.log("DEBUG onlineCount:", onlineCount);
-
-  console.log("DEBUG allDevices from DB:", allDevices);
-  console.log("DEBUG filteredDevices:", filteredDevices);
-
+  //   fly to vehicle
   const flyToVehicle = (v) => {
     mapRef.current?.flyTo({
       center: [v.lng, v.lat],
@@ -94,7 +91,7 @@ const VehiclesStatusMap = () => {
       curve: 1.4,
     });
   };
-
+  // fit to all vehicles check
   const fitToAllVehicles = (devices) => {
     if (!devices.length || !mapRef.current) return;
 
@@ -107,49 +104,185 @@ const VehiclesStatusMap = () => {
       )
     );
 
-    // map.fitBounds(bounds, {
-    //   padding: 120,
-    //   duration: 1200,
-    // });
-
     map.fitBounds(bounds, {
       padding: 80,
       duration: 600,
     });
   };
 
+  //   check the online vehicel mode
   useEffect(() => {
     if (onlineCount > 1 && mode !== "CLUSTER") setMode("CLUSTER");
-    // else if (onlineCount === 1 && mode !== "VEHICLE") {
-    //   setSelectedVehicle(onlineDevices[0]);
-    //   setMode("VEHICLE");
-    //   flyToVehicle(onlineDevices[0]);
-    // }
   }, [onlineCount]);
 
-  const updateCardPosition = (v) => {
+  //   user selected vehicleInfo and deviceInfo
+  const selectedVehicleFUll = useMemo(() => {
+    if (!selectedVehicleId) return null;
+    const vehicleInfo = vehiclesData?.find((v) => v.imei === selectedVehicleId);
+    const deviceInfo = filteredDevices?.find(
+      (d) => (d.device_data?.imei ?? d.imei) === selectedVehicleId
+    );
+    if (!vehicleInfo && !deviceInfo) return null;
+    return {
+      ...vehicleInfo,
+      ...deviceInfo,
+    };
+  }, [vehiclesData, filteredDevices, selectedVehicleId]);
+
+  /* =====================================================
+     MAP LOAD → ADD VEHICLE + ROUTE
+     ===================================================== */
+  useEffect(() => {
+    if (!mapRef.current) return;
     const map = mapRef.current.getMap();
-    const p = map.project([v.lng, v.lat]);
-    setCardPos({ x: p.x, y: p.y });
+
+    map.on("load", async () => {
+      const img = await map.loadImage(
+        "https://cdn-icons-png.flaticon.com/512/7893/7893979.png"
+      );
+      map.addImage("vehicle-icon", img.data, { pixelRatio: 2 });
+      map.addSource("vehicle", {
+        type: "geojson",
+        data: {
+          type: "Feature",
+          geometry: { type: "Point", coordinates: [0, 0] },
+        },
+      });
+      map.addLayer({
+        id: "vehicle-layer",
+        type: "symbol",
+        source: "vehicle",
+        layout: {
+          "icon-image": "vehicle-icon",
+          "icon-size": 0.4,
+          "icon-allow-overlap": true,
+        },
+      });
+      map.addSource("route", {
+        type: "geojson",
+        data: {
+          type: "Feature",
+          geometry: { type: "LineString", coordinates: [] },
+        },
+      });
+      map.addLayer({
+        id: "route-layer",
+        type: "line",
+        source: "route",
+        paint: {
+          "line-color": "#ef4444",
+          "line-width": 4,
+        },
+      });
+    });
+  }, []);
+
+  const onMapLoad = (e) => {
+    const map = e.target; // map instance
+
+    // রুট সোর্স
+    if (!map.getSource("route")) {
+      map.addSource("route", {
+        type: "geojson",
+        data: {
+          type: "Feature",
+          geometry: { type: "LineString", coordinates: [] },
+        },
+      });
+      map.addLayer({
+        id: "route-layer",
+        type: "line",
+        source: "route",
+        paint: { "line-color": "#ef4444", "line-width": 4 },
+      });
+    }
+
+    // এনিমেশন শুরু
+    startAnimationLoop();
   };
 
-  const initialViewState = {
-    longitude: 90.3563,
-    latitude: 23.685,
-    zoom: 6,
-    bearing: 0,
-    pitch: 0,
+  /* =====================================================
+     GPS UPDATE (API DATA → NEXT POSITION)
+     ===================================================== */
+
+  useEffect(() => {
+    if (!selectedVehicleFUll?.lat || !selectedVehicleFUll?.lng) return;
+
+    const lng = Number(selectedVehicleFUll.lng);
+    const lat = Number(selectedVehicleFUll.lat);
+
+    // প্রথমবার ডাটা সেট করা
+    if (lastPos.current[0] === 0) {
+      lastPos.current = [lng, lat];
+      nextPos.current = [lng, lat];
+      routeCoords.current = [[lng, lat]];
+      return;
+    }
+
+    // পজিশন পরিবর্তন হলে এনিমেশন স্টার্ট করা
+    if (nextPos.current[0] !== lng || nextPos.current[1] !== lat) {
+      lastPos.current = [...nextPos.current];
+      nextPos.current = [lng, lat];
+      startTime.current = Date.now();
+
+      // রুট ট্রেইল আপডেট (নতুন স্টপ যোগ করা)
+      routeCoords.current.push([lng, lat]);
+      const map = mapRef.current?.getMap();
+      if (map && map.getSource("route")) {
+        map.getSource("route").setData({
+          type: "Feature",
+          geometry: { type: "LineString", coordinates: routeCoords.current },
+        });
+      }
+    }
+  }, [selectedVehicleFUll?.lat, selectedVehicleFUll?.lng]);
+
+  /* =====================================================
+     SMOOTH ANIMATION LOOP 
+     ===================================================== */
+  const startAnimationLoop = () => {
+    const DURATION = 5000; // আপনার API ডাটা আসার ইন্টারভল
+
+    const animate = () => {
+      if (startTime.current && mapRef.current) {
+        const now = Date.now();
+        const progress = Math.min((now - startTime.current) / DURATION, 1);
+
+        const lng =
+          lastPos.current[0] +
+          (nextPos.current[0] - lastPos.current[0]) * progress;
+        const lat =
+          lastPos.current[1] +
+          (nextPos.current[1] - lastPos.current[1]) * progress;
+
+        // বর্তমান এনিমেটেড পজিশনটি ম্যাপে রিফ্লেক্ট করানো
+        // নোট: আপনি যদি Marker ব্যবহার করেন, তবে একটি State আপডেট করতে হবে।
+        // আর যদি Source ব্যবহার করেন তবে সরাসরি setData করবেন।
+        setAnimatedCoords([lng, lat]);
+      }
+      animationFrameId.current = requestAnimationFrame(animate);
+    };
+    animate();
   };
+
+  // এনিমেশনের জন্য আলাদা স্টেট (যাতে আইকন নড়ে)
+  const [animatedCoords, setAnimatedCoords] = useState([0, 0]);
+
+  useEffect(() => {
+    return () => cancelAnimationFrame(animationFrameId.current);
+  }, []);
 
   /* ---------------- Actions ---------------- */
   const zoomIn = () => mapRef.current?.zoomIn();
   const zoomOut = () => mapRef.current?.zoomOut();
 
+  //   hadle share
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
     alert("Map link copied");
   };
 
+  //  handel print
   const handlePrint = async () => {
     const map = mapRef.current;
     if (!map) return;
@@ -169,266 +302,219 @@ const VehiclesStatusMap = () => {
   };
 
   return (
-    <div
-      ref={wrapperRef}
-      className="relative w-full h-140 rounded-2xl overflow-hidden bg-white"
-    >
-      <MemoMap
-        ref={mapRef}
-        mapStyle={satellite ? SATELLITE_STYLE : MAP_STYLE}
-        style={{ width: "100%", height: "100%" }}
-        initialViewState={initialViewState}
-        doubleClickZoom={false}
-        dragRotate={false}
-        attributionControl={false}
+    <>
+      {/* main map container */}
+      <div
+        ref={wrapperRef}
+        className="relative w-full h-160 rounded-2xl overflow-hidden bg-white"
       >
-        {/* 🚗 VEHICLE MARKERS */}
-        {mode === "CLUSTER" && (
-          <Marker
-            longitude={onlineDevices[0].lng}
-            latitude={onlineDevices[0].lat}
-            anchor="center"
-            onClick={() => {
-              setSelectedVehicleId(null);
-              setMode("SINGLE");
-              fitToAllVehicles(onlineDevices);
-            }}
+        <MemoMap
+          ref={mapRef}
+          onLoad={onMapLoad}
+          mapStyle={satellite ? SATELLITE_STYLE : MAP_STYLE}
+          style={{ width: "100%", height: "100%" }}
+          initialViewState={initialViewState}
+          doubleClickZoom={false}
+          dragRotate={false}
+          attributionControl={false}
+        >
+          {/* 🚗 VEHICLE MARKERS */}
+          {mode === "CLUSTER" && (
+            <Marker
+              longitude={onlineDevices[0]?.lng}
+              latitude={onlineDevices[0]?.lat}
+              //   longitude={animatedCoords[0] || Number(selectedVehicleFUll?.lng)}
+              //   latitude={animatedCoords[1] || Number(selectedVehicleFUll?.lat)}
+              anchor="center"
+              onClick={() => {
+                setSelectedVehicleId(null);
+                setMode("SINGLE");
+                fitToAllVehicles(onlineDevices);
+              }}
+            >
+              <VehicleMarker count={onlineCount} />
+            </Marker>
+          )}
+
+          {mode !== "CLUSTER" &&
+            onlineDevices.map((v) => {
+              const id = v.device_data?.imei ?? v.id;
+              const waveColor = getVehicleWaveColor(v);
+              const filterImages = vehiclesData.find((vId) => vId?.imei === id);
+              return (
+                <Marker
+                  key={id}
+                  longitude={v.lng}
+                  latitude={v.lat}
+                  anchor="bottom"
+                >
+                  <div
+                    className="relative flex items-center justify-center cursor-pointer"
+                    onClick={() => {
+                      setSelectedVehicleId((prev) => {
+                        if (prev === id) return null;
+                        flyToVehicle(v);
+                        return id;
+                      });
+                    }}
+                  >
+                    {/* 🌊 Dynamic Wave Animation Rings */}
+                    <div
+                      className="car-status-circle"
+                      style={{ backgroundColor: waveColor }}
+                    ></div>
+
+                    <div className="car-wave-container">
+                      <div
+                        className="car-wave-ring"
+                        style={{ backgroundColor: waveColor }}
+                      ></div>
+                      <div
+                        className="car-wave-ring wave-2"
+                        style={{ backgroundColor: waveColor }}
+                      ></div>
+                      <div
+                        className="car-wave-ring wave-3"
+                        style={{ backgroundColor: waveColor }}
+                      ></div>
+                    </div>
+
+                    {/* 🚗 Vehicle Icon (No vibration, just static or simple hover scale) */}
+                    <img
+                      // src="/car-icon.svg"
+                      src={
+                        filterImages?.vehicle_type_image
+                          ? `${import.meta.env.VITE_API_URL}${
+                              filterImages?.vehicle_type_image
+                            }`
+                          : "/car-icon.svg"
+                      }
+                      className="w-10 h-10 z-10 hover:scale-110 transition-transform duration-300"
+                      alt="car"
+                    />
+
+                    {/* 🔥 CARD POPUP WITH TOOLTIP POINTER */}
+                    {selectedVehicleId === id && (
+                      <div className="absolute bottom-[45px] left-1/2 -translate-x-1/2 z-50 flex flex-col items-center">
+                        <div className="relative shadow-2xl">
+                          <VehicleInfoCard
+                            vehicle={selectedVehicleFUll}
+                            onClose={() => setSelectedVehicleId(null)}
+                          />
+                        </div>
+                        {/* Tooltip Triangle Pointer */}
+                        <div className="w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent  border-t-[15px] border-t-white  drop-shadow-lg"></div>
+                      </div>
+                    )}
+                  </div>
+                </Marker>
+              );
+            })}
+        </MemoMap>
+
+        {/* 🗺️ Map / Satellite Toggle */}
+        <div className="absolute top-3 left-3 z-20 bg-white rounded-lg shadow  flex">
+          <button
+            onClick={() => setSatellite(false)}
+            className={`px-4 py-1 cursor-pointer ${
+              !satellite && "bg-gray-100 font-medium"
+            }`}
           >
-            <VehicleMarker count={onlineCount} />
-          </Marker>
-        )}
-
-        {mode !== "CLUSTER" &&
-          onlineDevices.map((v) => {
-            const id = v.device_data?.imei ?? v.id;
-            return (
-              <Marker
-                key={id}
-                longitude={v.lng}
-                latitude={v.lat}
-                anchor="bottom"
-                // onClick={() => {
-                //   setSelectedVehicleId((prev) => {
-                //     if (prev === id) {
-                //       return null; // hide → no fly
-                //     } else {
-                //       flyToVehicle(v); // show → fly
-                //       return id;
-                //     }
-                //   });
-                // }}
-
-                onClick={() => {
-                  setSelectedVehicleId((prev) => {
-                    if (prev === id) {
-                      setCardVehicle(null);
-                      return null;
-                    } else {
-                      flyToVehicle(v);
-                      updateCardPosition(v);
-                      setCardVehicle(v);
-                      return id;
-                    }
-                  });
-                }}
-              >
-                <img src="/car-icon.svg" className="w-8 h-8 cursor-pointer" />
-
-                {/* 🔥 CARD POPUP (RELATIVE TO THIS CAR) */}
-                {selectedVehicleId === (v.device_data?.imei ?? v.id) && (
-                  <VehicleInfoCard vehicle={v} />
-                )}
-              </Marker>
-            );
-          })}
-      </MemoMap>
-
-      {/* {cardVehicle && cardPos && (
-        <div
-          style={{
-            position: "absolute",
-            left: cardPos.x,
-            top: cardPos.y - 160,
-            transform: "translateX(-50%)",
-          }}
-        >
-          <VehicleInfoCard vehicle={cardVehicle} />
+            Map
+          </button>
+          <button
+            onClick={() => setSatellite(true)}
+            className={`px-4 py-1 cursor-pointer ${
+              satellite && "bg-gray-100 font-medium"
+            }`}
+          >
+            Satellite
+          </button>
         </div>
-      )} */}
-
-      {/* 🗺️ Map / Satellite Toggle */}
-      <div className="absolute top-3 left-3 z-20 bg-white rounded-lg shadow  flex">
+        {/* 🖥 Fullscreen */}
         <button
-          onClick={() => setSatellite(false)}
-          className={`px-4 py-1 cursor-pointer ${
-            !satellite && "bg-gray-100 font-medium"
-          }`}
-        >
-          Map
-        </button>
-        <button
-          onClick={() => setSatellite(true)}
-          className={`px-4 py-1 cursor-pointer ${
-            satellite && "bg-gray-100 font-medium"
-          }`}
-        >
-          Satellite
-        </button>
-      </div>
-
-      {/* 🖥 Fullscreen */}
-      <button
-        onClick={() => {
-          const el = wrapperRef.current;
-          !document.fullscreenElement
-            ? el.requestFullscreen()
-            : document.exitFullscreen();
-        }}
-        className="absolute top-3 right-4 z-20 w-11 h-11 cursor-pointer bg-white rounded-full shadow flex items-center justify-center"
-      >
-        <Scan />
-      </button>
-      <div className="absolute bottom-8 right-4 z-20">
-        <button
-          onClick={() => setControlsOpen((p) => !p)}
-          className="w-12 h-12 rounded-full cursor-pointer bg-white shadow flex items-center justify-center"
+          onClick={() => {
+            const el = wrapperRef.current;
+            !document.fullscreenElement
+              ? el.requestFullscreen()
+              : document.exitFullscreen();
+          }}
+          className="absolute top-3 right-4 z-20 w-11 h-11 cursor-pointer bg-white rounded-full shadow flex items-center justify-center"
         >
           <Scan />
         </button>
-        {controlsOpen && (
-          <>
-            <button
-              onClick={zoomIn}
-              className="absolute -top-20 right-12.5 cursor-pointer bg-white p-2 rounded-full shadow"
-            >
-              <Plus />
-            </button>
-            <button
-              onClick={zoomOut}
-              className="absolute -bottom-5 right-12.5 cursor-pointer bg-white p-2 rounded-full shadow"
-            >
-              <Minus />
-            </button>
-            <button
-              onClick={() => mapRef.current?.panBy([-120, 0])}
-              className="absolute -left-35 -top-1.75 -translate-y-1/2 cursor-pointer bg-white p-2 rounded-full shadow"
-            >
-              <ChevronLeft />
-            </button>
-            <button
-              onClick={() => mapRef.current?.panBy([120, 0])}
-              className="absolute right-12.5 -top-1.75 -translate-y-1/2 cursor-pointer bg-white p-2 rounded-full shadow"
-            >
-              <ChevronRight />
-            </button>
-            <button
-              onClick={() => mapRef.current?.panBy([0, -120])}
-              className="absolute -top-20 -left-19.5 -translate-x-1/2 cursor-pointer bg-white p-2 rounded-full shadow"
-            >
-              <ChevronUp />
-            </button>
-            <button
-              onClick={() => mapRef.current?.panBy([0, 120])}
-              className="absolute -bottom-5 -left-19.5 -translate-x-1/2 cursor-pointer bg-white p-2 rounded-full shadow"
-            >
-              <ChevronDown />
-            </button>
-          </>
-        )}
-      </div>
-
-      {/* 📤 Share / Print */}
-      <div>
-        <div className="absolute bottom-6 left-3 z-10  flex flex-col gap-2 cursor-pointer">
-          <div className="w-8 h-8 rounded-xl bg-[#95F0B3]" />
-          <div className="w-8 h-8 rounded-xl bg-[#95D8F0]" />
-          <div className="w-8 h-8 rounded-xl bg-[#F0C695]" />
-          <div className="w-8 h-8 rounded-xl bg-[#F09D95]" />
-          <div className="w-8 h-8 rounded-xl bg-[#787878]" />
-        </div>
-        <div className="absolute bottom-6 left-15 z-10 flex gap-2 h-9 ">
+        <div className="absolute bottom-8 right-4 z-20">
           <button
-            onClick={handleShare}
-            className="flex gap-2 justify-center items-center bg-amber-50 rounded-2xl px-3 cursor-pointer"
+            onClick={() => setControlsOpen((p) => !p)}
+            className="w-12 h-12 rounded-full cursor-pointer bg-white shadow flex items-center justify-center"
           >
-            <Share2 size={21} /> <span>Share</span>
+            <Scan />
           </button>
-          <button
-            onClick={handlePrint}
-            className="flex gap-2 justify-center items-center bg-amber-50 rounded-2xl px-3 cursor-pointer"
-          >
-            <Printer size={21} /> <span>Print</span>
-          </button>
+          {controlsOpen && (
+            <>
+              <button
+                onClick={zoomIn}
+                className="absolute -top-20 right-12.5 cursor-pointer bg-white p-2 rounded-full shadow"
+              >
+                <Plus />
+              </button>
+              <button
+                onClick={zoomOut}
+                className="absolute -bottom-5 right-12.5 cursor-pointer bg-white p-2 rounded-full shadow"
+              >
+                <Minus />
+              </button>
+              <button
+                onClick={() => mapRef.current?.panBy([-120, 0])}
+                className="absolute -left-35 -top-1.75 -translate-y-1/2 cursor-pointer bg-white p-2 rounded-full shadow"
+              >
+                <ChevronLeft />
+              </button>
+              <button
+                onClick={() => mapRef.current?.panBy([120, 0])}
+                className="absolute right-12.5 -top-1.75 -translate-y-1/2 cursor-pointer bg-white p-2 rounded-full shadow"
+              >
+                <ChevronRight />
+              </button>
+              <button
+                onClick={() => mapRef.current?.panBy([0, -120])}
+                className="absolute -top-20 -left-19.5 -translate-x-1/2 cursor-pointer bg-white p-2 rounded-full shadow"
+              >
+                <ChevronUp />
+              </button>
+              <button
+                onClick={() => mapRef.current?.panBy([0, 120])}
+                className="absolute -bottom-5 -left-19.5 -translate-x-1/2 cursor-pointer bg-white p-2 rounded-full shadow"
+              >
+                <ChevronDown />
+              </button>
+            </>
+          )}
         </div>
-      </div>
-    </div>
-  );
-};
-
-const VehicleInfoCard = ({ vehicle }) => {
-  return (
-    <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-[360px] rounded-2xl shadow-2xl bg-white overflow-hidden z-30 pointer-events-auto">
-      {/* 🟡 Header */}
-      <div className="bg-yellow-400 px-4 py-3 flex items-center justify-between">
+        {/* 📤 Share / Print  / status */}
         <div>
-          <p className="text-sm font-semibold">{vehicle.name ?? "TMV 44837"}</p>
-          <p className="text-xs">
-            {vehicle.device_data?.plate_number ?? "DM NA 13-0756"}
-          </p>
-        </div>
-        <img src="/car-icon.svg" className="w-7 h-7" />
-      </div>
+          {/* VehicleStatusLegend left side */}
+          <VehicleStatusLegend />
 
-      {/* 📊 Body */}
-      <div className="p-4 grid grid-cols-2 gap-3">
-        <div className="bg-amber-50 rounded-xl p-3 flex flex-col items-center justify-center">
-          <p className="text-2xl font-bold">{Math.round(vehicle.speed ?? 0)}</p>
-          <p className="text-xs text-gray-500">km/h</p>
-        </div>
-
-        <div className="text-xs text-gray-600">
-          <p className="font-medium text-black mb-1">
-            {vehicle.address ?? "Unknown location"}
-          </p>
-          <p>
-            {vehicle.lat?.toFixed(5)}, {vehicle.lng?.toFixed(5)}
-          </p>
-          <p className="mt-1 text-[11px] text-gray-400">
-            {vehicle.time ?? "Just now"}
-          </p>
-        </div>
-
-        <div
-          className={`col-span-2 rounded-xl px-3 py-2 text-sm font-medium ${
-            vehicle.engine_status
-              ? "bg-green-100 text-green-700"
-              : "bg-red-100 text-red-600"
-          }`}
-        >
-          Engine Status: {vehicle.engine_status ? "On" : "Off"}
+          {/* 📤 Share / Print  */}
+          <div className="absolute bottom-6 left-15 z-10 flex gap-2 h-9 ">
+            <button
+              onClick={handleShare}
+              className="flex gap-2 justify-center items-center bg-amber-50 rounded-2xl px-3 cursor-pointer"
+            >
+              <Share2 size={21} /> <span>Share</span>
+            </button>
+            <button
+              onClick={handlePrint}
+              className="flex gap-2 justify-center items-center bg-amber-50 rounded-2xl px-3 cursor-pointer"
+            >
+              <Printer size={21} /> <span>Print</span>
+            </button>
+          </div>
         </div>
       </div>
-
-      {/* 🔘 Actions */}
-      <div className="border-t px-4 py-3 grid grid-cols-5 gap-3 text-gray-500">
-        <button className="flex flex-col items-center text-xs">
-          📍<span>Map</span>
-        </button>
-        <button className="flex flex-col items-center text-xs">
-          🕒<span>History</span>
-        </button>
-        <button className="flex flex-col items-center text-xs">
-          ⏱<span>Idle</span>
-        </button>
-        <button className="flex flex-col items-center text-xs">
-          📈<span>Speed</span>
-        </button>
-        <button className="flex flex-col items-center text-xs">
-          📌<span>Locate</span>
-        </button>
-      </div>
-    </div>
+    </>
   );
 };
 
-export default VehiclesStatusMap;
+export default VehiclesCurrentLocationMap;

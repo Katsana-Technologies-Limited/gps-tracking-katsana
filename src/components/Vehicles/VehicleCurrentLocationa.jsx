@@ -4,6 +4,7 @@ import { Power } from "lucide-react";
 import VehicleStatusDrawer from "./VehicleStatusDrawer";
 import VehiclesStatusMap from "../AnalyticsSummary/VehiclesStatusMap";
 import { TrafficToggle } from "../utils/TrafficToggle";
+import VehiclesCurrentLocationMap from "./VehiclesCurrentLocationMap";
 
 export default function VehicleCurrentLocationa() {
   const [trafficOn, setTrafficOn] = useState(false);
@@ -35,7 +36,8 @@ export default function VehicleCurrentLocationa() {
       </div>
       <div className="grid grid-cols-1 xl:grid-cols-7 gap-4">
         <div className="xl:col-span-5">
-          <VehiclesStatusMap />
+          {/* <VehiclesStatusMap /> */}
+          <VehiclesCurrentLocationMap />
         </div>
         <div className="xl:col-span-2">
           <div className="hidden xl:block bg-white rounded-xl shadow-sm h-[calc(100vh-140px)]">

@@ -54,9 +54,7 @@ const VehicleInfoCard = ({ vehicle, onClose }) => {
         <img
           src={
             vehicle?.vehicle_type_image
-              ? `${import.meta.VITE_API_URL}/uploads/vehicle_types/${
-                  vehicle?.vehicle_type_image
-                }`
+              ? `${import.meta.env.VITE_API_URL}${vehicle?.vehicle_type_image}`
               : "/car-icon.svg"
           }
           className="w-7 h-7"
@@ -85,8 +83,18 @@ const VehicleInfoCard = ({ vehicle, onClose }) => {
         {/* 🟢 Status Cards (Engine & Time) - আপনার রিকোয়েস্ট করা পার্ট */}
         <div className="grid grid-cols-2 gap-2 mb-2">
           {/* Left: Engine Status */}
-          <div className="flex items-center gap-2 bg-[#F0F9F6] border border-[#E0F2EB] rounded-lg px-3 py-2 ">
-            <div className="bg-[#10B981] p-1 rounded-full text-white">
+          <div
+            className={`flex items-center gap-2 border ${
+              vehicle.engine_status
+                ? "bg-[#F0F9F6]  border-[#E0F2EB]"
+                : "bg-[#f3e2defa] border-[#dfcfccfa]"
+            }  rounded-lg px-3 py-2 `}
+          >
+            <div
+              className={`${
+                vehicle.engine_status ? "bg-[#10B981]" : "bg-[#b64f35fa]"
+              } p-1 rounded-full text-white`}
+            >
               <MdFlashOn size={16} />
             </div>
             <span className="text-sm font-semibold text-[#1F2937]">
