@@ -9,14 +9,12 @@ import { useSelector } from "react-redux";
 
 const BARIKOI_KEY = import.meta.env.VITE_BARIKOI_API_KEY;
 const MAP_STYLE_URL = `https://map.barikoi.com/styles/osm-liberty/style.json?key=${BARIKOI_KEY}`;
-
+console.log(MAP_STYLE_URL);
 const GPS_DURATION = 10000; // 10s
 
 const VehiclesLiveMap = () => {
   const mapRef = useRef(null);
-
   const selectedImeiRef = useRef(null);
-
   const lastPos = useRef({});
   const nextPos = useRef({});
   const startTime = useRef({});
@@ -24,6 +22,7 @@ const VehiclesLiveMap = () => {
   const rafId = useRef(null);
 
   const { filteredDevices } = useVtsAllDevices();
+  console.log(filteredDevices);
   const lastSelectedImei = useSelector(
     (state) => state.vehicles.selectedLastImei,
   );
@@ -186,17 +185,30 @@ const VehiclesLiveMap = () => {
     if (!isValidCoord(lng, lat)) return;
 
     if (!Array.isArray(nextPos.current[imei])) {
+      // first seen: set both last and next to the same coordinate
       lastPos.current[imei] = [lng, lat];
       nextPos.current[imei] = [lng, lat];
       routeCoords.current[imei] = [[lng, lat]];
+      startTime.current[imei] = Date.now();
     } else {
-      lastPos.current[imei] = [...nextPos.current[imei]];
+      // compute current interpolated position to avoid jumps
+      const now = Date.now();
+      const prevStart = startTime.current[imei] || now;
+      const elapsed = Math.max(0, now - prevStart);
+      const progress = Math.min(elapsed / GPS_DURATION, 1);
+
+      const [lng1, lat1] = lastPos.current[imei] || nextPos.current[imei];
+      const [lng2, lat2] = nextPos.current[imei] || [lng1, lat1];
+
+      const currentLng = lng1 + (lng2 - lng1) * progress;
+      const currentLat = lat1 + (lat2 - lat1) * progress;
+
+      lastPos.current[imei] = [currentLng, currentLat];
       nextPos.current[imei] = [lng, lat];
       routeCoords.current[imei] = routeCoords.current[imei] || [];
       routeCoords.current[imei].push([lng, lat]);
+      startTime.current[imei] = Date.now();
     }
-
-    startTime.current[imei] = Date.now();
 
     const map = mapRef.current.getMap();
     map.getSource("active-route")?.setData({
