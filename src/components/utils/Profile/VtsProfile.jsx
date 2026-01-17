@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/incompatible-library */
 import { useState } from "react";
 import { toast } from "sonner";
 import { useMutation } from "@tanstack/react-query";
@@ -11,10 +12,17 @@ const VtsProfile = () => {
   const { data, isLoading, error } = useCustomer();
 
   const [showChangePass, setShowChangePass] = useState(false);
+  const [showPassword, setShowPassword] = useState({
+    old: false,
+    new: false,
+    confirm: false,
+  });
+
   const {
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm();
 
@@ -29,6 +37,7 @@ const VtsProfile = () => {
       toast.success("Password changed successfully!");
       reset();
       setShowChangePass(false);
+      setShowPassword({ old: false, new: false, confirm: false });
     },
     onError: (err) => {
       toast.error(err?.response?.data?.message || "Failed to change password");
@@ -43,38 +52,48 @@ const VtsProfile = () => {
     mutation.mutate(formData);
   };
 
+  const togglePasswordVisibility = (field) => {
+    setShowPassword((prev) => ({ ...prev, [field]: !prev[field] }));
+  };
+
   if (isLoading)
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg text-[#2c5364]">Loading profile...</div>
+        <div className="text-sm text-[#2c5364]">Loading profile...</div>
       </div>
     );
   if (error)
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg text-red-500">Failed to load profile</div>
+        <div className="text-sm text-red-500">Failed to load profile</div>
       </div>
     );
 
   return (
-    <div className="flex gap-4">
+    <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
+      {/* Main Profile Content */}
       <div
-        className={`bg-white rounded-md transition-all duration-500 ${
-          showChangePass ? "w-full lg:w-3/5" : "w-full"
+        className={`bg-white rounded-xl shadow-sm border border-gray-100 transition-all duration-300 ${
+          showChangePass ? "lg:w-2/3" : "w-full"
         }`}
       >
-        <div className="p-8">
-          <div className="flex items-center justify-between mb-4 pb-4 border-b border-slate-200">
+        <div className="p-4 md:p-6">
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-gray-100">
             <div>
-              <h1 className="text-2xl font-bold text-[#2c5364]">My Profile</h1>
-              <p className="text-slate-500">Manage your account information</p>
+              <h1 className="text-xl md:text-2xl font-bold text-[#2c5364] mb-1">
+                My Profile
+              </h1>
+              <p className="text-xs md:text-sm text-gray-500">
+                Manage your account information
+              </p>
             </div>
             <button
-              className="bg-linear-to-r from-[#fe8e1c] to-[#ff6b00] text-white font-semibold px-3 cursor-pointer py-2.5 text-xs rounded-lg shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center gap-2"
+              className="bg-linear-to-r from-[#fe8e1c] to-[#ff6b00] text-white font-medium px-4 py-2.5 text-xs md:text-sm rounded-lg shadow hover:shadow-md hover:scale-[1.02] cursor-pointer transition-all duration-200 flex items-center gap-2 self-start sm:self-center w-full sm:w-auto justify-center"
               onClick={() => setShowChangePass(!showChangePass)}
             >
               <svg
-                className="w-4 h-4"
+                className="w-3.5 h-3.5 md:w-4 md:h-4"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -86,16 +105,18 @@ const VtsProfile = () => {
                   d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
                 />
               </svg>
-              {showChangePass ? "Hide" : "Change Password"}
+              {showChangePass ? "Back to Profile" : "Change Password"}
             </button>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+          {/* Profile Fields Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             <ProfileField
               label="Company"
               value={data?.company}
               icon={
                 <svg
-                  className="w-5 h-5"
+                  className="w-4 h-4 md:w-5 md:h-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -114,7 +135,7 @@ const VtsProfile = () => {
               value={data?.email}
               icon={
                 <svg
-                  className="w-5 h-5"
+                  className="w-4 h-4 md:w-5 md:h-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -133,7 +154,7 @@ const VtsProfile = () => {
               value={data?.mobile}
               icon={
                 <svg
-                  className="w-5 h-5"
+                  className="w-4 h-4 md:w-5 md:h-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -152,7 +173,7 @@ const VtsProfile = () => {
               value={data?.nationality}
               icon={
                 <svg
-                  className="w-5 h-5"
+                  className="w-4 h-4 md:w-5 md:h-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -171,7 +192,7 @@ const VtsProfile = () => {
               value={data?.national_id}
               icon={
                 <svg
-                  className="w-5 h-5"
+                  className="w-4 h-4 md:w-5 md:h-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -190,7 +211,7 @@ const VtsProfile = () => {
               value={data?.occupation}
               icon={
                 <svg
-                  className="w-5 h-5"
+                  className="w-4 h-4 md:w-5 md:h-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -209,7 +230,7 @@ const VtsProfile = () => {
               value={data?.city}
               icon={
                 <svg
-                  className="w-5 h-5"
+                  className="w-4 h-4 md:w-5 md:h-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -234,7 +255,7 @@ const VtsProfile = () => {
               value={data?.country}
               icon={
                 <svg
-                  className="w-5 h-5"
+                  className="w-4 h-4 md:w-5 md:h-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -253,7 +274,7 @@ const VtsProfile = () => {
               value={data?.permanent_address}
               icon={
                 <svg
-                  className="w-5 h-5"
+                  className="w-4 h-4 md:w-5 md:h-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -272,7 +293,7 @@ const VtsProfile = () => {
               value={data?.present_address}
               icon={
                 <svg
-                  className="w-5 h-5"
+                  className="w-4 h-4 md:w-5 md:h-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -291,7 +312,7 @@ const VtsProfile = () => {
               value={data?.zip}
               icon={
                 <svg
-                  className="w-5 h-5"
+                  className="w-4 h-4 md:w-5 md:h-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -310,7 +331,7 @@ const VtsProfile = () => {
               value={data?.website}
               icon={
                 <svg
-                  className="w-5 h-5"
+                  className="w-4 h-4 md:w-5 md:h-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -331,7 +352,7 @@ const VtsProfile = () => {
               }
               icon={
                 <svg
-                  className="w-5 h-5"
+                  className="w-4 h-4 md:w-5 md:h-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -352,7 +373,7 @@ const VtsProfile = () => {
               }
               icon={
                 <svg
-                  className="w-5 h-5"
+                  className="w-4 h-4 md:w-5 md:h-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -370,21 +391,22 @@ const VtsProfile = () => {
         </div>
       </div>
 
-      {/* Change Password Slide Panel */}
+      {/* Change Password Panel - Full Screen on Mobile */}
       <div
-        className={`bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-500 ${
+        className={`fixed lg:relative inset-0 z-50 lg:z-auto bg-white lg:rounded-xl lg:shadow-sm lg:border lg:border-gray-100 transition-all duration-300 transform ${
           showChangePass
-            ? "w-full lg:w-2/5 opacity-100"
-            : "w-0 opacity-0 lg:hidden"
+            ? "translate-x-0 lg:translate-x-0 opacity-100 lg:opacity-100 lg:w-1/3"
+            : "translate-x-full lg:translate-x-0 opacity-0 lg:opacity-0 lg:w-0 lg:overflow-hidden"
         }`}
       >
-        <div className="p-6 h-full">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold text-[#2c5364]">
+        <div className="h-full p-4 md:p-6 lg:p-8 overflow-y-auto">
+          {/* Mobile Header */}
+          <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100 lg:hidden">
+            <h2 className="text-lg font-bold text-[#2c5364]">
               Change Password
             </h2>
             <button
-              className="text-slate-400 cursor-pointer hover:text-slate-600 transition-colors"
+              className="p-2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
               onClick={() => setShowChangePass(false)}
               aria-label="Close"
             >
@@ -403,26 +425,103 @@ const VtsProfile = () => {
               </svg>
             </button>
           </div>
-          <div className="space-y-4">
+
+          {/* Desktop Header */}
+          <div className="hidden lg:flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
+            <h2 className="text-lg font-bold text-[#2c5364]">
+              Change Password
+            </h2>
+            <button
+              className="p-1 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+              onClick={() => setShowChangePass(false)}
+              aria-label="Close"
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+
+          {/* Password Form */}
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-4 md:space-y-5"
+          >
+            {/* Old Password */}
             <div>
-              <label className="block text-sm font-semibold text-[#2c5364] mb-2">
-                Old Password
+              <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1.5">
+                Current Password
               </label>
               <div className="relative">
                 <input
-                  type="password"
-                  className="w-full px-4 py-2.5 border-2 border-slate-200 rounded-lg focus:outline-none focus:border-[#fe8e1c] transition-colors"
+                  type={showPassword.old ? "text" : "password"}
+                  className="w-full px-3 md:px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#fe8e1c] focus:border-transparent transition"
                   autoComplete="current-password"
-                  placeholder="Enter old password"
+                  placeholder="Enter current password"
                   {...register("oldPassword", {
-                    required: "Old password is required",
+                    required: "Current password is required",
+                    minLength: {
+                      value: 6,
+                      message: "Password must be at least 6 characters",
+                    },
                   })}
                 />
+                <button
+                  type="button"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
+                  onClick={() => togglePasswordVisibility("old")}
+                >
+                  {showPassword.old ? (
+                    <svg
+                      className="w-4 h-4 md:w-5 md:h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L6.59 6.59m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                      />
+                    </svg>
+                  ) : (
+                    <svg
+                      className="w-4 h-4 md:w-5 md:h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                      />
+                    </svg>
+                  )}
+                </button>
               </div>
               {errors.oldPassword && (
-                <div className="text-red-500 text-sm mt-1.5 flex items-center gap-1">
+                <div className="text-red-500 text-xs md:text-sm mt-1.5 flex items-center gap-1">
                   <svg
-                    className="w-4 h-4"
+                    className="w-3 h-3 md:w-4 md:h-4 shrink-0"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -437,25 +536,71 @@ const VtsProfile = () => {
               )}
             </div>
 
+            {/* New Password */}
             <div>
-              <label className="block text-sm font-semibold text-[#2c5364] mb-2">
+              <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1.5">
                 New Password
               </label>
               <div className="relative">
                 <input
-                  type="password"
-                  className="w-full px-4 py-2.5 border-2 border-slate-200 rounded-lg focus:outline-none focus:border-[#fe8e1c] transition-colors"
+                  type={showPassword.new ? "text" : "password"}
+                  className="w-full px-3 md:px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#fe8e1c] focus:border-transparent transition"
                   autoComplete="new-password"
                   placeholder="Enter new password"
                   {...register("newPassword", {
                     required: "New password is required",
+                    minLength: {
+                      value: 6,
+                      message: "Password must be at least 6 characters",
+                    },
                   })}
                 />
+                <button
+                  type="button"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
+                  onClick={() => togglePasswordVisibility("new")}
+                >
+                  {showPassword.new ? (
+                    <svg
+                      className="w-4 h-4 md:w-5 md:h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L6.59 6.59m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                      />
+                    </svg>
+                  ) : (
+                    <svg
+                      className="w-4 h-4 md:w-5 md:h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                      />
+                    </svg>
+                  )}
+                </button>
               </div>
               {errors.newPassword && (
-                <div className="text-red-500 text-sm mt-1.5 flex items-center gap-1">
+                <div className="text-red-500 text-xs md:text-sm mt-1.5 flex items-center gap-1">
                   <svg
-                    className="w-4 h-4"
+                    className="w-3 h-3 md:w-4 md:h-4 shrink-0"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -470,25 +615,70 @@ const VtsProfile = () => {
               )}
             </div>
 
+            {/* Confirm Password */}
             <div>
-              <label className="block text-sm font-semibold text-[#2c5364] mb-2">
+              <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1.5">
                 Confirm New Password
               </label>
               <div className="relative">
                 <input
-                  type="password"
-                  className="w-full px-4 py-2.5 border-2 border-slate-200 rounded-lg focus:outline-none focus:border-[#fe8e1c] transition-colors"
+                  type={showPassword.confirm ? "text" : "password"}
+                  className="w-full px-3 md:px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#fe8e1c] focus:border-transparent transition"
                   autoComplete="new-password"
                   placeholder="Confirm new password"
                   {...register("confirmPassword", {
-                    required: "Please confirm new password",
+                    required: "Please confirm your new password",
+                    validate: (value) =>
+                      value === watch("newPassword") ||
+                      "Passwords do not match",
                   })}
                 />
+                <button
+                  type="button"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
+                  onClick={() => togglePasswordVisibility("confirm")}
+                >
+                  {showPassword.confirm ? (
+                    <svg
+                      className="w-4 h-4 md:w-5 md:h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L6.59 6.59m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                      />
+                    </svg>
+                  ) : (
+                    <svg
+                      className="w-4 h-4 md:w-5 md:h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                      />
+                    </svg>
+                  )}
+                </button>
               </div>
               {errors.confirmPassword && (
-                <div className="text-red-500 text-sm mt-1.5 flex items-center gap-1">
+                <div className="text-red-500 text-xs md:text-sm mt-1.5 flex items-center gap-1">
                   <svg
-                    className="w-4 h-4"
+                    className="w-3 h-3 md:w-4 md:h-4 shrink-0"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -502,17 +692,18 @@ const VtsProfile = () => {
                 </div>
               )}
             </div>
-            <div className="pt-3">
+
+            {/* Form Actions */}
+            <div className="pt-2">
               <button
-                type="button"
-                onClick={handleSubmit(onSubmit)}
-                className="w-full bg-linear-to-r from-[#fe8e1c] to-[#ff6b00] text-white font-semibold px-6 py-2.5 cursor-pointer rounded-xl shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                type="submit"
+                className="w-full bg-linear-to-r from-[#fe8e1c] to-[#ff6b00] text-white font-medium text-sm py-2.5 md:py-3 rounded-lg shadow hover:shadow-md hover:scale-[1.02] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                 disabled={isSubmitting || mutation.isLoading}
               >
                 {mutation.isLoading ? (
                   <span className="flex items-center justify-center gap-2">
                     <svg
-                      className="animate-spin h-5 w-5"
+                      className="animate-spin h-4 w-4 md:h-5 md:w-5"
                       fill="none"
                       viewBox="0 0 24 24"
                     >
@@ -537,7 +728,7 @@ const VtsProfile = () => {
                 )}
               </button>
             </div>
-          </div>
+          </form>
         </div>
       </div>
     </div>
@@ -545,3 +736,5 @@ const VtsProfile = () => {
 };
 
 export default VtsProfile;
+
+
