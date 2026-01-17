@@ -375,7 +375,7 @@ export default function VehiclesDashboard() {
                 >
                   {i + 1}
                 </button>
-              )
+              ),
             )}
           </div>
         </div>

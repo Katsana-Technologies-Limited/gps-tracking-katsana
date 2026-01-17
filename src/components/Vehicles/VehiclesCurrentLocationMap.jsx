@@ -7,6 +7,7 @@ import useVtsAllDevices from "../../hooks/useVtsAllDevices";
 import useCustomerVehicle from "../../hooks/useCustomerVehicle";
 import VehicleInfoCard from "../Vehicles/VehicleInfoCard";
 import { useSelector } from "react-redux";
+import { getVehicleWaveColor } from "./statusConfig";
 
 const BARIKOI_KEY = import.meta.env.VITE_BARIKOI_API_KEY;
 const MAP_STYLE_URL = `https://map.barikoi.com/styles/osm-liberty/style.json?key=${BARIKOI_KEY}`;
@@ -308,15 +309,14 @@ const VehiclesLiveMap = () => {
           zoom: 6,
         }}
       >
-        {/* UI MARKERS (STATIC) - Now with IMEI-matched images */}
         {filteredDevices.map((d) => {
           const imei = d.device_data?.imei ?? d.imei;
           const lng = Number(d.lng);
           const lat = Number(d.lat);
           if (!isValidCoord(lng, lat)) return null;
 
-          // Get the vehicle image based on IMEI, fallback to default car icon
           const vehicleImage = vehicleImageMap[imei] || "/car-icon.svg";
+          const waveColor = getVehicleWaveColor(d);
 
           return (
             <Marker
@@ -327,15 +327,33 @@ const VehiclesLiveMap = () => {
               onClick={() => onMarkerClick(d)}
             >
               <div className="relative flex items-center justify-center">
+                <div
+                  className="car-status-circle"
+                  style={{ backgroundColor: waveColor }}
+                />
+
+                <div className="car-wave-container">
+                  <div
+                    className="car-wave-ring"
+                    style={{ backgroundColor: waveColor }}
+                  />
+                  <div
+                    className="car-wave-ring wave-2"
+                    style={{ backgroundColor: waveColor }}
+                  />
+                  <div
+                    className="car-wave-ring wave-3"
+                    style={{ backgroundColor: waveColor }}
+                  />
+                </div>
                 <img
                   src={`${import.meta.env.VITE_API_URL}${vehicleImage}`}
                   alt={`Vehicle ${imei}`}
-                  className="w-9 h-9 cursor-pointer hover:scale-110 object-contain"
+                  className="w-9 h-9 z-10 cursor-pointer hover:scale-110 object-contain"
                   onError={(e) => {
                     e.target.src = "/car-icon.svg";
                   }}
                 />
-
                 {selectedVehicleId === imei && selectedVehicleFUll && (
                   <div className="absolute bottom-11.25 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center">
                     <div className="relative shadow-2xl">
