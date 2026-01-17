@@ -134,11 +134,9 @@ const VehiclesStatusMap = () => {
           : [];
         if (Array.isArray(style.layers)) {
           style.layers = style.layers.filter((layer) => {
-            // drop layers that reference missing sources
+            // drop layers that reference missing sources only
             if (layer.source && !availableSources.includes(layer.source))
               return false;
-            // drop layers that use `source-layer` (vector source sublayers)
-            if (layer["source-layer"]) return false;
             return true;
           });
         }
@@ -384,19 +382,20 @@ const VehiclesStatusMap = () => {
         </div> */}
         {/* VehicleStatusLegend left side */}
         <VehicleStatusLegend />
-
-        <div className="absolute bottom-6 left-15 z-10 flex gap-2 h-9 ">
+        <div className="absolute bottom-6 left-15 z-10 flex gap-2 h-9">
           <button
             onClick={handleShare}
             className="flex gap-2 justify-center items-center bg-amber-50 rounded-2xl px-3 cursor-pointer"
           >
-            <Share2 size={21} /> <span>Share</span>
+            <Share2 size={21} />
+            Share
           </button>
           <button
             onClick={handlePrint}
             className="flex gap-2 justify-center items-center bg-amber-50 rounded-2xl px-3 cursor-pointer"
           >
-            <Printer size={21} /> <span>Print</span>
+            <Printer size={21} />
+            Print
           </button>
         </div>
       </div>

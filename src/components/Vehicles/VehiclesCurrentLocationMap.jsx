@@ -24,7 +24,7 @@ const VehiclesLiveMap = () => {
   const { filteredDevices } = useVtsAllDevices();
   console.log(filteredDevices);
   const lastSelectedImei = useSelector(
-    (state) => state.vehicles.selectedLastImei
+    (state) => state.vehicles.selectedLastImei,
   );
   const [mapStyleObj, setMapStyleObj] = useState(null);
 
@@ -51,10 +51,9 @@ const VehiclesLiveMap = () => {
           : [];
         if (Array.isArray(style.layers)) {
           style.layers = style.layers.filter((layer) => {
-            // drop layers that reference missing sources
+            // drop layers that reference missing sources only
             if (layer.source && !availableSources.includes(layer.source))
               return false;
-            if (layer["source-layer"]) return false;
             return true;
           });
         }
@@ -73,7 +72,7 @@ const VehiclesLiveMap = () => {
 
     if (!map.hasImage("vehicle-icon")) {
       const img = await map.loadImage(
-        "https://cdn-icons-png.flaticon.com/512/7893/7893979.png"
+        "https://cdn-icons-png.flaticon.com/512/7893/7893979.png",
       );
       map.addImage("vehicle-icon", img.data, { pixelRatio: 2 });
     }
@@ -160,7 +159,7 @@ const VehiclesLiveMap = () => {
   useEffect(() => {
     if (!lastSelectedImei) return;
     const device = filteredDevices.find(
-      (d) => (d.device_data?.imei ?? d.imei) === lastSelectedImei
+      (d) => (d.device_data?.imei ?? d.imei) === lastSelectedImei,
     );
     if (!device) return;
     try {
@@ -174,7 +173,7 @@ const VehiclesLiveMap = () => {
     if (!selectedImeiRef.current) return;
 
     const device = filteredDevices.find(
-      (d) => (d.device_data?.imei ?? d.imei) === selectedImeiRef.current
+      (d) => (d.device_data?.imei ?? d.imei) === selectedImeiRef.current,
     );
 
     if (!device) return;
