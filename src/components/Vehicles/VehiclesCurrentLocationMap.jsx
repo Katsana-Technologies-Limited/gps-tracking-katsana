@@ -78,16 +78,9 @@ const VehiclesLiveMap = () => {
     };
   }, []);
 
-  const onMapLoad = async (e) => {
-    const map = e.target;
-
-    if (!map.hasImage("vehicle-icon")) {
-      const img = await map.loadImage(
-        "https://cdn-icons-png.flaticon.com/512/7893/7893979.png",
-      );
-      map.addImage("vehicle-icon", img.data, { pixelRatio: 2 });
-    }
-  };
+  // const onMapLoad = (e) => {
+  //   return;
+  // };
 
   const initSources = (device) => {
     const lng = Number(device.lng);
@@ -308,7 +301,7 @@ const VehiclesLiveMap = () => {
       <Map
         ref={mapRef}
         mapStyle={mapStyleObj}
-        onLoad={onMapLoad}
+        // onLoad={onMapLoad}
         initialViewState={{
           longitude: 90.3563,
           latitude: 23.685,
