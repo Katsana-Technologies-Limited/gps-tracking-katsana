@@ -40,6 +40,36 @@ export const STATUS_CONFIG = [
 ];
 
 export const getVehicleWaveColor = (vehicle) => {
-  const status = STATUS_CONFIG.find((s) => s.condition(vehicle));
+  const speed = Number(vehicle?.speed ?? vehicle?.device_data?.speed ?? 0);
+  const online = vehicle?.online ?? vehicle?.device_data?.online ?? "offline";
+
+  // Determine engine state: prefer explicit fields, otherwise infer from speed
+  let engineState = null;
+  if (
+    vehicle &&
+    vehicle.engine_status !== undefined &&
+    vehicle.engine_status !== null
+  ) {
+    engineState = String(vehicle.engine_status);
+  } else if (
+    vehicle &&
+    vehicle.engine !== undefined &&
+    vehicle.engine !== null
+  ) {
+    engineState = String(vehicle.engine);
+  } else {
+    const minMoving = Number(vehicle?.device_data?.min_moving_speed ?? 5);
+    engineState = speed >= minMoving ? "on" : "off";
+  }
+
+  const normalized = {
+    ...vehicle,
+    speed,
+    online,
+    engine: engineState,
+    engine_status: engineState,
+  };
+
+  const status = STATUS_CONFIG.find((s) => s.condition(normalized));
   return status?.color ?? "#787878";
 };
