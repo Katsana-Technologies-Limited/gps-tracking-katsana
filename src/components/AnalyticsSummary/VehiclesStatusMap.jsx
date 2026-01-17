@@ -54,15 +54,18 @@ const VehiclesStatusMap = () => {
         d.lat &&
         d.lng &&
         Number(d.lat) !== 0 &&
-        Number(d.lng) !== 0
+        Number(d.lng) !== 0,
     );
   }, [filteredDevices]);
 
   const onlineCount = onlineDevices.length;
 
   const flyToVehicle = (v) => {
+    const lng = Number(v.lng);
+    const lat = Number(v.lat);
+    if (!Number.isFinite(lng) || !Number.isFinite(lat)) return;
     mapRef.current?.flyTo({
-      center: [v.lng, v.lat],
+      center: [lng, lat],
       zoom: 15,
       speed: 1.2,
       curve: 1.4,
@@ -71,14 +74,18 @@ const VehiclesStatusMap = () => {
 
   const fitToAllVehicles = (devices) => {
     if (!devices.length || !mapRef.current) return;
+    const valid = devices.filter(
+      (d) => Number.isFinite(Number(d.lng)) && Number.isFinite(Number(d.lat)),
+    );
+    if (!valid.length) return;
 
     const map = mapRef.current.getMap();
-    const bounds = devices.reduce(
-      (b, d) => b.extend([d.lng, d.lat]),
+    const bounds = valid.reduce(
+      (b, d) => b.extend([Number(d.lng), Number(d.lat)]),
       new maplibregl.LngLatBounds(
-        [devices[0].lng, devices[0].lat],
-        [devices[0].lng, devices[0].lat]
-      )
+        [Number(valid[0].lng), Number(valid[0].lat)],
+        [Number(valid[0].lng), Number(valid[0].lat)],
+      ),
     );
 
     map.fitBounds(bounds, {
@@ -95,7 +102,7 @@ const VehiclesStatusMap = () => {
     if (!selectedVehicleId) return null;
     const vehicleInfo = vehiclesData?.find((v) => v.imei === selectedVehicleId);
     const deviceInfo = filteredDevices?.find(
-      (d) => (d.device_data?.imei ?? d.imei) === selectedVehicleId
+      (d) => (d.device_data?.imei ?? d.imei) === selectedVehicleId,
     );
     if (!vehicleInfo && !deviceInfo) return null;
     return {
@@ -154,10 +161,10 @@ const VehiclesStatusMap = () => {
         attributionControl={false}
       >
         {/* 🚗 VEHICLE MARKERS */}
-        {mode === "CLUSTER" && (
+        {mode === "CLUSTER" && onlineDevices.length > 0 && (
           <Marker
-            longitude={onlineDevices[0]?.lng}
-            latitude={onlineDevices[0]?.lat}
+            longitude={Number(onlineDevices[0].lng)}
+            latitude={Number(onlineDevices[0].lat)}
             anchor="center"
             onClick={() => {
               setSelectedVehicleId(null);
@@ -172,15 +179,13 @@ const VehiclesStatusMap = () => {
         {mode !== "CLUSTER" &&
           onlineDevices.map((v) => {
             const id = v.device_data?.imei ?? v.id;
+            const lng = Number(v.lng);
+            const lat = Number(v.lat);
+            if (!Number.isFinite(lng) || !Number.isFinite(lat)) return null;
             const waveColor = getVehicleWaveColor(v);
             const filterImages = vehiclesData.find((vId) => vId?.imei === id);
             return (
-              <Marker
-                key={id}
-                longitude={v.lng}
-                latitude={v.lat}
-                anchor="bottom"
-              >
+              <Marker key={id} longitude={lng} latitude={lat} anchor="bottom">
                 <div
                   className="relative flex items-center justify-center cursor-pointer"
                   onClick={() => {
