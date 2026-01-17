@@ -10,15 +10,13 @@ import { useSelector } from "react-redux";
 const BARIKOI_KEY = import.meta.env.VITE_BARIKOI_API_KEY;
 const MAP_STYLE = `https://map.barikoi.com/styles/osm-liberty/style.json?key=${BARIKOI_KEY}`;
 
-const GPS_DURATION = 30000; // 30s
+const GPS_DURATION = 10000; // 10s
 
 const VehiclesLiveMap = () => {
   const mapRef = useRef(null);
 
-  // selected vehicle imei
   const selectedImeiRef = useRef(null);
 
-  // animation refs
   const lastPos = useRef({});
   const nextPos = useRef({});
   const startTime = useRef({});
@@ -30,11 +28,9 @@ const VehiclesLiveMap = () => {
     (state) => state.vehicles.selectedLastImei,
   );
 
-  /* ---------------- MAP LOAD ---------------- */
   const onMapLoad = async (e) => {
     const map = e.target;
 
-    // load icon
     if (!map.hasImage("vehicle-icon")) {
       const img = await map.loadImage(
         "https://cdn-icons-png.flaticon.com/512/7893/7893979.png",
@@ -43,7 +39,6 @@ const VehiclesLiveMap = () => {
     }
   };
 
-  /* ---------------- INIT GEOJSON ---------------- */
   const initSources = (device) => {
     const map = mapRef.current.getMap();
     const imei = device.device_data?.imei ?? device.imei;
