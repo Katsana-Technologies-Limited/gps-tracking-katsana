@@ -17,5 +17,5 @@ createRoot(document.getElementById("root")).render(
         <SonnerToaster position="top-left" richColors duration={1500} />
       </QueryClientProvider>
     </Provider>
-  </StrictMode>
+  </StrictMode>,
 );
