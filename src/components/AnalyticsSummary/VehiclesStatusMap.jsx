@@ -22,6 +22,7 @@ import useVtsAllDevices from "../../hooks/useVtsAllDevices";
 import VehicleInfoCard from "../Vehicles/VehicleInfoCard";
 import { getVehicleWaveColor } from "../Vehicles/statusConfig";
 import VehicleStatusLegend from "../Vehicles/VehicleStatusLegend";
+import LottieLoading from "../utils/LottieLoading";
 
 const BARIKOI_KEY = import.meta.env.VITE_BARIKOI_API_KEY;
 
@@ -36,15 +37,16 @@ const VehiclesStatusMap = () => {
   const wrapperRef = useRef(null);
   const [satellite, setSatellite] = useState(false);
   const [controlsOpen, setControlsOpen] = useState(false);
+  const [mapStyleObj, setMapStyleObj] = useState(null);
+  const [satStyleObj, setSatStyleObj] = useState(null);
 
   const { data: vehiclesData } = useCustomerVehicle();
-
   const [mode, setMode] = useState("INIT");
 
   // INIT | CLUSTER | SINGLE | VEHICLE
   const [selectedVehicleId, setSelectedVehicleId] = useState(null);
   const { filteredDevices } = useVtsAllDevices();
-  console.log(vehiclesData);
+  // console.log(vehiclesData);
 
   const onlineDevices = useMemo(() => {
     if (!filteredDevices?.length) return [];
@@ -55,15 +57,18 @@ const VehiclesStatusMap = () => {
         d.lat &&
         d.lng &&
         Number(d.lat) !== 0 &&
-        Number(d.lng) !== 0
+        Number(d.lng) !== 0,
     );
   }, [filteredDevices]);
 
   const onlineCount = onlineDevices.length;
 
   const flyToVehicle = (v) => {
+    const lng = Number(v.lng);
+    const lat = Number(v.lat);
+    if (!Number.isFinite(lng) || !Number.isFinite(lat)) return;
     mapRef.current?.flyTo({
-      center: [v.lng, v.lat],
+      center: [lng, lat],
       zoom: 15,
       speed: 1.2,
       curve: 1.4,
@@ -72,14 +77,18 @@ const VehiclesStatusMap = () => {
 
   const fitToAllVehicles = (devices) => {
     if (!devices.length || !mapRef.current) return;
+    const valid = devices.filter(
+      (d) => Number.isFinite(Number(d.lng)) && Number.isFinite(Number(d.lat)),
+    );
+    if (!valid.length) return;
 
     const map = mapRef.current.getMap();
-    const bounds = devices.reduce(
-      (b, d) => b.extend([d.lng, d.lat]),
+    const bounds = valid.reduce(
+      (b, d) => b.extend([Number(d.lng), Number(d.lat)]),
       new maplibregl.LngLatBounds(
-        [devices[0].lng, devices[0].lat],
-        [devices[0].lng, devices[0].lat]
-      )
+        [Number(valid[0].lng), Number(valid[0].lat)],
+        [Number(valid[0].lng), Number(valid[0].lat)],
+      ),
     );
 
     map.fitBounds(bounds, {
@@ -96,7 +105,7 @@ const VehiclesStatusMap = () => {
     if (!selectedVehicleId) return null;
     const vehicleInfo = vehiclesData?.find((v) => v.imei === selectedVehicleId);
     const deviceInfo = filteredDevices?.find(
-      (d) => (d.device_data?.imei ?? d.imei) === selectedVehicleId
+      (d) => (d.device_data?.imei ?? d.imei) === selectedVehicleId,
     );
     if (!vehicleInfo && !deviceInfo) return null;
     return {
@@ -113,7 +122,44 @@ const VehiclesStatusMap = () => {
     pitch: 0,
   };
 
-  /* ---------------- Actions ---------------- */
+  useEffect(() => {
+    let mounted = true;
+    const fetchAndSanitize = async (url, setter) => {
+      try {
+        const res = await fetch(url);
+        if (!res.ok) return;
+        const style = await res.json();
+        const availableSources = style.sources
+          ? Object.keys(style.sources)
+          : [];
+        if (Array.isArray(style.layers)) {
+          style.layers = style.layers.filter((layer) => {
+            // drop layers that reference missing sources
+            if (layer.source && !availableSources.includes(layer.source))
+              return false;
+            // drop layers that use `source-layer` (vector source sublayers)
+            if (layer["source-layer"]) return false;
+            return true;
+          });
+        }
+        if (mounted) setter(style);
+      } catch (e) {
+        console.warn("Failed to fetch/sanitize map style", e);
+      }
+    };
+
+    fetchAndSanitize(MAP_STYLE, setMapStyleObj);
+    fetchAndSanitize(SATELLITE_STYLE, setSatStyleObj);
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const styleReady = satellite ? satStyleObj : mapStyleObj;
+
+  if (!styleReady) return <LottieLoading />;
+
   const zoomIn = () => mapRef.current?.zoomIn();
   const zoomOut = () => mapRef.current?.zoomOut();
 
@@ -147,7 +193,7 @@ const VehiclesStatusMap = () => {
     >
       <MemoMap
         ref={mapRef}
-        mapStyle={satellite ? SATELLITE_STYLE : MAP_STYLE}
+        mapStyle={styleReady}
         style={{ width: "100%", height: "100%" }}
         initialViewState={initialViewState}
         doubleClickZoom={false}
@@ -155,10 +201,10 @@ const VehiclesStatusMap = () => {
         attributionControl={false}
       >
         {/* 🚗 VEHICLE MARKERS */}
-        {mode === "CLUSTER" && (
+        {mode === "CLUSTER" && onlineDevices.length > 0 && (
           <Marker
-            longitude={onlineDevices[0]?.lng}
-            latitude={onlineDevices[0]?.lat}
+            longitude={Number(onlineDevices[0].lng)}
+            latitude={Number(onlineDevices[0].lat)}
             anchor="center"
             onClick={() => {
               setSelectedVehicleId(null);
@@ -173,15 +219,13 @@ const VehiclesStatusMap = () => {
         {mode !== "CLUSTER" &&
           onlineDevices.map((v) => {
             const id = v.device_data?.imei ?? v.id;
+            const lng = Number(v.lng);
+            const lat = Number(v.lat);
+            if (!Number.isFinite(lng) || !Number.isFinite(lat)) return null;
             const waveColor = getVehicleWaveColor(v);
             const filterImages = vehiclesData.find((vId) => vId?.imei === id);
             return (
-              <Marker
-                key={id}
-                longitude={v.lng}
-                latitude={v.lat}
-                anchor="bottom"
-              >
+              <Marker key={id} longitude={lng} latitude={lat} anchor="bottom">
                 <div
                   className="relative flex items-center justify-center cursor-pointer"
                   onClick={() => {
