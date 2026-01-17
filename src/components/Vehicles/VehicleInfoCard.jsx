@@ -52,11 +52,7 @@ const VehicleInfoCard = ({ vehicle, onClose }) => {
           <p className="text-xs">{vehicle.vehicle_name ?? "DM NA 13-0756"}</p>
         </div>
         <img
-          src={
-            vehicle?.vehicle_type_image
-              ? `${import.meta.env.VITE_API_URL}${vehicle?.vehicle_type_image}`
-              : "/car-icon.svg"
-          }
+          src={`${import.meta.env.VITE_API_URL}${vehicle?.vehicle_type_image}`}
           className="w-7 h-7"
           alt={vehicle?.vehicle_type_name || "vehicle icon"}
         />
