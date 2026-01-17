@@ -52,8 +52,11 @@ const VehiclesLiveMap = () => {
           : [];
         if (Array.isArray(style.layers)) {
           style.layers = style.layers.filter((layer) => {
-            if (!layer.source) return true;
-            return availableSources.includes(layer.source);
+            // drop layers that reference missing sources
+            if (layer.source && !availableSources.includes(layer.source))
+              return false;
+            if (layer["source-layer"]) return false;
+            return true;
           });
         }
         if (mounted) setMapStyleObj(style);

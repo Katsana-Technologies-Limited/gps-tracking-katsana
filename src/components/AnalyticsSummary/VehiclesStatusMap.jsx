@@ -22,6 +22,7 @@ import useVtsAllDevices from "../../hooks/useVtsAllDevices";
 import VehicleInfoCard from "../Vehicles/VehicleInfoCard";
 import { getVehicleWaveColor } from "../Vehicles/statusConfig";
 import VehicleStatusLegend from "../Vehicles/VehicleStatusLegend";
+import LottieLoading from "../utils/LottieLoading";
 
 const BARIKOI_KEY = import.meta.env.VITE_BARIKOI_API_KEY;
 
@@ -36,6 +37,8 @@ const VehiclesStatusMap = () => {
   const wrapperRef = useRef(null);
   const [satellite, setSatellite] = useState(false);
   const [controlsOpen, setControlsOpen] = useState(false);
+  const [mapStyleObj, setMapStyleObj] = useState(null);
+  const [satStyleObj, setSatStyleObj] = useState(null);
 
   const { data: vehiclesData } = useCustomerVehicle();
   const [mode, setMode] = useState("INIT");
@@ -119,7 +122,44 @@ const VehiclesStatusMap = () => {
     pitch: 0,
   };
 
-  /* ---------------- Actions ---------------- */
+  useEffect(() => {
+    let mounted = true;
+    const fetchAndSanitize = async (url, setter) => {
+      try {
+        const res = await fetch(url);
+        if (!res.ok) return;
+        const style = await res.json();
+        const availableSources = style.sources
+          ? Object.keys(style.sources)
+          : [];
+        if (Array.isArray(style.layers)) {
+          style.layers = style.layers.filter((layer) => {
+            // drop layers that reference missing sources
+            if (layer.source && !availableSources.includes(layer.source))
+              return false;
+            // drop layers that use `source-layer` (vector source sublayers)
+            if (layer["source-layer"]) return false;
+            return true;
+          });
+        }
+        if (mounted) setter(style);
+      } catch (e) {
+        console.warn("Failed to fetch/sanitize map style", e);
+      }
+    };
+
+    fetchAndSanitize(MAP_STYLE, setMapStyleObj);
+    fetchAndSanitize(SATELLITE_STYLE, setSatStyleObj);
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const styleReady = satellite ? satStyleObj : mapStyleObj;
+
+  if (!styleReady) return <LottieLoading />;
+
   const zoomIn = () => mapRef.current?.zoomIn();
   const zoomOut = () => mapRef.current?.zoomOut();
 
@@ -153,7 +193,7 @@ const VehiclesStatusMap = () => {
     >
       <MemoMap
         ref={mapRef}
-        mapStyle={satellite ? SATELLITE_STYLE : MAP_STYLE}
+        mapStyle={styleReady}
         style={{ width: "100%", height: "100%" }}
         initialViewState={initialViewState}
         doubleClickZoom={false}
