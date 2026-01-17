@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import jsPDF from "jspdf";
 import useCustomerVehicle from "../../hooks/useCustomerVehicle";
+import { useSelector } from "react-redux";
 import { VehicleMarker } from "../Vehicles/VehicleMarker";
 import useVtsAllDevices from "../../hooks/useVtsAllDevices";
 import VehicleInfoCard from "../Vehicles/VehicleInfoCard";
@@ -41,17 +42,26 @@ const VehiclesStatusMap = () => {
   const [satStyleObj, setSatStyleObj] = useState(null);
 
   const { data: vehiclesData } = useCustomerVehicle();
+  const { filteredDevices, allDevices } = useVtsAllDevices();
+  const lastSelectedImei = useSelector((s) => s.vehicles.selectedLastImei);
   const [mode, setMode] = useState("INIT");
 
-  // INIT | CLUSTER | SINGLE | VEHICLE
   const [selectedVehicleId, setSelectedVehicleId] = useState(null);
-  const { filteredDevices } = useVtsAllDevices();
-  // console.log(vehiclesData);
+  const baseDevices =
+    filteredDevices && filteredDevices.length
+      ? filteredDevices
+      : allDevices || [];
 
-  const onlineDevices = useMemo(() => {
-    if (!filteredDevices?.length) return [];
+  const mapDevices = useMemo(() => {
+    if (!baseDevices?.length) return [];
+    if (lastSelectedImei) {
+      const found = baseDevices.find(
+        (d) => (d.device_data?.imei ?? d.imei) === lastSelectedImei,
+      );
+      return found ? [found] : [];
+    }
 
-    return filteredDevices.filter(
+    return baseDevices.filter(
       (d) =>
         d.online === "online" &&
         d.lat &&
@@ -59,9 +69,9 @@ const VehiclesStatusMap = () => {
         Number(d.lat) !== 0 &&
         Number(d.lng) !== 0,
     );
-  }, [filteredDevices]);
+  }, [baseDevices, lastSelectedImei]);
 
-  const onlineCount = onlineDevices.length;
+  const onlineCount = mapDevices.length;
 
   const flyToVehicle = (v) => {
     const lng = Number(v.lng);
@@ -74,6 +84,16 @@ const VehiclesStatusMap = () => {
       curve: 1.4,
     });
   };
+
+  useEffect(() => {
+    if (!lastSelectedImei) return;
+    const device = baseDevices.find(
+      (d) => (d.device_data?.imei ?? d.imei) === lastSelectedImei,
+    );
+    if (!device || !mapRef.current) return;
+    setSelectedVehicleId(lastSelectedImei);
+    flyToVehicle(device);
+  }, [lastSelectedImei, baseDevices]);
 
   const fitToAllVehicles = (devices) => {
     if (!devices.length || !mapRef.current) return;
@@ -199,15 +219,15 @@ const VehiclesStatusMap = () => {
         attributionControl={false}
       >
         {/* 🚗 VEHICLE MARKERS */}
-        {mode === "CLUSTER" && onlineDevices.length > 0 && (
+        {mode === "CLUSTER" && mapDevices.length > 0 && (
           <Marker
-            longitude={Number(onlineDevices[0].lng)}
-            latitude={Number(onlineDevices[0].lat)}
+            longitude={Number(mapDevices[0].lng)}
+            latitude={Number(mapDevices[0].lat)}
             anchor="center"
             onClick={() => {
               setSelectedVehicleId(null);
               setMode("SINGLE");
-              fitToAllVehicles(onlineDevices);
+              fitToAllVehicles(mapDevices);
             }}
           >
             <VehicleMarker count={onlineCount} />
@@ -215,7 +235,7 @@ const VehiclesStatusMap = () => {
         )}
 
         {mode !== "CLUSTER" &&
-          onlineDevices.map((v) => {
+          mapDevices.map((v) => {
             const id = v.device_data?.imei ?? v.id;
             const lng = Number(v.lng);
             const lat = Number(v.lat);
@@ -254,10 +274,7 @@ const VehiclesStatusMap = () => {
                       style={{ backgroundColor: waveColor }}
                     ></div>
                   </div>
-
-                  {/* 🚗 Vehicle Icon (No vibration, just static or simple hover scale) */}
                   <img
-                    // src="/car-icon.svg"
                     src={
                       filterImages?.vehicle_type_image
                         ? `${import.meta.env.VITE_API_URL}${
@@ -268,8 +285,6 @@ const VehiclesStatusMap = () => {
                     className="w-10 h-10 z-10 hover:scale-110 transition-transform duration-300"
                     alt="car"
                   />
-
-                  {/* 🔥 CARD POPUP WITH TOOLTIP POINTER */}
                   {selectedVehicleId === id && (
                     <div className="absolute bottom-11.25 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center">
                       <div className="relative shadow-2xl">
@@ -278,7 +293,6 @@ const VehiclesStatusMap = () => {
                           onClose={() => setSelectedVehicleId(null)}
                         />
                       </div>
-                      {/* Tooltip Triangle Pointer */}
                       <div className="w-0 h-0 border-l-12 border-l-transparent border-r-12 border-r-transparent  border-t-15 border-t-white  drop-shadow-lg"></div>
                     </div>
                   )}
@@ -287,8 +301,6 @@ const VehiclesStatusMap = () => {
             );
           })}
       </MemoMap>
-
-      {/* 🗺️ Map / Satellite Toggle */}
       <div className="absolute top-3 left-3 z-20 bg-white rounded-lg shadow  flex">
         <button
           onClick={() => setSatellite(false)}
@@ -307,7 +319,6 @@ const VehiclesStatusMap = () => {
           Satellite
         </button>
       </div>
-      {/* 🖥 Fullscreen */}
       <button
         onClick={() => {
           const el = wrapperRef.current;
