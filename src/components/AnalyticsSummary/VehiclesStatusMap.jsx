@@ -38,13 +38,12 @@ const VehiclesStatusMap = () => {
   const [controlsOpen, setControlsOpen] = useState(false);
 
   const { data: vehiclesData } = useCustomerVehicle();
-
   const [mode, setMode] = useState("INIT");
 
   // INIT | CLUSTER | SINGLE | VEHICLE
   const [selectedVehicleId, setSelectedVehicleId] = useState(null);
   const { filteredDevices } = useVtsAllDevices();
-  console.log(vehiclesData);
+  // console.log(vehiclesData);
 
   const onlineDevices = useMemo(() => {
     if (!filteredDevices?.length) return [];
