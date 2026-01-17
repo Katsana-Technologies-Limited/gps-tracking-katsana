@@ -83,7 +83,7 @@ const VehiclesLiveMap = () => {
     const lat = Number(device.lat);
     if (!isValidCoord(lng, lat)) return;
 
-    const map = mapRef.current.getMap();
+    const map = mapRef.current?.getMap();
     const imei = device.device_data?.imei ?? device.imei;
 
     if (!map.getSource("active-vehicle")) {
@@ -209,7 +209,8 @@ const VehiclesLiveMap = () => {
       startTime.current[imei] = Date.now();
     }
 
-    const map = mapRef.current.getMap();
+    const map = mapRef.current?.getMap();
+    if (!map) return;
     map.getSource("active-route")?.setData({
       type: "Feature",
       geometry: {
@@ -247,7 +248,11 @@ const VehiclesLiveMap = () => {
       const lng = lng1 + (lng2 - lng1) * t;
       const lat = lat1 + (lat2 - lat1) * t;
 
-      const map = mapRef.current.getMap();
+      const map = mapRef.current?.getMap();
+      if (!map) {
+        rafId.current = requestAnimationFrame(animate);
+        return;
+      }
       map.getSource("active-vehicle")?.setData({
         type: "Feature",
         geometry: {
