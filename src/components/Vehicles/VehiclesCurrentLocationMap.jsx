@@ -1,15 +1,14 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useRef, useEffect, useState } from "react";
 import { Map, Marker } from "react-bkoi-gl";
-// import maplibregl from "maplibre-gl";
 import "bkoi-gl/dist/style/bkoi-gl.css";
 import "react-bkoi-gl/styles";
 import useVtsAllDevices from "../../hooks/useVtsAllDevices";
+import useCustomerVehicle from "../../hooks/useCustomerVehicle";
 import { useSelector } from "react-redux";
 
 const BARIKOI_KEY = import.meta.env.VITE_BARIKOI_API_KEY;
 const MAP_STYLE_URL = `https://map.barikoi.com/styles/osm-liberty/style.json?key=${BARIKOI_KEY}`;
-console.log(MAP_STYLE_URL);
 const GPS_DURATION = 10000; // 10s
 
 const VehiclesLiveMap = () => {
@@ -22,11 +21,22 @@ const VehiclesLiveMap = () => {
   const rafId = useRef(null);
 
   const { filteredDevices } = useVtsAllDevices();
-  console.log(filteredDevices);
+  const { data: customerVehicles = [] } = useCustomerVehicle();
+
   const lastSelectedImei = useSelector(
     (state) => state.vehicles.selectedLastImei,
   );
   const [mapStyleObj, setMapStyleObj] = useState(null);
+
+  const vehicleImageMap = React.useMemo(() => {
+    const map = {};
+    customerVehicles.forEach((vehicle) => {
+      if (vehicle.imei) {
+        map[vehicle.imei] = vehicle.vehicle_type_image || "/car-icon.svg";
+      }
+    });
+    return map;
+  }, [customerVehicles]);
 
   const isValidCoord = (lng, lat) => {
     const L = Number(lng);
@@ -51,7 +61,6 @@ const VehiclesLiveMap = () => {
           : [];
         if (Array.isArray(style.layers)) {
           style.layers = style.layers.filter((layer) => {
-            // drop layers that reference missing sources only
             if (layer.source && !availableSources.includes(layer.source))
               return false;
             return true;
@@ -184,13 +193,11 @@ const VehiclesLiveMap = () => {
     if (!isValidCoord(lng, lat)) return;
 
     if (!Array.isArray(nextPos.current[imei])) {
-      // first seen: set both last and next to the same coordinate
       lastPos.current[imei] = [lng, lat];
       nextPos.current[imei] = [lng, lat];
       routeCoords.current[imei] = [[lng, lat]];
       startTime.current[imei] = Date.now();
     } else {
-      // compute current interpolated position to avoid jumps
       const now = Date.now();
       const prevStart = startTime.current[imei] || now;
       const elapsed = Math.max(0, now - prevStart);
@@ -220,7 +227,6 @@ const VehiclesLiveMap = () => {
     });
   }, [filteredDevices]);
 
-  /* ---------------- SMOOTH ANIMATION ---------------- */
   useEffect(() => {
     const animate = () => {
       const imei = selectedImeiRef.current;
@@ -288,12 +294,16 @@ const VehiclesLiveMap = () => {
           zoom: 6,
         }}
       >
-        {/* UI MARKERS (STATIC) */}
+        {/* UI MARKERS (STATIC) - Now with IMEI-matched images */}
         {filteredDevices.map((d) => {
           const imei = d.device_data?.imei ?? d.imei;
           const lng = Number(d.lng);
           const lat = Number(d.lat);
           if (!isValidCoord(lng, lat)) return null;
+
+          // Get the vehicle image based on IMEI, fallback to default car icon
+          const vehicleImage = vehicleImageMap[imei] || "/car-icon.svg";
+
           return (
             <Marker
               key={imei}
@@ -303,8 +313,12 @@ const VehiclesLiveMap = () => {
               onClick={() => onMarkerClick(d)}
             >
               <img
-                src="/car-icon.svg"
-                className="w-9 h-9 cursor-pointer hover:scale-110"
+                src={`${import.meta.env.VITE_API_URL}${vehicleImage}`}
+                alt={`Vehicle ${imei}`}
+                className="w-9 h-9 cursor-pointer hover:scale-110 object-contain"
+                onError={(e) => {
+                  e.target.src = "/car-icon.svg";
+                }}
               />
             </Marker>
           );
