@@ -40,10 +40,10 @@ export default function VehicleCurrentLocationa() {
           <VehiclesCurrentLocationMap />
         </div>
         <div className="xl:col-span-1">
-          <div className="hidden xl:block bg-white rounded-xl shadow-sm h-[calc(100vh-140px)]">
+          <div className="hidden lg:block bg-white rounded-xl shadow-sm h-[calc(100vh-140px)]">
             <VehiclesStatusOption />
           </div>
-          <div className="xl:hidden">
+          <div className="lg:hidden">
             <VehicleStatusDrawer />
           </div>
         </div>

@@ -1,10 +1,8 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useRef, useEffect } from "react";
 import { Map, Marker } from "react-bkoi-gl";
-import maplibregl from "maplibre-gl";
+// import maplibregl from "maplibre-gl";
 import "bkoi-gl/dist/style/bkoi-gl.css";
 import "react-bkoi-gl/styles";
-
 import useVtsAllDevices from "../../hooks/useVtsAllDevices";
 
 const BARIKOI_KEY = import.meta.env.VITE_BARIKOI_API_KEY;
@@ -175,7 +173,7 @@ const VehiclesLiveMap = () => {
 
   /* ---------------- RENDER ---------------- */
   return (
-    <div className="w-full h-[600px] rounded-xl overflow-hidden">
+    <div className="w-full h-150 rounded-xl overflow-hidden">
       <Map
         ref={mapRef}
         mapStyle={MAP_STYLE}
