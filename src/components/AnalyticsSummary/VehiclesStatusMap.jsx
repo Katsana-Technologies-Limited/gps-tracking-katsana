@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useRef, useState, useMemo, useEffect } from "react";
 import { Map, Marker } from "react-bkoi-gl";
@@ -228,7 +229,7 @@ const VehiclesStatusMap = () => {
 
                   {/* 🔥 CARD POPUP WITH TOOLTIP POINTER */}
                   {selectedVehicleId === id && (
-                    <div className="absolute bottom-[45px] left-1/2 -translate-x-1/2 z-50 flex flex-col items-center">
+                    <div className="absolute bottom-11.25 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center">
                       <div className="relative shadow-2xl">
                         <VehicleInfoCard
                           vehicle={selectedVehicleFUll}
@@ -236,7 +237,7 @@ const VehiclesStatusMap = () => {
                         />
                       </div>
                       {/* Tooltip Triangle Pointer */}
-                      <div className="w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent  border-t-[15px] border-t-white  drop-shadow-lg"></div>
+                      <div className="w-0 h-0 border-l-12 border-l-transparent border-r-12 border-r-transparent  border-t-15 border-t-white  drop-shadow-lg"></div>
                     </div>
                   )}
                 </div>

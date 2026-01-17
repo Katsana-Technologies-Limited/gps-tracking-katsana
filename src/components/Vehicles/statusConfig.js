@@ -1,4 +1,3 @@
-// statusConfig.js
 export const STATUS_CONFIG = [
   {
     key: "moving",

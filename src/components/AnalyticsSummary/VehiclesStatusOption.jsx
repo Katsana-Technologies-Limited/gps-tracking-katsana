@@ -1,7 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useMemo, useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { setSelectedImeis } from "../../slices/vehiclesSlice";
+import {
+  setSelectedImeis,
+  setSelectedLastImei,
+} from "../../slices/vehiclesSlice";
 import { Check, Search } from "lucide-react";
 import LottieLoading from "../utils/LottieLoading";
 import useCustomerVehicle from "../../hooks/useCustomerVehicle";
@@ -62,7 +65,7 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
       list = list.filter(
         (v) =>
           v.number.toLowerCase().includes(query.toLowerCase()) ||
-          v.reg.toLowerCase().includes(query.toLowerCase())
+          v.reg.toLowerCase().includes(query.toLowerCase()),
       );
     }
 
@@ -71,7 +74,7 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
 
   useEffect(() => {
     setSelected(
-      filteredVehicles.length > 0 ? filteredVehicles.map((v) => v.id) : []
+      filteredVehicles.length > 0 ? filteredVehicles.map((v) => v.id) : [],
     );
   }, [activeTab, query]);
 
@@ -91,10 +94,12 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
     dispatch(setSelectedImeis(imeis));
   }, [filteredVehicles, selected, dispatch]);
 
-  const toggleVehicle = (id) => {
+  const toggleVehicle = (id, imei) => {
     setSelected((prev) =>
-      prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id],
     );
+    // mark this as the last-selected imei so map can focus it
+    if (imei) dispatch(setSelectedLastImei(imei));
   };
 
   const toggleAll = () => {
@@ -169,7 +174,7 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
           return (
             <div
               key={v.id}
-              onClick={() => toggleVehicle(v.id)}
+              onClick={() => toggleVehicle(v.id, v.imei)}
               className={`flex items-center justify-between gap-3 p-3 rounded-xl border cursor-pointer transition ${
                 style.bg
               } ${isSelected ? style.border : "border-gray-200"}`}

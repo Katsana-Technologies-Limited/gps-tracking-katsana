@@ -1,4 +1,3 @@
-import React from "react";
 import { Link } from "react-router-dom";
 
 const VehicleActions = ({ vehicle }) => {
@@ -115,7 +114,6 @@ const VehicleActions = ({ vehicle }) => {
 
   return (
     <div>
-      {/* 🔘 Actions Buttons Grid */}
       <div className="px-1 py-3 grid grid-cols-5 gap-2">
         {actions.map((action, index) => (
           <div key={index} className="relative group flex justify-center">
@@ -140,8 +138,6 @@ const VehicleActions = ({ vehicle }) => {
           </div>
         ))}
       </div>
-
-      {/* 📝 Bottom Info Text */}
       <div className="px-2 text-right">
         <p className="text-[11px] text-slate-400 font-medium">
           Last Engine On: 14 Jan, 2026 10:39 am | 0d 2h 0m 55s

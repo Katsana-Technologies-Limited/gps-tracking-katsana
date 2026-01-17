@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+// import React, { useEffect, useState } from "react";
 // { speed = 0 }
 const Speedometer = ({ speed = 0 }) => {
   // const [speed, setSpeed] = useState(0);
@@ -18,14 +18,14 @@ const Speedometer = ({ speed = 0 }) => {
   const needleRotation = (speed / MAX_SPEED) * 180;
 
   // বর্তমান স্পিড অনুযায়ী কালার ঠিক করার ফাংশন
-  const getActiveColor = (s) => {
-    if (s <= 30) return "#88F0B5"; // Green
-    if (s <= 80) return "#9EA7B2"; // Grey
-    if (s <= 110) return "#FFD93D"; // Yellow
-    return "#FF7272"; // Red
-  };
+  // const getActiveColor = (s) => {
+  //   if (s <= 30) return "#88F0B5"; // Green
+  //   if (s <= 80) return "#9EA7B2"; // Grey
+  //   if (s <= 110) return "#FFD93D"; // Yellow
+  //   return "#FF7272"; // Red
+  // };
 
-  const currentColor = getActiveColor(speed);
+  // const currentColor = getActiveColor(speed);
 
   // ড্যাশ বা টিক্স তৈরি করার লজিক
   const ticks = [];

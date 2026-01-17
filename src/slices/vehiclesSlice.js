@@ -3,6 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   selectedStatus: "All",
   selectedImeis: [],
+  selectedLastImei: null,
 };
 
 const vehiclesSlice = createSlice({
@@ -15,8 +16,12 @@ const vehiclesSlice = createSlice({
     setSelectedImeis(state, action) {
       state.selectedImeis = action.payload;
     },
+    setSelectedLastImei(state, action) {
+      state.selectedLastImei = action.payload;
+    },
   },
 });
 
-export const { setSelectedStatus, setSelectedImeis } = vehiclesSlice.actions;
+export const { setSelectedStatus, setSelectedImeis, setSelectedLastImei } =
+  vehiclesSlice.actions;
 export default vehiclesSlice.reducer;

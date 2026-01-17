@@ -1,4 +1,3 @@
-import React from "react";
 import Vehiclespeed from "./Vehiclespeed";
 import NearByLocation from "./NearByLocation";
 import { MdFlashOn } from "react-icons/md";
@@ -7,12 +6,10 @@ import { IoCloseCircle } from "react-icons/io5";
 import VehicleActions from "./VehicleActions";
 
 const VehicleInfoCard = ({ vehicle, onClose }) => {
-  // --- Time Calculation Logic ---
   const formatTime = (timeString) => {
     if (!timeString) return { formatted: "-", ago: "-" };
     const date = new Date(timeString);
 
-    // Format: 12:40:13 PM, 14 Jan, 2026
     const formatted = date.toLocaleString("en-US", {
       hour: "2-digit",
       minute: "2-digit",
@@ -23,7 +20,6 @@ const VehicleInfoCard = ({ vehicle, onClose }) => {
       year: "numeric",
     });
 
-    // Seconds Ago calculation
     const now = new Date();
     const diffInSeconds = Math.floor((now - date) / 1000);
     const ago = diffInSeconds < 0 ? 0 : diffInSeconds;
@@ -60,15 +56,11 @@ const VehicleInfoCard = ({ vehicle, onClose }) => {
           <p className="text-xs">{vehicle.company ?? "Katsana"}</p>
         </div>
       </div>
-
-      {/* 📊 Body */}
       <div className="px-1 py-1">
         <div className=" grid grid-cols-2 gap-1 mb-2">
-          {/* Vehiclespeed componests  */}
           <div className="col-span-1">
             <Vehiclespeed speed={Math.round(vehicle.speed ?? 0)} />
           </div>
-          {/* Near by location data  */}
           <div className=" col-span-1 flex flex-col items-start  bg-[#FFF9F4] rounded-sm w-full shadow-sm">
             {/* <p className="font-medium text-black mb-1">
             {vehicle.address ?? "Unknown location"}
@@ -76,9 +68,7 @@ const VehicleInfoCard = ({ vehicle, onClose }) => {
             <NearByLocation vehicleData={vehicle} />
           </div>
         </div>
-        {/* 🟢 Status Cards (Engine & Time) - আপনার রিকোয়েস্ট করা পার্ট */}
         <div className="grid grid-cols-2 gap-2 mb-2">
-          {/* Left: Engine Status */}
           <div
             className={`flex items-center gap-2 border ${
               vehicle.engine_status
@@ -97,8 +87,6 @@ const VehicleInfoCard = ({ vehicle, onClose }) => {
               Engine Status: {vehicle.engine_status ? "On" : "Off"}
             </span>
           </div>
-
-          {/* Right: Current Time & Ago */}
           <div className="flex items-start gap-2 bg-[#FFFCEB] border border-[#FDF2D0] rounded-lg px-3 py-2">
             <div className="text-[#F59E0B] mt-0.5">
               <LuClock size={18} fill="#F59E0B" className="text-white" />
@@ -114,8 +102,6 @@ const VehicleInfoCard = ({ vehicle, onClose }) => {
           </div>
         </div>
       </div>
-
-      {/* 🔘 Actions */}
       <VehicleActions vehicle={vehicle} />
     </div>
   );

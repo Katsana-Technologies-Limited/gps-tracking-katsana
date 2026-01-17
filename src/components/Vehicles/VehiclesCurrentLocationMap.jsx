@@ -1,9 +1,11 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useRef, useEffect } from "react";
 import { Map, Marker } from "react-bkoi-gl";
 // import maplibregl from "maplibre-gl";
 import "bkoi-gl/dist/style/bkoi-gl.css";
 import "react-bkoi-gl/styles";
 import useVtsAllDevices from "../../hooks/useVtsAllDevices";
+import { useSelector } from "react-redux";
 
 const BARIKOI_KEY = import.meta.env.VITE_BARIKOI_API_KEY;
 const MAP_STYLE = `https://map.barikoi.com/styles/osm-liberty/style.json?key=${BARIKOI_KEY}`;
@@ -24,6 +26,9 @@ const VehiclesLiveMap = () => {
   const rafId = useRef(null);
 
   const { filteredDevices } = useVtsAllDevices();
+  const lastSelectedImei = useSelector(
+    (state) => state.vehicles.selectedLastImei,
+  );
 
   /* ---------------- MAP LOAD ---------------- */
   const onMapLoad = async (e) => {
@@ -32,7 +37,7 @@ const VehiclesLiveMap = () => {
     // load icon
     if (!map.hasImage("vehicle-icon")) {
       const img = await map.loadImage(
-        "https://cdn-icons-png.flaticon.com/512/7893/7893979.png"
+        "https://cdn-icons-png.flaticon.com/512/7893/7893979.png",
       );
       map.addImage("vehicle-icon", img.data, { pixelRatio: 2 });
     }
@@ -92,7 +97,6 @@ const VehiclesLiveMap = () => {
     routeCoords.current[imei] = [[device.lng, device.lat]];
   };
 
-  /* ---------------- MARKER CLICK ---------------- */
   const onMarkerClick = (device) => {
     const imei = device.device_data?.imei ?? device.imei;
     selectedImeiRef.current = imei;
@@ -107,12 +111,24 @@ const VehiclesLiveMap = () => {
     });
   };
 
-  /* ---------------- GPS UPDATE (30s) ---------------- */
+  useEffect(() => {
+    if (!lastSelectedImei) return;
+    const device = filteredDevices.find(
+      (d) => (d.device_data?.imei ?? d.imei) === lastSelectedImei,
+    );
+    if (!device) return;
+    try {
+      onMarkerClick(device);
+    } catch (e) {
+      console.warn("Failed to focus last selected device on map", e);
+    }
+  }, [lastSelectedImei, filteredDevices]);
+
   useEffect(() => {
     if (!selectedImeiRef.current) return;
 
     const device = filteredDevices.find(
-      (d) => (d.device_data?.imei ?? d.imei) === selectedImeiRef.current
+      (d) => (d.device_data?.imei ?? d.imei) === selectedImeiRef.current,
     );
 
     if (!device) return;
@@ -171,7 +187,6 @@ const VehiclesLiveMap = () => {
     return () => cancelAnimationFrame(rafId.current);
   }, []);
 
-  /* ---------------- RENDER ---------------- */
   return (
     <div className="w-full h-150 rounded-xl overflow-hidden">
       <Map

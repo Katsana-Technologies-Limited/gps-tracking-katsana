@@ -17,7 +17,6 @@ const VehicleRoute = () => {
       <div className="grid grid-cols-1 xl:grid-cols-7 gap-4">
         <div className="xl:col-span-5">
           <div className="bg-gray-100 rounded-lg p-6 h-64 flex items-center justify-center text-gray-500">
-            {/* Demo placeholder for route map or data */}
             Vehicle route map/data will appear here.
           </div>
         </div>
