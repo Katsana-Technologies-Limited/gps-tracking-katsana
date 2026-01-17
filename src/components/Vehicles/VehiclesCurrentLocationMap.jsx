@@ -5,11 +5,12 @@ import "bkoi-gl/dist/style/bkoi-gl.css";
 import "react-bkoi-gl/styles";
 import useVtsAllDevices from "../../hooks/useVtsAllDevices";
 import useCustomerVehicle from "../../hooks/useCustomerVehicle";
+import VehicleInfoCard from "../Vehicles/VehicleInfoCard";
 import { useSelector } from "react-redux";
 
 const BARIKOI_KEY = import.meta.env.VITE_BARIKOI_API_KEY;
 const MAP_STYLE_URL = `https://map.barikoi.com/styles/osm-liberty/style.json?key=${BARIKOI_KEY}`;
-const GPS_DURATION = 10000; // 10s
+const GPS_DURATION = 10000;
 
 const VehiclesLiveMap = () => {
   const mapRef = useRef(null);
@@ -22,6 +23,7 @@ const VehiclesLiveMap = () => {
 
   const { filteredDevices } = useVtsAllDevices();
   const { data: customerVehicles = [] } = useCustomerVehicle();
+  const [selectedVehicleId, setSelectedVehicleId] = useState(null);
 
   const lastSelectedImei = useSelector(
     (state) => state.vehicles.selectedLastImei,
@@ -146,7 +148,14 @@ const VehiclesLiveMap = () => {
 
   const onMarkerClick = (device) => {
     const imei = device.device_data?.imei ?? device.imei;
+    if (selectedImeiRef.current === imei) {
+      selectedImeiRef.current = null;
+      setSelectedVehicleId(null);
+      return;
+    }
+
     selectedImeiRef.current = imei;
+    setSelectedVehicleId(imei);
 
     const lng = Number(device.lng);
     const lat = Number(device.lat);
@@ -177,6 +186,18 @@ const VehiclesLiveMap = () => {
       console.warn("Failed to focus last selected device on map", e);
     }
   }, [lastSelectedImei, filteredDevices]);
+
+  const selectedVehicleFUll = React.useMemo(() => {
+    if (!selectedVehicleId) return null;
+    const deviceInfo = filteredDevices?.find(
+      (d) => (d.device_data?.imei ?? d.imei) === selectedVehicleId,
+    );
+    const vehicleInfo = customerVehicles?.find(
+      (v) => String(v?.imei) === String(selectedVehicleId),
+    );
+    if (!deviceInfo && !vehicleInfo) return null;
+    return { ...vehicleInfo, ...deviceInfo };
+  }, [customerVehicles, filteredDevices, selectedVehicleId]);
 
   useEffect(() => {
     if (!selectedImeiRef.current) return;
@@ -312,14 +333,28 @@ const VehiclesLiveMap = () => {
               anchor="bottom"
               onClick={() => onMarkerClick(d)}
             >
-              <img
-                src={`${import.meta.env.VITE_API_URL}${vehicleImage}`}
-                alt={`Vehicle ${imei}`}
-                className="w-9 h-9 cursor-pointer hover:scale-110 object-contain"
-                onError={(e) => {
-                  e.target.src = "/car-icon.svg";
-                }}
-              />
+              <div className="relative flex items-center justify-center">
+                <img
+                  src={`${import.meta.env.VITE_API_URL}${vehicleImage}`}
+                  alt={`Vehicle ${imei}`}
+                  className="w-9 h-9 cursor-pointer hover:scale-110 object-contain"
+                  onError={(e) => {
+                    e.target.src = "/car-icon.svg";
+                  }}
+                />
+
+                {selectedVehicleId === imei && selectedVehicleFUll && (
+                  <div className="absolute bottom-11.25 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center">
+                    <div className="relative shadow-2xl">
+                      <VehicleInfoCard
+                        vehicle={selectedVehicleFUll}
+                        onClose={() => setSelectedVehicleId(null)}
+                      />
+                    </div>
+                    <div className="w-0 h-0 border-l-12 border-l-transparent border-r-12 border-r-transparent  border-t-15 border-t-white  drop-shadow-lg"></div>
+                  </div>
+                )}
+              </div>
             </Marker>
           );
         })}

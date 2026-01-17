@@ -71,20 +71,43 @@ const VehicleInfoCard = ({ vehicle, onClose }) => {
         <div className="grid grid-cols-2 gap-2 mb-2">
           <div
             className={`flex items-center gap-2 border ${
-              vehicle.engine_status
+              (
+                vehicle.engine_status !== null &&
+                vehicle.engine_status !== undefined
+                  ? vehicle.engine_status
+                  : Number(vehicle.speed || 0) >
+                    Number(vehicle.device_data?.min_moving_speed || 5)
+              )
                 ? "bg-[#F0F9F6]  border-[#E0F2EB]"
                 : "bg-[#f3e2defa] border-[#dfcfccfa]"
             }  rounded-lg px-3 py-2 `}
           >
             <div
               className={`${
-                vehicle.engine_status ? "bg-[#10B981]" : "bg-[#b64f35fa]"
+                (
+                  vehicle.engine_status !== null &&
+                  vehicle.engine_status !== undefined
+                    ? vehicle.engine_status
+                    : Number(vehicle.speed || 0) >
+                      Number(vehicle.device_data?.min_moving_speed || 5)
+                )
+                  ? "bg-[#10B981]"
+                  : "bg-[#b64f35fa]"
               } p-1 rounded-full text-white`}
             >
               <MdFlashOn size={16} />
             </div>
             <span className="text-sm font-semibold text-[#1F2937]">
-              Engine Status: {vehicle.engine_status ? "On" : "Off"}
+              Engine Status:{" "}
+              {(
+                vehicle.engine_status !== null &&
+                vehicle.engine_status !== undefined
+                  ? vehicle.engine_status
+                  : Number(vehicle.speed || 0) >
+                    Number(vehicle.device_data?.min_moving_speed || 5)
+              )
+                ? "On"
+                : "Off"}
             </span>
           </div>
           <div className="flex items-start gap-2 bg-[#FFFCEB] border border-[#FDF2D0] rounded-lg px-3 py-2">

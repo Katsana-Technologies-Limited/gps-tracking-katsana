@@ -16,19 +16,19 @@ export default function VehicleCurrentLocationa() {
           Current Location
         </h1>
         <div className="flex flex-wrap items-center gap-3">
-          <button className="px-4 py-2 rounded-lg bg-linear-to-r from-[#00c47f] to-[#016b46] text-white font-bold flex gap-2 items-center">
+          <button className="px-4 py-2 cursor-pointer rounded-lg bg-linear-to-r from-[#00c47f] to-[#016b46] text-white font-bold flex gap-2 items-center">
             <Power className="w-4 h-4" />
             Engine is Unlocked
           </button>
-          <button className="px-4 py-2 rounded-lg bg-linear-to-r from-orange-400 to-orange-500 text-white font-bold flex gap-2 items-center">
+          <button className="px-4 py-2 cursor-pointer rounded-lg bg-linear-to-r from-orange-400 to-orange-500 text-white font-bold flex gap-2 items-center">
             <img
-              src="/icons/vehicel/VirtualWatchmansvg.svg"
+              src="/icons/vehicle/VirtualWatchmansvg.svg"
               alt="Virtual Watchman image"
               className="w-4 h-4"
             />
             Virtual Watchman
           </button>
-          <div className="flex items-center gap-3  ">
+          <div className="flex items-center gap-3">
             <span className="text-sm font-semibold text-gray-600">Traffic</span>
             <TrafficToggle enabled={trafficOn} onToggle={setTrafficOn} />
           </div>
