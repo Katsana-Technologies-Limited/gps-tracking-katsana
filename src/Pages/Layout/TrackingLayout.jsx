@@ -1,12 +1,20 @@
 import React, { useState, useEffect } from "react";
 import TrackingSidebar from "./TrackingSidebar";
 import TrackingTopBar from "./TrackingTopBar";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
+import VehicleStatusDrawer from "../../components/common/VehicleStatusDrawer";
 
 export default function TrackingLayout() {
+  const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isAnimating, setIsAnimating] = useState(false);
+
+  const HIDE_DRAWER_PATHS = [
+    "/dashboard/profile",
+    "/dashboard/payment",
+    "/dashboard/support",
+  ];
 
   useEffect(() => {
     let t;
@@ -26,6 +34,10 @@ export default function TrackingLayout() {
       setIsMobileMenuOpen(false);
     }, 300);
   };
+
+  const hideDrawer = HIDE_DRAWER_PATHS.some((p) =>
+    location.pathname.startsWith(p),
+  );
 
   return (
     <div className="min-h-screen flex px-2 lg:px-5 bg-primary-gray mb-8">
@@ -66,7 +78,9 @@ export default function TrackingLayout() {
       >
         <div className="sticky top-0 h-2 lg:h-3 w-full z-20 bg-primary-gray" />
         <TrackingTopBar onMenuClick={() => setIsMobileMenuOpen(true)} />
+
         <div className="p-1 min-h-screen">
+          {!hideDrawer && <VehicleStatusDrawer />}
           <Outlet />
         </div>
       </main>

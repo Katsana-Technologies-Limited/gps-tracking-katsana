@@ -18,7 +18,7 @@ const statusStyle = {
   Suspended: { border: "border-red-400", bg: "bg-white" },
 };
 
-const VehiclesStatusOption = ({ divhight = 80 }) => {
+const VehiclesStatusOption = ({ divhight = 80, onStatsChange }) => {
   const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState("All");
   const [query, setQuery] = useState("");
@@ -93,6 +93,15 @@ const VehiclesStatusOption = ({ divhight = 80 }) => {
 
     dispatch(setSelectedImeis(imeis));
   }, [filteredVehicles, selected, dispatch]);
+
+  useEffect(() => {
+    if (typeof onStatsChange === "function") {
+      onStatsChange({
+        selectedCount: selected.length,
+        totalCount: filteredVehicles.length,
+      });
+    }
+  }, [selected.length, filteredVehicles.length]);
 
   const toggleVehicle = (id, imei) => {
     setSelected((prev) =>
