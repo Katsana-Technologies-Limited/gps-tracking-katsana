@@ -304,7 +304,7 @@ const VehiclesStatusMap = () => {
       <div className="absolute top-3 left-3 z-20 bg-white rounded-lg shadow  flex">
         <button
           onClick={() => setSatellite(false)}
-          className={`px-4 py-1 cursor-pointer ${
+          className={`px-2 md:px-4 py-1 cursor-pointer text-[12px] md:text-sm ${
             !satellite && "bg-gray-100 font-medium"
           }`}
         >
@@ -312,13 +312,15 @@ const VehiclesStatusMap = () => {
         </button>
         <button
           onClick={() => setSatellite(true)}
-          className={`px-4 py-1 cursor-pointer ${
+          className={`px-2 md:px-4 py-1 cursor-pointer text-[12px] md:text-sm  ${
             satellite && "bg-gray-100 font-medium"
           }`}
         >
           Satellite
         </button>
       </div>
+
+      {/* Fullscreen Button (Top Right) */}
       <button
         onClick={() => {
           const el = wrapperRef.current;
@@ -326,87 +328,126 @@ const VehiclesStatusMap = () => {
             ? el.requestFullscreen()
             : document.exitFullscreen();
         }}
-        className="absolute top-3 right-4 z-20 w-11 h-11 cursor-pointer bg-white rounded-full shadow flex items-center justify-center"
+        className="
+    absolute top-3 right-3 z-20
+    w-9 h-9 md:w-11 md:h-11
+    bg-white rounded-full shadow
+    flex items-center justify-center
+    hover:bg-gray-50 transition cursor-pointer
+  "
       >
-        <Scan />
+        <Scan className="w-4 h-4 md:w-5 md:h-5" />
       </button>
-      <div className="absolute bottom-8 right-4 z-20">
-        <button
-          onClick={() => setControlsOpen((p) => !p)}
-          className="w-12 h-12 rounded-full cursor-pointer bg-white shadow flex items-center justify-center"
-        >
-          <Scan />
-        </button>
+
+      {/* Map Controls Wrapper */}
+      <div className="absolute bottom-4 right-3 z-20 pointer-events-none">
+        {/* === EXPANDED CONTROLS (ABOVE SCAN, NEVER AFFECT SCAN) === */}
         {controlsOpen && (
-          <>
+          <div className="mb-14 flex flex-col items-center gap-2 pointer-events-auto">
+            {/* Zoom In */}
             <button
               onClick={zoomIn}
-              className="absolute -top-20 right-12.5 cursor-pointer bg-white p-2 rounded-full shadow"
+              className="w-8 h-8 md:w-10 md:h-10 bg-white cursor-pointer rounded-full shadow flex items-center justify-center"
             >
-              <Plus />
+              <Plus className="w-4 h-4 md:w-5 md:h-5" />
             </button>
+
+            {/* Zoom Out */}
             <button
               onClick={zoomOut}
-              className="absolute -bottom-5 right-12.5 cursor-pointer bg-white p-2 rounded-full shadow"
+              className="w-8 h-8 md:w-10 md:h-10 bg-white cursor-pointer rounded-full shadow flex items-center justify-center"
             >
-              <Minus />
+              <Minus className="w-4 h-4 md:w-5 md:h-5" />
             </button>
-            <button
-              onClick={() => mapRef.current?.panBy([-120, 0])}
-              className="absolute -left-35 -top-1.75 -translate-y-1/2 cursor-pointer bg-white p-2 rounded-full shadow"
-            >
-              <ChevronLeft />
-            </button>
-            <button
-              onClick={() => mapRef.current?.panBy([120, 0])}
-              className="absolute right-12.5 -top-1.75 -translate-y-1/2 cursor-pointer bg-white p-2 rounded-full shadow"
-            >
-              <ChevronRight />
-            </button>
-            <button
-              onClick={() => mapRef.current?.panBy([0, -120])}
-              className="absolute -top-20 -left-19.5 -translate-x-1/2 cursor-pointer bg-white p-2 rounded-full shadow"
-            >
-              <ChevronUp />
-            </button>
-            <button
-              onClick={() => mapRef.current?.panBy([0, 120])}
-              className="absolute -bottom-5 -left-19.5 -translate-x-1/2 cursor-pointer bg-white p-2 rounded-full shadow"
-            >
-              <ChevronDown />
-            </button>
-          </>
+
+            {/* Pan Controls */}
+            <div className="relative w-20 h-20 md:w-28 md:h-28">
+              <button
+                onClick={() => mapRef.current?.panBy([-120, 0])}
+                className="absolute left-0 top-1/2 -translate-y-1/2 w-7 h-7 md:w-10 md:h-10 bg-white cursor-pointer rounded-full shadow flex items-center justify-center"
+              >
+                <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
+              </button>
+
+              <button
+                onClick={() => mapRef.current?.panBy([120, 0])}
+                className="absolute right-0 top-1/2 -translate-y-1/2 w-7 h-7 md:w-10 md:h-10 bg-white cursor-pointer rounded-full shadow flex items-center justify-center"
+              >
+                <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
+              </button>
+
+              <button
+                onClick={() => mapRef.current?.panBy([0, -120])}
+                className="absolute top-0 left-1/2 -translate-x-1/2 w-7 h-7 md:w-10 md:h-10 bg-white cursor-pointer rounded-full shadow flex items-center justify-center"
+              >
+                <ChevronUp className="w-4 h-4 md:w-5 md:h-5" />
+              </button>
+
+              <button
+                onClick={() => mapRef.current?.panBy([0, 120])}
+                className="absolute bottom-0 left-1/2 -translate-x-1/2 w-7 h-7 md:w-10 md:h-10 bg-white cursor-pointer rounded-full shadow flex items-center justify-center"
+              >
+                <ChevronDown className="w-4 h-4 md:w-5 md:h-5" />
+              </button>
+            </div>
+          </div>
         )}
+
+        {/* === SCAN BUTTON (ABSOLUTELY FIXED, NEVER MOVES) === */}
+        <button
+          onClick={() => setControlsOpen((p) => !p)}
+          className="
+      pointer-events-auto
+      absolute bottom-0 right-0
+      w-10 h-10 md:w-12 md:h-12
+      bg-white cursor-pointer rounded-full shadow
+      flex items-center justify-center
+      hover:bg-gray-50 transition
+    "
+        >
+          <Scan className="w-4 h-4 md:w-5 md:h-5" />
+        </button>
       </div>
+
       {/* 📤 Share / Print  / status */}
-      {/* Mobile (Vehicle speed is greater than or equal to 5KM/H) /  Slow (Vehicle
-      speed is less than 5 KM/H) /  Engine has beed turned off recently  / Off (Engine
-      is currently at the momment turned off) / Offline (Vehicle is Offline and
-      data was received more than 24 hrs ago) */}
       <div>
-        {/* <div className="absolute bottom-6 left-3 z-10  flex flex-col gap-2 cursor-pointer">
-          <div className="w-8 h-8 rounded-xl bg-[#95F0B3]" />
-          <div className="w-8 h-8 rounded-xl bg-[#95D8F0]" />
-          <div className="w-8 h-8 rounded-xl bg-[#F0C695]" />
-          <div className="w-8 h-8 rounded-xl bg-[#F09D95]" />
-          <div className="w-8 h-8 rounded-xl bg-[#787878]" />
-        </div> */}
-        {/* VehicleStatusLegend left side */}
+        {/* VehicleStatusLegend */}
         <VehicleStatusLegend />
-        <div className="absolute bottom-6 left-15 z-10 flex gap-2 h-9">
+
+        {/* Share + Print */}
+        <div className="absolute bottom-4 left-3 z-10 flex gap-2">
+          {/* Share Button */}
           <button
             onClick={handleShare}
-            className="flex gap-2 justify-center items-center bg-amber-50 rounded-2xl px-3 cursor-pointer"
+            className="
+        flex items-center justify-center gap-2 cursor-pointer
+        bg-amber-50 hover:bg-amber-100
+        rounded-full md:rounded-2xl
+        px-2 md:px-4
+        h-8 md:h-11
+        shadow
+        transition
+      "
           >
-            <Share2 size={21} />
-            Share
+            <Share2 className="w-4 h-4 md:w-5 md:h-5" />
+            <span className="hidden md:inline text-sm font-medium">Share</span>
           </button>
+
+          {/* Print Button */}
           <button
             onClick={handlePrint}
-            className="flex gap-2 justify-center items-center bg-amber-50 rounded-2xl px-3 cursor-pointer"
+            className="
+        flex items-center justify-center gap-2 cursor-pointer
+        bg-amber-50 hover:bg-amber-100
+        rounded-full md:rounded-2xl
+        px-2 md:px-4
+        h-8 md:h-11
+        shadow
+        transition
+      "
           >
-            <Printer size={21} />
-            Print
+            <Printer className="w-4 h-4 md:w-5 md:h-5" />
+            <span className="hidden md:inline text-sm font-medium">Print</span>
           </button>
         </div>
       </div>

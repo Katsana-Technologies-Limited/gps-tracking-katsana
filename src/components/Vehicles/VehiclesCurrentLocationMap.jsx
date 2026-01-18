@@ -8,13 +8,30 @@ import useCustomerVehicle from "../../hooks/useCustomerVehicle";
 import VehicleInfoCard from "../Vehicles/VehicleInfoCard";
 import { useSelector } from "react-redux";
 import { getVehicleWaveColor } from "./statusConfig";
+import jsPDF from "jspdf";
+import {
+  Share2,
+  Printer,
+  Scan,
+  ChevronLeft,
+  ChevronRight,
+  ChevronUp,
+  ChevronDown,
+  Plus,
+  Minus,
+} from "lucide-react";
+import VehicleStatusLegend from "./VehicleStatusLegend";
 
 const BARIKOI_KEY = import.meta.env.VITE_BARIKOI_API_KEY;
-const MAP_STYLE_URL = `https://map.barikoi.com/styles/osm-liberty/style.json?key=${BARIKOI_KEY}`;
+// const MAP_STYLE_URL = `https://map.barikoi.com/styles/osm-liberty/style.json?key=${BARIKOI_KEY}`;
 const GPS_DURATION = 10000;
+/* ✅ USE STABLE STYLE ONLY */
+const MAP_STYLE = `https://map.barikoi.com/styles/osm-liberty/style.json?key=${BARIKOI_KEY}`;
+const SATELLITE_STYLE = `https://map.barikoi.com/styles/barikoi_satellite/style.json?key=${BARIKOI_KEY}`;
 
 const VehiclesLiveMap = () => {
   const mapRef = useRef(null);
+  const wrapperRef = useRef(null);
   const selectedImeiRef = useRef(null);
   const lastPos = useRef({});
   const nextPos = useRef({});
@@ -25,11 +42,14 @@ const VehiclesLiveMap = () => {
   const { filteredDevices } = useVtsAllDevices();
   const { data: customerVehicles = [] } = useCustomerVehicle();
   const [selectedVehicleId, setSelectedVehicleId] = useState(null);
+  const [satellite, setSatellite] = useState(false);
+  const [mapStyleObj, setMapStyleObj] = useState(null);
+  const [satStyleObj, setSatStyleObj] = useState(null);
+  const [controlsOpen, setControlsOpen] = useState(false);
 
   const lastSelectedImei = useSelector(
     (state) => state.vehicles.selectedLastImei,
   );
-  const [mapStyleObj, setMapStyleObj] = useState(null);
 
   const vehicleImageMap = React.useMemo(() => {
     const map = {};
@@ -52,11 +72,38 @@ const VehiclesLiveMap = () => {
     );
   };
 
+  // useEffect(() => {
+  //   let mounted = true;
+  //   (async () => {
+  //     try {
+  //       const res = await fetch(MAP_STYLE_URL);
+  //       if (!res.ok) return;
+  //       const style = await res.json();
+  //       const availableSources = style.sources
+  //         ? Object.keys(style.sources)
+  //         : [];
+  //       if (Array.isArray(style.layers)) {
+  //         style.layers = style.layers.filter((layer) => {
+  //           if (layer.source && !availableSources.includes(layer.source))
+  //             return false;
+  //           return true;
+  //         });
+  //       }
+  //       if (mounted) setMapStyleObj(style);
+  //     } catch (e) {
+  //       console.warn("Failed to fetch/sanitize map style", e);
+  //     }
+  //   })();
+  //   return () => {
+  //     mounted = false;
+  //   };
+  // }, []);
+
   useEffect(() => {
     let mounted = true;
-    (async () => {
+    const fetchAndSanitize = async (url, setter) => {
       try {
-        const res = await fetch(MAP_STYLE_URL);
+        const res = await fetch(url);
         if (!res.ok) return;
         const style = await res.json();
         const availableSources = style.sources
@@ -64,24 +111,25 @@ const VehiclesLiveMap = () => {
           : [];
         if (Array.isArray(style.layers)) {
           style.layers = style.layers.filter((layer) => {
+            // drop layers that reference missing sources only
             if (layer.source && !availableSources.includes(layer.source))
               return false;
             return true;
           });
         }
-        if (mounted) setMapStyleObj(style);
+        if (mounted) setter(style);
       } catch (e) {
         console.warn("Failed to fetch/sanitize map style", e);
       }
-    })();
+    };
+
+    fetchAndSanitize(MAP_STYLE, setMapStyleObj);
+    fetchAndSanitize(SATELLITE_STYLE, setSatStyleObj);
+
     return () => {
       mounted = false;
     };
   }, []);
-
-  // const onMapLoad = (e) => {
-  //   return;
-  // };
 
   const initSources = (device) => {
     const lng = Number(device.lng);
@@ -289,7 +337,35 @@ const VehiclesLiveMap = () => {
     return () => cancelAnimationFrame(rafId.current);
   }, []);
 
-  if (!mapStyleObj) {
+  const styleReady = satellite ? satStyleObj : mapStyleObj;
+
+  const zoomIn = () => mapRef.current?.zoomIn();
+  const zoomOut = () => mapRef.current?.zoomOut();
+
+  const handleShare = () => {
+    navigator.clipboard.writeText(window.location.href);
+    alert("Map link copied");
+  };
+
+  const handlePrint = async () => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    await new Promise((r) => setTimeout(r, 200));
+    const canvas = map.getCanvas();
+    const image = canvas.toDataURL("image/png");
+
+    const pdf = new jsPDF({
+      orientation: "landscape",
+      unit: "px",
+      format: [canvas.width, canvas.height],
+    });
+
+    pdf.addImage(image, "PNG", 0, 0, canvas.width, canvas.height);
+    pdf.save("vehicle-map.pdf");
+  };
+
+  if (!styleReady) {
     return (
       <div className="w-full h-150 rounded-xl overflow-hidden flex items-center justify-center">
         <div className="text-sm text-gray-500">Loading map...</div>
@@ -298,10 +374,14 @@ const VehiclesLiveMap = () => {
   }
 
   return (
-    <div className="w-full h-150 rounded-xl overflow-hidden">
+    <div
+      ref={wrapperRef}
+      className="relative w-full h-150 rounded-xl overflow-hidden"
+    >
       <Map
         ref={mapRef}
-        mapStyle={mapStyleObj}
+        // mapStyle={mapStyleObj}
+        mapStyle={styleReady}
         // onLoad={onMapLoad}
         initialViewState={{
           longitude: 90.3563,
@@ -370,6 +450,157 @@ const VehiclesLiveMap = () => {
           );
         })}
       </Map>
+
+      <div className="absolute top-3 left-3 z-20 bg-white rounded-lg shadow  flex">
+        <button
+          onClick={() => setSatellite(false)}
+          className={`px-2 md:px-4 py-1 cursor-pointer text-[12px] md:text-sm ${
+            !satellite && "bg-gray-100 font-medium"
+          }`}
+        >
+          Map
+        </button>
+        <button
+          onClick={() => setSatellite(true)}
+          className={`px-2 md:px-4 py-1 cursor-pointer text-[12px] md:text-sm  ${
+            satellite && "bg-gray-100 font-medium"
+          }`}
+        >
+          Satellite
+        </button>
+      </div>
+
+      {/* Fullscreen Button (Top Right) */}
+      <button
+        onClick={() => {
+          const el = wrapperRef.current;
+          !document.fullscreenElement
+            ? el.requestFullscreen()
+            : document.exitFullscreen();
+        }}
+        className="
+    absolute top-3 right-3 z-20
+    w-9 h-9 md:w-11 md:h-11
+    bg-white rounded-full shadow
+    flex items-center justify-center
+    hover:bg-gray-50 transition cursor-pointer
+  "
+      >
+        <Scan className="w-4 h-4 md:w-5 md:h-5" />
+      </button>
+
+      {/* Map Controls Wrapper */}
+      <div className="absolute bottom-4 right-3 z-20 pointer-events-none">
+        {/* === EXPANDED CONTROLS (ABOVE SCAN, NEVER AFFECT SCAN) === */}
+        {controlsOpen && (
+          <div className="mb-14 flex flex-col items-center gap-2 pointer-events-auto">
+            {/* Zoom In */}
+            <button
+              onClick={zoomIn}
+              className="w-8 h-8 md:w-10 md:h-10 bg-white cursor-pointer rounded-full shadow flex items-center justify-center"
+            >
+              <Plus className="w-4 h-4 md:w-5 md:h-5" />
+            </button>
+
+            {/* Zoom Out */}
+            <button
+              onClick={zoomOut}
+              className="w-8 h-8 md:w-10 md:h-10 bg-white cursor-pointer rounded-full shadow flex items-center justify-center"
+            >
+              <Minus className="w-4 h-4 md:w-5 md:h-5" />
+            </button>
+
+            {/* Pan Controls */}
+            <div className="relative w-20 h-20 md:w-28 md:h-28">
+              <button
+                onClick={() => mapRef.current?.panBy([-120, 0])}
+                className="absolute left-0 top-1/2 -translate-y-1/2 w-7 h-7 md:w-10 md:h-10 bg-white cursor-pointer rounded-full shadow flex items-center justify-center"
+              >
+                <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
+              </button>
+
+              <button
+                onClick={() => mapRef.current?.panBy([120, 0])}
+                className="absolute right-0 top-1/2 -translate-y-1/2 w-7 h-7 md:w-10 md:h-10 bg-white cursor-pointer rounded-full shadow flex items-center justify-center"
+              >
+                <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
+              </button>
+
+              <button
+                onClick={() => mapRef.current?.panBy([0, -120])}
+                className="absolute top-0 left-1/2 -translate-x-1/2 w-7 h-7 md:w-10 md:h-10 bg-white cursor-pointer rounded-full shadow flex items-center justify-center"
+              >
+                <ChevronUp className="w-4 h-4 md:w-5 md:h-5" />
+              </button>
+
+              <button
+                onClick={() => mapRef.current?.panBy([0, 120])}
+                className="absolute bottom-0 left-1/2 -translate-x-1/2 w-7 h-7 md:w-10 md:h-10 bg-white cursor-pointer rounded-full shadow flex items-center justify-center"
+              >
+                <ChevronDown className="w-4 h-4 md:w-5 md:h-5" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* === SCAN BUTTON (ABSOLUTELY FIXED, NEVER MOVES) === */}
+        <button
+          onClick={() => setControlsOpen((p) => !p)}
+          className="
+      pointer-events-auto
+      absolute bottom-0 right-0
+      w-10 h-10 md:w-12 md:h-12
+      bg-white cursor-pointer rounded-full shadow
+      flex items-center justify-center
+      hover:bg-gray-50 transition
+    "
+        >
+          <Scan className="w-4 h-4 md:w-5 md:h-5" />
+        </button>
+      </div>
+
+      {/* 📤 Share / Print  / status */}
+      <div>
+        {/* VehicleStatusLegend */}
+        <VehicleStatusLegend />
+
+        {/* Share + Print */}
+        <div className="absolute bottom-4 left-3 z-10 flex gap-2">
+          {/* Share Button */}
+          <button
+            onClick={handleShare}
+            className="
+        flex items-center justify-center gap-2 cursor-pointer
+        bg-amber-50 hover:bg-amber-100
+        rounded-full md:rounded-2xl
+        px-2 md:px-4
+        h-8 md:h-11
+        shadow
+        transition
+      "
+          >
+            <Share2 className="w-4 h-4 md:w-5 md:h-5" />
+            <span className="hidden md:inline text-sm font-medium">Share</span>
+          </button>
+
+          {/* Print Button */}
+          <button
+            onClick={handlePrint}
+            className="
+        flex items-center justify-center gap-2 cursor-pointer
+        bg-amber-50 hover:bg-amber-100
+        rounded-full md:rounded-2xl
+        px-2 md:px-4
+        h-8 md:h-11
+        shadow
+        transition
+      "
+          >
+            <Printer className="w-4 h-4 md:w-5 md:h-5" />
+            <span className="hidden md:inline text-sm font-medium">Print</span>
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

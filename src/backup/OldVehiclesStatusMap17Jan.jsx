@@ -404,3 +404,120 @@
 // };
 
 // export default VehiclesStatusMap;
+
+// fixed in scan icon in the buttom then do the responive all parts
+{
+  /* Fullscreen Button */
+}
+{
+  /* <button
+  onClick={() => {
+    const el = wrapperRef.current;
+    !document.fullscreenElement
+      ? el.requestFullscreen()
+      : document.exitFullscreen();
+  }}
+  className="
+    absolute top-3 right-3 z-20
+    w-9 h-9 md:w-11 md:h-11
+    bg-white rounded-full shadow
+    flex items-center justify-center
+    hover:bg-gray-50 transition
+  "
+>
+  <Scan className="w-4 h-4 md:w-5 md:h-5" />
+</button>
+
+<div className="absolute bottom-6 right-3 z-20 flex flex-col items-center gap-2">
+  
+  <button
+    onClick={() => setControlsOpen((p) => !p)}
+    className="
+      w-9 h-9 md:w-12 md:h-12
+      rounded-full bg-white shadow
+      flex items-center justify-center
+      hover:bg-gray-50 transition
+    "
+  >
+    <Scan className="w-4 h-4 md:w-5 md:h-5" />
+  </button>
+
+  
+  {controlsOpen && (
+    <div className="relative flex flex-col items-center gap-2">
+
+     
+      <button
+        onClick={zoomIn}
+        className="
+          w-8 h-8 md:w-10 md:h-10
+          bg-white rounded-full shadow
+          flex items-center justify-center
+        "
+      >
+        <Plus className="w-4 h-4 md:w-5 md:h-5" />
+      </button>
+
+      <button
+        onClick={zoomOut}
+        className="
+          w-8 h-8 md:w-10 md:h-10
+          bg-white rounded-full shadow
+          flex items-center justify-center
+        "
+      >
+        <Minus className="w-4 h-4 md:w-5 md:h-5" />
+      </button>
+
+      
+      <div className="relative w-24 h-24 md:w-28 md:h-28">
+        
+       
+        <button
+          onClick={() => mapRef.current?.panBy([-120, 0])}
+          className="absolute left-0 top-1/2 -translate-y-1/2
+            w-8 h-8 md:w-10 md:h-10
+            bg-white rounded-full shadow
+            flex items-center justify-center"
+        >
+          <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
+        </button>
+
+       
+        <button
+          onClick={() => mapRef.current?.panBy([120, 0])}
+          className="absolute right-0 top-1/2 -translate-y-1/2
+            w-8 h-8 md:w-10 md:h-10
+            bg-white rounded-full shadow
+            flex items-center justify-center"
+        >
+          <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
+        </button>
+
+       
+        <button
+          onClick={() => mapRef.current?.panBy([0, -120])}
+          className="absolute top-0 left-1/2 -translate-x-1/2
+            w-8 h-8 md:w-10 md:h-10
+            bg-white rounded-full shadow
+            flex items-center justify-center"
+        >
+          <ChevronUp className="w-4 h-4 md:w-5 md:h-5" />
+        </button>
+
+      
+        <button
+          onClick={() => mapRef.current?.panBy([0, 120])}
+          className="absolute bottom-0 left-1/2 -translate-x-1/2
+            w-8 h-8 md:w-10 md:h-10
+            bg-white rounded-full shadow
+            flex items-center justify-center"
+        >
+          <ChevronDown className="w-4 h-4 md:w-5 md:h-5" />
+        </button>
+
+      </div>
+    </div>
+  )}
+</div> */
+}
