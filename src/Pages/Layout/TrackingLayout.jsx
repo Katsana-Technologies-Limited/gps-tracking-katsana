@@ -55,7 +55,11 @@ export default function TrackingLayout() {
               isAnimating ? "translate-x-0" : "-translate-x-full"
             }`}
           >
-            <TrackingSidebar isOpen={true} setIsOpen={() => {}} />
+            <TrackingSidebar
+              isOpen={true}
+              setIsOpen={() => {}}
+              onRouteSelected={handleClose}
+            />
           </div>
         </>
       )}
