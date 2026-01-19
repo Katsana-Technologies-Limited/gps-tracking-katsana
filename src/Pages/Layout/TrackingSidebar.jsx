@@ -6,7 +6,11 @@ import LogoutButton from "./LogoutButton";
 import { sidebarLinks } from "./SidebarRoutes";
 import useCustomer from "../../hooks/useCustomer";
 
-export default function TrackingSidebar({ isOpen, setIsOpen }) {
+export default function TrackingSidebar({
+  isOpen,
+  setIsOpen,
+  onRouteSelected,
+}) {
   const { pathname } = useLocation();
   const [expanded, setExpanded] = useState({});
   const { data } = useCustomer();
@@ -39,6 +43,25 @@ export default function TrackingSidebar({ isOpen, setIsOpen }) {
 
   const handleRouteClick = (label) => {
     setExpanded({});
+    let isMobile = false;
+    try {
+      isMobile = window.matchMedia
+        ? window.matchMedia("(max-width: 767px)").matches
+        : window.innerWidth <= 767;
+    } catch (e) {
+      isMobile =
+        typeof window !== "undefined" ? window.innerWidth <= 767 : false;
+    }
+
+    if (isMobile) {
+      if (typeof onRouteSelected === "function") {
+        onRouteSelected();
+      } else {
+        setIsOpen(false);
+      }
+      return;
+    }
+
     if (label === "Analytics & Summary") {
       if (!isOpen) setIsOpen(true);
     } else {
@@ -134,7 +157,7 @@ export default function TrackingSidebar({ isOpen, setIsOpen }) {
           if (subroutes) {
             const isExpanded = expanded[to] && isOpen;
             const isSubActive = subroutes.some((sub) =>
-              pathname.startsWith(sub.to)
+              pathname.startsWith(sub.to),
             );
 
             return (
