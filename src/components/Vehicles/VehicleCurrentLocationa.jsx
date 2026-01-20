@@ -1,7 +1,7 @@
 import { useState } from "react";
 import VehiclesStatusOption from "../AnalyticsSummary/VehiclesStatusOption";
 import { Power } from "lucide-react";
-import VehicleStatusDrawer from "./VehicleStatusDrawer";
+// import VehicleStatusDrawer from "../common/VehicleStatusDrawer";
 // import VehiclesStatusMap from "../AnalyticsSummary/VehiclesStatusMap";
 import { TrafficToggle } from "../utils/TrafficToggle";
 import VehiclesCurrentLocationMap from "./VehiclesCurrentLocationMap";
@@ -43,9 +43,9 @@ export default function VehicleCurrentLocationa() {
           <div className="hidden lg:block bg-white rounded-xl shadow-sm h-[calc(100vh-140px)]">
             <VehiclesStatusOption />
           </div>
-          <div className="lg:hidden">
+          {/* <div className="lg:hidden">
             <VehicleStatusDrawer />
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

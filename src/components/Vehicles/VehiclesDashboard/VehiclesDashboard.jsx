@@ -1,7 +1,6 @@
 /* eslint-disable no-unused-vars */
 import React, { useMemo, useState } from "react";
 import VehiclesStatusOption from "../../AnalyticsSummary/VehiclesStatusOption";
-// import { getSpeedMeta } from "../../../utilits/vehicleHelpers";
 import { RotateCw } from "lucide-react";
 import useCustomerVehicle from "../../../hooks/useCustomerVehicle";
 import useVtsAllDevices from "../../../hooks/useVtsAllDevices";
@@ -382,9 +381,6 @@ export default function VehiclesDashboard() {
           <div className="hidden xl:block bg-white border border-gray-300 rounded-xl shadow-sm h-[calc(100vh-140px)] scrollbar-thin">
             <VehiclesStatusOption />
           </div>
-          {/* <div className="xl:hidden">
-            <VehicleStatusDrawer />
-          </div> */}
         </div>
       </div>
     </div>

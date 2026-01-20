@@ -27,7 +27,7 @@ export default function VehicleStatusDrawer() {
       {/* 👉 RIGHT SIDE DRAWER */}
       <div
         className={`
-          fixed top-32 right-0 z-30 xl:hidden
+          fixed top-32 right-0 z-50 xl:hidden
           w-[92vw] max-w-sm
           transition-transform duration-300 ease-out
           ${open ? "translate-x-0" : "translate-x-full"}
