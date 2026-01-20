@@ -48,7 +48,6 @@ export default function TrackingLayout() {
         aria-hidden
         style={{ minWidth: isSidebarOpen ? 272 : 80 }}
       />
-      {/* Desktop sidebar */}
       <div className="hidden lg:block">
         <TrackingSidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
       </div>
