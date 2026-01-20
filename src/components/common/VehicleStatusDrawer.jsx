@@ -33,7 +33,7 @@ export default function VehicleStatusDrawer() {
           ${open ? "translate-x-0" : "translate-x-full"}
         `}
       >
-        <div className="bg-white rounded-l-2xl shadow-2xl p-3 max-h-[75vh] overflow-y-auto">
+        <div className="bg-white rounded-l-2xl shadow-2xl p-3 max-h-[95vh] overflow-y-auto">
           <VehiclesStatusOption onStatsChange={setStats} />
         </div>
       </div>

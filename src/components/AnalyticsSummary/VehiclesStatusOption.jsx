@@ -18,7 +18,7 @@ const statusStyle = {
   Suspended: { border: "border-red-400", bg: "bg-white" },
 };
 
-const VehiclesStatusOption = ({ divhight = 80, onStatsChange }) => {
+const VehiclesStatusOption = ({ onStatsChange }) => {
   const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState("All");
   const [query, setQuery] = useState("");
@@ -122,7 +122,7 @@ const VehiclesStatusOption = ({ divhight = 80, onStatsChange }) => {
   if (isLoading) return <LottieLoading />;
 
   return (
-    <div className={`h-full max-h-[${divhight}px] flex flex-col gap-3 p-3`}>
+    <div className="h-full flex flex-col gap-3 p-3">
       <div className="flex gap-2">
         {TABS.map((tab) => (
           <button
