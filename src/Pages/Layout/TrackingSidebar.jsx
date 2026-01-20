@@ -16,6 +16,10 @@ export default function TrackingSidebar({
   const [expanded, setExpanded] = useState({});
   const { data } = useCustomer();
   const navRef = useRef(null);
+  const desktopWidthClass = isOpen ? "lg:w-68 2xl:w-72" : "lg:w-20";
+  const desktopSizeLimits = isOpen
+    ? "lg:min-w-[240px] lg:max-w-[340px]"
+    : "lg:min-w-[80px] lg:max-w-[80px]";
 
   useEffect(() => {
     sidebarLinks.forEach((link) => {
@@ -267,7 +271,7 @@ export default function TrackingSidebar({
 
   return (
     <aside
-      className={`fixed z-50 transition-transform duration-300 transform ${isOpen ? "translate-x-0" : "-translate-x-full"} left-[3vw] right-[3vw] lg:right-auto top-4 bottom-4 w-[94vw] bg-white rounded-2xl flex flex-col items-start py-8 px-4 lg:left-4 lg:top-0 lg:bottom-0 lg:w-68 2xl:w-72 lg:rounded-2xl lg:translate-x-0 lg:items-center lg:py-8 lg:pl-2 lg:pr-0 lg:mr-6 lg:mt-4 lg:mb-4 scrollbar-thin`}
+      className={`fixed z-50 transition-transform duration-300 transform ${isOpen ? "translate-x-0" : "-translate-x-full"} left-[3vw] right-[3vw] lg:right-auto top-4 bottom-4 w-[94vw] bg-white rounded-2xl flex flex-col items-start py-8 px-4 lg:left-4 lg:top-0 lg:bottom-0 ${desktopWidthClass} ${desktopSizeLimits} lg:rounded-2xl lg:translate-x-0 lg:items-center lg:py-8 lg:pl-2 lg:pr-0 lg:mr-6 lg:mt-4 lg:mb-4 scrollbar-thin`}
     >
       {isOpen &&
         (() => {
