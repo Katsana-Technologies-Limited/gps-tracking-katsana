@@ -67,7 +67,7 @@ export default function TrackingLayout() {
                 isAnimating ? "translate-x-0" : "-translate-x-full"
               }`}
             >
-              <div className="mx-[3vw] w-[94vw]">
+              <div className="mx-[3vw] w-[94vw] lg:mx-0 lg:w-auto">
                 <TrackingSidebar
                   mobile
                   isOpen={true}
