@@ -27,7 +27,7 @@ export default function VehicleStatusDrawer() {
       {!open && (
         <button
           onClick={() => setOpen(true)}
-          className="fixed top-18 right-4 z-70 lg:hidden flex items-center gap-2 px-3 py-1 rounded-lg bg-linear-to-r from-orange-400 to-orange-500 text-white text-sm font-medium shadow-lg"
+          className="fixed top-18 right-0 z-70 lg:hidden flex items-center gap-2 px-3 py-1 rounded-lg bg-linear-to-r from-orange-400 to-orange-500 text-white text-sm font-medium shadow-lg"
           aria-label="Open vehicle drawer"
           type="button"
         >
