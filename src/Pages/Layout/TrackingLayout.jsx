@@ -62,16 +62,21 @@ export default function TrackingLayout() {
           >
             <div className="absolute inset-0 bg-white/10 backdrop-blur-xs" />
           </div>
-          <div
-            className={`fixed top-0 left-0 h-full w-68 bg-white z-50 lg:hidden shadow-xl transform transition-transform duration-300 ease-in-out ${
-              isAnimating ? "translate-x-0" : "-translate-x-full"
-            }`}
-          >
-            <TrackingSidebar
-              isOpen={true}
-              setIsOpen={() => {}}
-              onRouteSelected={handleClose}
-            />
+          <div className="fixed inset-0 z-50 lg:hidden pointer-events-auto">
+            <div
+              className={`transform transition-transform duration-300 ease-in-out ${
+                isAnimating ? "translate-x-0" : "-translate-x-full"
+              }`}
+            >
+              <div className="mx-[3vw] w-[94vw]">
+                <TrackingSidebar
+                  mobile
+                  isOpen={true}
+                  setIsOpen={() => {}}
+                  onRouteSelected={handleClose}
+                />
+              </div>
+            </div>
           </div>
         </>
       )}
@@ -81,7 +86,7 @@ export default function TrackingLayout() {
         }`}
       >
         <div className="sticky top-0 h-2 lg:h-3 w-full z-20 bg-primary-gray" />
-        <TrackingTopBar onMenuClick={() => setIsMobileMenuOpen(true)} />
+        <TrackingTopBar onMenuClick={() => setIsMobileMenuOpen((s) => !s)} />
 
         <div className="p-1 min-h-screen">
           {!hideDrawer && <VehicleStatusDrawer />}

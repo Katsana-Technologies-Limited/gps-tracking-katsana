@@ -10,6 +10,7 @@ export default function TrackingSidebar({
   isOpen,
   setIsOpen,
   onRouteSelected,
+  mobile = false,
 }) {
   const { pathname } = useLocation();
   const [expanded, setExpanded] = useState({});
@@ -87,15 +88,186 @@ export default function TrackingSidebar({
     }
   };
 
+  if (mobile) {
+    return (
+      <aside className="bg-white rounded-2xl flex flex-col items-start py-8 px-4 w-full">
+        {isOpen &&
+          (() => {
+            let currentRouteName = "";
+            let parentRouteName = "";
+            for (const { to, label, subroutes } of sidebarLinks) {
+              if (pathname === to) {
+                currentRouteName = label;
+                break;
+              }
+              if (subroutes) {
+                for (const sub of subroutes) {
+                  if (
+                    pathname === sub.to ||
+                    pathname.startsWith(sub.to + "/")
+                  ) {
+                    currentRouteName = sub.label;
+                    parentRouteName = label;
+                    break;
+                  }
+                }
+                if (currentRouteName) break;
+              }
+            }
+            return null;
+          })()}
+        <button
+          onClick={() => {
+            if (typeof onRouteSelected === "function") return onRouteSelected();
+            setIsOpen((p) => !p);
+          }}
+          className="absolute top-4 right-4 p-2 rounded-lg hover:bg-gray-100 transition-colors z-10 cursor-pointer"
+          aria-label="Toggle Sidebar"
+          type="button"
+        >
+          <Menu size={24} className="text-gray-600" />
+        </button>
+        <div
+          className={`flex flex-col items-start mb-6 w-full transition-all duration-300 ${!isOpen && "mt-8"}`}
+        >
+          <img
+            src="/logo.png"
+            alt="Katsana Logo"
+            className={`object-contain mb-4 transition-all duration-300 ${isOpen ? "w-28 h-10" : "w-10 h-10"}`}
+          />
+          {isOpen && (
+            <div className="text-primary-green font-semibold text-base text-left w-full">
+              {data?.company || ""}
+            </div>
+          )}
+        </div>
+        <nav
+          className="flex flex-col gap-2 w-full overflow-y-auto scrollbar-thin pr-1"
+          style={{
+            maxHeight: "calc(100vh - 220px)",
+            scrollbarGutter: "stable",
+          }}
+          ref={navRef}
+        >
+          {sidebarLinks.map(({ to, label, icon: Icon, subroutes }) => {
+            const isActive =
+              pathname === to || (to === "/dashboard" && pathname === "/");
+            if (subroutes) {
+              const isExpanded = expanded[to] && isOpen;
+              const isSubActive = subroutes.some((sub) =>
+                pathname.startsWith(sub.to),
+              );
+              return (
+                <div key={to} className="w-full">
+                  <button
+                    type="button"
+                    className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition font-medium text-[15px] w-full cursor-pointer ${
+                      isSubActive || isExpanded
+                        ? "bg-[#fff7e6] text-[#222] shadow-sm"
+                        : "text-primary-green hover:bg-[#f5f6fa]"
+                    } ${!isOpen ? "flex justify-center px-0" : ""}`}
+                    style={{
+                      fontFamily: "Inter, Arial, Helvetica, sans-serif",
+                    }}
+                    onClick={() => handleExpand(to)}
+                    aria-expanded={isExpanded}
+                    title={!isOpen ? label : ""}
+                  >
+                    <Icon
+                      size={20}
+                      className={
+                        isSubActive ? "text-[#fe8e1c]" : "text-[#fe8e1c]"
+                      }
+                    />
+                    {isOpen && (
+                      <>
+                        <span
+                          className={`truncate ${isSubActive || pathname === to ? "font-semibold" : "font-medium"}`}
+                        >
+                          {label}
+                        </span>
+                        <span className="ml-auto">
+                          {isExpanded ? (
+                            <ChevronDown size={18} />
+                          ) : (
+                            <ChevronRight size={18} />
+                          )}
+                        </span>
+                      </>
+                    )}
+                  </button>
+
+                  {isOpen && (
+                    <div
+                      className="overflow-hidden transition-all duration-300"
+                      style={{
+                        maxHeight: isExpanded ? subroutes.length * 38 + 16 : 0,
+                        opacity: isExpanded ? 1 : 0,
+                      }}
+                    >
+                      <ul className="pl-10 py-2 flex flex-col gap-1">
+                        {subroutes.map((sub) => (
+                          <li key={sub.to} className="flex items-center w-full">
+                            <span
+                              className="text-[#fe8e1c] text-lg mr-2"
+                              style={{ lineHeight: "1" }}
+                            >
+                              &#8226;
+                            </span>
+                            <Link
+                              to={sub.to}
+                              onClick={() => handleRouteClick(label)}
+                              className={`flex items-center w-full px-0 py-1.5 rounded-md text-[15px] transition font-medium cursor-pointer ${
+                                pathname.startsWith(sub.to)
+                                  ? "text-[#fe8e1c] bg-transparent"
+                                  : "text-gray-700 hover:text-[#fe8e1c]"
+                              }`}
+                              style={{ minWidth: 0 }}
+                            >
+                              <span className="truncate">{sub.label}</span>
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              );
+            }
+            return (
+              <Link
+                key={to}
+                to={to}
+                onClick={() => handleRouteClick(label)}
+                className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition font-medium text-[15px] cursor-pointer ${
+                  isActive
+                    ? "bg-[#fe8e1c] text-white shadow-sm"
+                    : "text-primary-green hover:bg-[#f5f6fa]"
+                } ${!isOpen ? "flex justify-center px-0" : ""}`}
+                style={{ fontFamily: "Inter, Arial, Helvetica, sans-serif" }}
+                title={!isOpen ? label : ""}
+              >
+                <Icon
+                  size={20}
+                  className={isActive ? "text-white" : "text-[#fe8e1c]"}
+                />
+                {isOpen && <span className="truncate">{label}</span>}
+              </Link>
+            );
+          })}
+        </nav>
+        <div
+          className={`w-full mt-auto ${!isOpen ? "flex justify-center" : ""}`}
+        >
+          <LogoutButton collapsed={!isOpen} />
+        </div>
+      </aside>
+    );
+  }
+
   return (
     <aside
-      className={`fixed lg:left-4 top-0 bottom-0 h-auto bg-white rounded-2xl flex flex-col items-center py-8 pl-2 mr-2 mt-4 mb-4 z-30 font-['Inter','Arial','Helvetica',sans-serif'] transition-all duration-300 ${
-        isOpen ? "w-68 2xl:w-72" : "w-20"
-      }`}
-      style={{
-        minWidth: isOpen ? 240 : 80,
-        maxWidth: isOpen ? 340 : 80,
-      }}
+      className={`fixed z-50 transition-transform duration-300 transform ${isOpen ? "translate-x-0" : "-translate-x-full"} left-[3vw] right-[3vw] top-4 bottom-4 w-[94vw] bg-white rounded-2xl flex flex-col items-start py-8 px-4 lg:left-4 lg:top-0 lg:bottom-0 lg:w-68 lg:rounded-2xl lg:translate-x-0 lg:items-center lg:py-8 lg:pl-2 lg:mr-2 lg:mt-4 lg:mb-4 font-['Inter','Arial','Helvetica',sans-serif']`}
     >
       {isOpen &&
         (() => {
