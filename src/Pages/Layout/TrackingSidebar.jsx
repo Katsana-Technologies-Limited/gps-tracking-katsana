@@ -70,6 +70,11 @@ export default function TrackingSidebar({
   };
 
   const toggleSidebar = () => {
+    if (typeof onRouteSelected === "function") {
+      onRouteSelected();
+      return;
+    }
+
     setIsOpen((prev) => !prev);
     if (!isOpen) {
       sidebarLinks.forEach((link) => {
@@ -89,13 +94,11 @@ export default function TrackingSidebar({
 
   return (
     <aside
-      className={`fixed lg:left-4 top-0 bottom-0 h-auto bg-white rounded-2xl flex flex-col items-center py-8 pl-2 mr-2 mt-4 mb-4 z-30 font-['Inter','Arial','Helvetica',sans-serif'] transition-all duration-300 ${
-        isOpen ? "w-68 2xl:w-72" : "w-20"
-      }`}
-      style={{
-        minWidth: isOpen ? 240 : 80,
-        maxWidth: isOpen ? 340 : 80,
-      }}
+      className={`fixed z-30 font-['Inter','Arial','Helvetica',sans-serif'] transition-all duration-300 transform ${
+        isOpen
+          ? "left-[5vw] right-[5vw] top-4 bottom-4 w-[90vw] mx-auto bg-white rounded-2xl flex flex-col items-center py-8 pl-2"
+          : "left-0 -translate-x-full w-20 bg-white rounded-2xl flex flex-col items-center py-8 pl-2"
+      } lg:left-4 lg:top-0 lg:bottom-0 lg:w-68 lg:rounded-2xl lg:translate-x-0`}
     >
       {isOpen &&
         (() => {
@@ -128,19 +131,19 @@ export default function TrackingSidebar({
         <Menu size={24} className="text-gray-600" />
       </button>
       <div
-        className={`flex flex-col items-center mb-6 w-full transition-all duration-300 ${
+        className={`flex flex-col items-start lg:items-center mb-6 w-full transition-all duration-300 ${
           !isOpen && "mt-8"
         }`}
       >
         <img
           src="/logo.png"
           alt="Katsana Logo"
-          className={`object-contain mb-4 transition-all duration-300 ${
-            isOpen ? "w-28 h-10" : "w-10 h-10"
+          className={`object-contain mb-4 transition-all duration-300 pl-2 lg:pl-0 ${
+            isOpen ? "w-36 h-10" : "w-10 h-10"
           }`}
         />
         {isOpen && (
-          <div className="text-primary-green font-semibold text-base text-center w-full">
+          <div className="text-primary-green font-semibold text-base text-left lg:text-center w-full pl-2 lg:pl-0">
             {data?.company || ""}
           </div>
         )}

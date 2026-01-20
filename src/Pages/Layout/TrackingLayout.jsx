@@ -81,7 +81,7 @@ export default function TrackingLayout() {
         }`}
       >
         <div className="sticky top-0 h-2 lg:h-3 w-full z-20 bg-primary-gray" />
-        <TrackingTopBar onMenuClick={() => setIsMobileMenuOpen(true)} />
+        <TrackingTopBar onMenuClick={() => setIsMobileMenuOpen((s) => !s)} />
 
         <div className="p-1 min-h-screen">
           {!hideDrawer && <VehicleStatusDrawer />}
