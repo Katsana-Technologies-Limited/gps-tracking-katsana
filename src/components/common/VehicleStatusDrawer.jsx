@@ -11,29 +11,33 @@ export default function VehicleStatusDrawer() {
 
   return (
     <div>
-      {/* 🔘 TOP-RIGHT CARD BUTTON */}
       <button
         onClick={() => setOpen((p) => !p)}
-        className="fixed top-22 right-0 z-60 lg:hidden flex items-center gap-1 px-2 py-0.5 rounded-lg bg-linear-to-r  from-orange-400 to-orange-500 text-white text-sm font-medium shadow-lg "
+        className="fixed top-18 right-4 z-70 lg:hidden flex items-center gap-2 px-3 py-1 rounded-lg bg-linear-to-r from-orange-400 to-orange-500 text-white text-sm font-medium shadow-lg"
+        aria-label={open ? "Close vehicle drawer" : "Open vehicle drawer"}
+        type="button"
       >
-        {open ? <X size={20} /> : <Search size={20} />}
-        <p className="flex flex-col items-center ">
-          <span className="text-xs">Selected</span>
-          {stats.selectedCount}
-          {stats.totalCount ? ` / ${stats.totalCount}` : ""}
-        </p>
+        {open ? <X size={18} /> : <Search size={18} />}
+        <div className="flex flex-col items-start leading-none">
+          <span className="text-[10px]">Selected</span>
+          <span className="text-sm font-semibold">
+            {stats.selectedCount}
+            {stats.totalCount ? ` / ${stats.totalCount}` : ""}
+          </span>
+        </div>
       </button>
-
-      {/* 👉 RIGHT SIDE DRAWER */}
+      {open && (
+        <div
+          onClick={() => setOpen(false)}
+          className="fixed inset-0 z-50 lg:hidden bg-black/20 backdrop-blur-sm"
+        />
+      )}
       <div
-        className={`
-          fixed top-32 right-0 z-60 lg:hidden
-          w-[92vw] max-w-sm
-          transition-transform duration-300 ease-out
-          ${open ? "translate-x-0" : "translate-x-full"}
-        `}
+        className={`fixed top-12 right-0 bottom-12 z-60 lg:hidden w-[92vw] max-w-sm transition-transform duration-300 ease-out ${
+          open ? "translate-x-0" : "translate-x-full"
+        }`}
       >
-        <div className="bg-white rounded-l-2xl shadow-2xl p-3 max-h-[95vh] overflow-y-auto">
+        <div className="bg-white rounded-2xl shadow-2xl p-3 h-full overflow-y-auto">
           <VehiclesStatusOption onStatsChange={setStats} />
         </div>
       </div>
