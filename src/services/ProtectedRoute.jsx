@@ -6,7 +6,7 @@ const ProtectedRoute = ({ children }) => {
   const { data, isLoading, error } = useDataQuery(
     ["verifyAuthVts"],
     "/api/vts/verify-auth",
-    true
+    true,
   );
 
   if (isLoading) return <LottieLoading />;

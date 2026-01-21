@@ -2,13 +2,24 @@ import { useState, useMemo } from "react";
 import { Search, Check } from "lucide-react";
 import useCustomerVehicle from "../../hooks/useCustomerVehicle";
 import LottieLoading from "../../components/utils/LottieLoading";
-import { formatDue } from "../../utilits/formatDate";
 
 const Card = ({ children, className = "" }) => (
   <div className={`${className} bg-white rounded-xl shadow-sm p-4`}>
     {children}
   </div>
 );
+
+const formatDue = (dateStr) => {
+  if (!dateStr) return "";
+  const d = new Date(dateStr);
+  d.setDate(d.getDate() - 1);
+  if (Number.isNaN(d.getTime())) return dateStr;
+  const day = d.getDate();
+  const month = d.toLocaleString("en-US", { month: "short" });
+  const year = d.getFullYear();
+  return `${day} ${month}, ${year}`;
+};
+
 
 const PaymentPage = () => {
   const [searchTerm, setSearchTerm] = useState("");

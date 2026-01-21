@@ -28,6 +28,20 @@ const GPS_DURATION = 30000;
 const MAP_STYLE = `https://map.barikoi.com/styles/osm-liberty/style.json?key=${BARIKOI_KEY}`;
 const SATELLITE_STYLE = `https://map.barikoi.com/styles/barikoi_satellite/style.json?key=${BARIKOI_KEY}`;
 
+// Minimal fallback style (OSM raster) used when external style fetch fails
+const FALLBACK_STYLE = {
+  version: 8,
+  sources: {
+    osm: {
+      type: "raster",
+      tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
+      tileSize: 256,
+      attribution: "© OpenStreetMap contributors",
+    },
+  },
+  layers: [{ id: "osm", type: "raster", source: "osm" }],
+};
+
 const VehiclesLiveMap = () => {
   const mapRef = useRef(null);
   const wrapperRef = useRef(null);
@@ -78,16 +92,32 @@ const VehiclesLiveMap = () => {
   useEffect(() => {
     let mounted = true;
     const fetchAndSanitize = async (url, setter) => {
+      // If key is missing, immediately use fallback to avoid network waits
+      if (!BARIKOI_KEY) {
+        if (mounted) setter(FALLBACK_STYLE);
+        return;
+      }
+
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 5000); // 5s
+
       try {
-        const res = await fetch(url);
-        if (!res.ok) return;
+        const res = await fetch(url, { signal: controller.signal });
+        clearTimeout(timeout);
+        if (!res.ok) {
+          console.warn(
+            "Map style fetch returned non-OK, using fallback",
+            res.status,
+          );
+          if (mounted) setter(FALLBACK_STYLE);
+          return;
+        }
         const style = await res.json();
         const availableSources = style.sources
           ? Object.keys(style.sources)
           : [];
         if (Array.isArray(style.layers)) {
           style.layers = style.layers.filter((layer) => {
-            // drop layers that reference missing sources only
             if (layer.source && !availableSources.includes(layer.source))
               return false;
             return true;
@@ -95,7 +125,14 @@ const VehiclesLiveMap = () => {
         }
         if (mounted) setter(style);
       } catch (e) {
-        console.warn("Failed to fetch/sanitize map style", e);
+        if (e.name === "AbortError") {
+          console.warn("Map style fetch aborted (timeout), using fallback");
+        } else {
+          console.warn("Failed to fetch/sanitize map style, using fallback", e);
+        }
+        if (mounted) setter(FALLBACK_STYLE);
+      } finally {
+        clearTimeout(timeout);
       }
     };
 
@@ -318,7 +355,7 @@ const VehiclesLiveMap = () => {
     return () => cancelAnimationFrame(rafId.current);
   }, []);
 
-  const styleReady = satellite ? satStyleObj : mapStyleObj;
+  const styleReady = (satellite ? satStyleObj : mapStyleObj) ?? FALLBACK_STYLE;
 
   const zoomIn = () => mapRef.current?.zoomIn();
   const zoomOut = () => mapRef.current?.zoomOut();
