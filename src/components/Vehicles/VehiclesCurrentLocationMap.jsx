@@ -23,8 +23,7 @@ import {
 import VehicleStatusLegend from "./VehicleStatusLegend";
 
 const BARIKOI_KEY = import.meta.env.VITE_BARIKOI_API_KEY;
-// const MAP_STYLE_URL = `https://map.barikoi.com/styles/osm-liberty/style.json?key=${BARIKOI_KEY}`;
-const GPS_DURATION = 10000;
+const GPS_DURATION = 30000;
 /* ✅ USE STABLE STYLE ONLY */
 const MAP_STYLE = `https://map.barikoi.com/styles/osm-liberty/style.json?key=${BARIKOI_KEY}`;
 const SATELLITE_STYLE = `https://map.barikoi.com/styles/barikoi_satellite/style.json?key=${BARIKOI_KEY}`;
@@ -38,6 +37,8 @@ const VehiclesLiveMap = () => {
   const startTime = useRef({});
   const routeCoords = useRef({});
   const rafId = useRef(null);
+  const filteredDevicesRef = useRef([]);
+  const lastMarkTime = useRef({});
 
   const { filteredDevices } = useVtsAllDevices();
   const { data: customerVehicles = [] } = useCustomerVehicle();
@@ -180,12 +181,21 @@ const VehiclesLiveMap = () => {
           "line-color": "#ef4444",
           "line-width": 4,
         },
+        layout: {
+          "line-cap": "round",
+          "line-join": "round",
+        },
       });
     }
 
-    lastPos.current[imei] = [lng, lat];
-    nextPos.current[imei] = [lng, lat];
-    routeCoords.current[imei] = [[lng, lat]];
+    // only initialise positions/route if not already present (preserve any existing route history)
+    if (!Array.isArray(lastPos.current[imei]))
+      lastPos.current[imei] = [lng, lat];
+    if (!Array.isArray(nextPos.current[imei]))
+      nextPos.current[imei] = [lng, lat];
+    if (!Array.isArray(routeCoords.current[imei]))
+      routeCoords.current[imei] = [[lng, lat]];
+    if (!lastMarkTime.current[imei]) lastMarkTime.current[imei] = Date.now();
   };
 
   const onMarkerClick = (device) => {
@@ -293,35 +303,74 @@ const VehiclesLiveMap = () => {
   useEffect(() => {
     const animate = () => {
       const imei = selectedImeiRef.current;
-      if (
-        !imei ||
-        !startTime.current[imei] ||
-        !Array.isArray(lastPos.current[imei]) ||
-        !Array.isArray(nextPos.current[imei])
-      ) {
+      if (!imei) {
         rafId.current = requestAnimationFrame(animate);
         return;
       }
 
-      const now = Date.now();
-      const t = Math.min((now - startTime.current[imei]) / GPS_DURATION, 1);
-
-      const [lng1, lat1] = lastPos.current[imei];
-      const [lng2, lat2] = nextPos.current[imei];
-
-      if (!isValidCoord(lng1, lat1) || !isValidCoord(lng2, lat2)) {
-        rafId.current = requestAnimationFrame(animate);
-        return;
-      }
-
-      const lng = lng1 + (lng2 - lng1) * t;
-      const lat = lat1 + (lat2 - lat1) * t;
+      const start = startTime.current[imei];
+      const from = lastPos.current[imei];
+      const to = nextPos.current[imei];
 
       const map = mapRef.current?.getMap();
       if (!map) {
         rafId.current = requestAnimationFrame(animate);
         return;
       }
+
+      // ensure sources/layers were created if device & map available
+      const device = filteredDevicesRef.current.find(
+        (d) => (d.device_data?.imei ?? d.imei) === imei,
+      );
+      if (device && !map.getSource("active-vehicle")) {
+        initSources(device);
+      }
+
+      if (!from || !to) {
+        // try to initialize positions from device if possible
+        if (device) {
+          const lng0 = Number(device.lng);
+          const lat0 = Number(device.lat);
+          if (isValidCoord(lng0, lat0)) {
+            lastPos.current[imei] = [lng0, lat0];
+            nextPos.current[imei] = [lng0, lat0];
+            routeCoords.current[imei] = [[lng0, lat0]];
+            startTime.current[imei] = Date.now();
+            lastMarkTime.current[imei] = Date.now();
+          }
+        }
+        rafId.current = requestAnimationFrame(animate);
+        return;
+      }
+
+      const now = Date.now();
+      const rawT = start ? Math.min((now - start) / GPS_DURATION, 1) : 1;
+      const easeInOutQuad = (x) =>
+        x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
+      const t = easeInOutQuad(rawT);
+
+      // determine movement by distance delta (fallback to speed if available)
+      const dxTotal = to[0] - from[0];
+      const dyTotal = to[1] - from[1];
+      const distSq = dxTotal * dxTotal + dyTotal * dyTotal;
+      const DIST_THRESHOLD = 0.0000005;
+      const speed = Number(device?.speed ?? device?.speed_kmph ?? 0);
+      const isMoving = distSq > DIST_THRESHOLD || speed > 0.5;
+
+      let lng, lat;
+
+      if (!isMoving) {
+        // snapped position when stopped
+        lng = to[0];
+        lat = to[1];
+        lastPos.current[imei] = [lng, lat];
+      } else {
+        lng = from[0] + (to[0] - from[0]) * t;
+        lat = from[1] + (to[1] - from[1]) * t;
+        if (rawT >= 1) lastPos.current[imei] = [to[0], to[1]];
+      }
+
+      // update marker
       map.getSource("active-vehicle")?.setData({
         type: "Feature",
         geometry: {
@@ -330,11 +379,48 @@ const VehiclesLiveMap = () => {
         },
       });
 
+      // ensure route array exists
+      routeCoords.current[imei] = routeCoords.current[imei] || [[lng, lat]];
+      const route = routeCoords.current[imei];
+      const last = route[route.length - 1] || [lng, lat];
+      const dx = lng - last[0];
+      const dy = lat - last[1];
+      const addThreshold = 0.0000005;
+      const lastMark = lastMarkTime.current[imei] || 0;
+      const shouldMarkInterval = now - lastMark >= GPS_DURATION;
+
+      // add a route mark every GPS_DURATION (30s) when moving, or when we reach destination
+      if (
+        (isMoving && shouldMarkInterval && dx * dx + dy * dy > addThreshold) ||
+        rawT >= 1
+      ) {
+        route.push([lng, lat]);
+        lastMarkTime.current[imei] = now;
+        map.getSource("active-route")?.setData({
+          type: "Feature",
+          geometry: {
+            type: "LineString",
+            coordinates: route,
+          },
+        });
+      } else {
+        // even if not moving, keep route visible for selected vehicle
+        map.getSource("active-route")?.setData({
+          type: "Feature",
+          geometry: {
+            type: "LineString",
+            coordinates: route,
+          },
+        });
+      }
+
       rafId.current = requestAnimationFrame(animate);
     };
 
     animate();
-    return () => cancelAnimationFrame(rafId.current);
+    return () => {
+      if (rafId.current) cancelAnimationFrame(rafId.current);
+    };
   }, []);
 
   const styleReady = satellite ? satStyleObj : mapStyleObj;
