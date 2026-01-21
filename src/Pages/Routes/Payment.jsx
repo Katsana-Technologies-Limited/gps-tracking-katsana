@@ -70,6 +70,31 @@ const PaymentPage = () => {
     }, 0);
   };
 
+  const canPay = agreeTerms;
+
+  const onConfirmPayment = () => {
+    if (!canPay) return;
+    if (selectedVehicles.length === 0) {
+      // keep buttons enabled but require selection to proceed
+      alert("Please select at least one vehicle to proceed with payment.");
+      return;
+    }
+    // TODO: integrate Citybank payment flow
+    console.log("Confirm (Citybank) payment for:", selectedVehicles);
+  };
+
+  const onBkashPayment = () => {
+    if (!canPay) return;
+    if (selectedVehicles.length === 0) {
+      alert(
+        "Please select at least one vehicle to proceed with bKash payment.",
+      );
+      return;
+    }
+    // TODO: integrate bKash payment flow
+    // console.log("bKash payment for:", selectedVehicles);
+  };
+
   const filteredVehicles = vehicles.filter(
     (v) =>
       v.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -114,7 +139,7 @@ const PaymentPage = () => {
               <div className="col-span-1 flex items-center">
                 <button
                   onClick={selectAllVehicles}
-                  className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+                  className={`w-5 h-5 rounded border-2 flex items-center justify-center cursor-pointer transition-colors ${
                     selectedVehicles.length === vehicles.length
                       ? "bg-yellow-400 border-yellow-400"
                       : "border-gray-300 bg-white"
@@ -140,7 +165,7 @@ const PaymentPage = () => {
                   <div className="col-span-1 flex items-center">
                     <button
                       onClick={() => toggleVehicle(vehicle.id)}
-                      className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+                      className={`w-5 h-5 rounded border-2 flex items-center justify-center cursor-pointer transition-colors ${
                         selectedVehicles.includes(vehicle.id)
                           ? "bg-yellow-400 border-yellow-400"
                           : "border-gray-300 bg-white"
@@ -222,14 +247,13 @@ const PaymentPage = () => {
                 </div>
               </div>
             </div>
-
             <div className="mb-4">
               <label className="flex items-start gap-2 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={agreeTerms}
                   onChange={(e) => setAgreeTerms(e.target.checked)}
-                  className="mt-1"
+                  className="mt-1 cursor-pointer"
                 />
                 <span className="text-xs text-gray-600">
                   By checking you agree to our{" "}
@@ -243,11 +267,11 @@ const PaymentPage = () => {
                 </span>
               </label>
             </div>
-
             <button
-              disabled={!agreeTerms || selectedVehicles.length === 0}
-              className={`w-full py-3 rounded-lg font-semibold mb-3 transition-colors ${
-                agreeTerms && selectedVehicles.length > 0
+              onClick={onConfirmPayment}
+              disabled={!canPay}
+              className={`w-full py-3 cursor-pointer rounded-lg font-semibold mb-3 transition-colors ${
+                canPay
                   ? "bg-yellow-400 text-gray-800 hover:bg-yellow-500"
                   : "bg-gray-200 text-gray-400 cursor-not-allowed"
               }`}
@@ -255,7 +279,15 @@ const PaymentPage = () => {
               Confirm Payment
             </button>
 
-            <button className="w-full py-3 bg-pink-300 text-gray-800 rounded-lg font-semibold hover:bg-pink-400 transition-colors">
+            <button
+              onClick={onBkashPayment}
+              disabled={!canPay}
+              className={`w-full py-3 cursor-pointer ${
+                canPay
+                  ? "bg-pink-300 hover:bg-pink-400 text-gray-800"
+                  : "bg-gray-200 text-gray-400 cursor-not-allowed"
+              } rounded-lg font-semibold transition-colors`}
+            >
               Bkash Payment
             </button>
           </Card>
