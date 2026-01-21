@@ -6,9 +6,7 @@ import LottieLoading from "../../components/utils/LottieLoading";
 import { formatDue } from "../../utilits/formatDate";
 
 const Card = ({ children, className = "" }) => (
-  <div
-    className={`${className} bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.06)] p-6`}
-  >
+  <div className={`${className} bg-white rounded-xl shadow-sm p-4`}>
     {children}
   </div>
 );
@@ -82,35 +80,37 @@ const PaymentPage = () => {
 
   return (
     <div className="">
-      <h1 className="text-xl font-bold text-gray-800 mb-3">Vehicle Payment</h1>
+      <h1 className="text-lg font-semibold text-gray-800 mb-2">
+        Vehicle Payment
+      </h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
         {/* Left Section - Vehicle List */}
         <div className="lg:col-span-3">
           <Card>
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-3">
               <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <input
                   type="text"
                   placeholder="Search Vehicle"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 border-2 border-yellow-400 rounded-full focus:outline-none focus:border-yellow-500"
+                  className="w-full pl-9 pr-3 py-2 border border-yellow-300 rounded-md focus:outline-none focus:border-yellow-400 text-sm"
                 />
               </div>
-              <div className="flex gap-3 ml-4">
-                <button className="px-5 py-2 bg-yellow-400 text-gray-800 rounded-lg font-semibold hover:bg-yellow-500 transition-colors">
+              <div className="flex gap-2 ml-3">
+                <button className="px-4 py-2 bg-yellow-400 text-gray-800 rounded-md font-medium hover:bg-yellow-500 transition-colors text-sm">
                   Payment History
                 </button>
-                <button className="px-5 py-2 bg-yellow-400 text-gray-800 rounded-lg font-semibold hover:bg-yellow-500 transition-colors">
+                <button className="px-4 py-2 bg-yellow-400 text-gray-800 rounded-md font-medium hover:bg-yellow-500 transition-colors text-sm">
                   Unpaid Invoices
                 </button>
               </div>
             </div>
 
             {/* Header Row */}
-            <div className="bg-yellow-100 rounded-lg p-4 grid grid-cols-12 gap-4 items-center mb-3 font-semibold text-gray-700">
+            <div className="bg-yellow-100 rounded-md p-3 grid grid-cols-12 gap-3 items-center mb-3 font-semibold text-gray-700 text-sm">
               <div className="col-span-1 flex items-center">
                 <button
                   onClick={selectAllVehicles}
@@ -135,7 +135,7 @@ const PaymentPage = () => {
               {filteredVehicles.map((vehicle) => (
                 <div
                   key={vehicle.id}
-                  className="bg-yellow-50 rounded-lg p-4 grid grid-cols-12 gap-4 items-start"
+                  className="bg-yellow-50 rounded-md p-3 grid grid-cols-12 gap-3 items-start"
                 >
                   <div className="col-span-1 flex items-center">
                     <button
@@ -152,10 +152,10 @@ const PaymentPage = () => {
                     </button>
                   </div>
                   <div className="col-span-6">
-                    <div className="font-semibold text-gray-800">
+                    <div className="font-medium text-gray-800 text-sm">
                       BSTID: {vehicle.bstid}
                     </div>
-                    <div className="text-sm text-gray-600 mb-3">
+                    <div className="text-xs text-gray-600 mb-2">
                       {vehicle.name}
                     </div>
 
@@ -171,11 +171,11 @@ const PaymentPage = () => {
                       </div>
                     )}
                   </div>
-                  <div className="col-span-2">
-                    <div className="text-lg font-bold text-gray-800">
+                  <div className="col-span-2 text-right">
+                    <div className="text-base font-semibold text-gray-800">
                       {formatCurrency(vehicle.subscriptionFee)}
                     </div>
-                    <div className="text-xs text-red-500">
+                    <div className="text-[11px] text-red-500">
                       No Privilege Gained
                     </div>
                   </div>
