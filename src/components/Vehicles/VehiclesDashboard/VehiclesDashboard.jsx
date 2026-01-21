@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React, { useMemo, useState } from "react";
 import VehiclesStatusOption from "../../AnalyticsSummary/VehiclesStatusOption";
-import { RotateCw } from "lucide-react";
+import { RotateCw, Download } from "lucide-react";
 import useCustomerVehicle from "../../../hooks/useCustomerVehicle";
 import useVtsAllDevices from "../../../hooks/useVtsAllDevices";
 import NearbyLandmarkCell from "../NearbyLandmarkCell";
@@ -182,9 +182,9 @@ export default function VehiclesDashboard() {
             />
             Reload {isReloading && `(${reloadTimer}s)`}
           </button>
-          <button className="px-4 py-2 cursor-pointer rounded-lg bg-linear-to-r from-orange-400 to-orange-500 text-white font-medium flex gap-2 border border-gray-300 hover:from-orange-500 hover:to-orange-600">
-            <img src="/icons/vehicel/export.svg" alt="export" />
-            Export
+          <button className="px-4 py-2 cursor-pointer rounded-lg bg-linear-to-r from-orange-400 to-orange-500 text-white font-medium flex items-center gap-2 border border-gray-300 hover:from-orange-500 hover:to-orange-600">
+            <Download className="w-4 h-4" />
+            <span>Export</span>
           </button>
         </div>
       </div>

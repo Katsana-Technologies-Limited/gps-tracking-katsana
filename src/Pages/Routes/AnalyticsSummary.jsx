@@ -21,7 +21,6 @@ const AnalyticsSummary = () => {
         Analytics And Summary
       </h1>
 
-      {/* Top cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 2xl:grid-cols-11 gap-5 mb-5">
         <Card className="col-span-4">
           <TraveledDistance />
@@ -34,12 +33,10 @@ const AnalyticsSummary = () => {
         </Card>
       </div>
 
-      {/* Map */}
       <Card className="mb-5 p-0 overflow-hidden">
         <VehiclesStatusMap />
       </Card>
 
-      {/* Bottom cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <Card>
           <AlertsSummaryNumberChart />
