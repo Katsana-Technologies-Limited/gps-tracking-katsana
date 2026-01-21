@@ -216,10 +216,12 @@ const PaymentPage = () => {
             <h2 className="text-xl font-bold text-orange-500 mb-2">
               Cost Summary
             </h2>
-            <p className="text-xs text-gray-500 mb-1">Stay Longer Pay Less.</p>
-            <p className="text-xs text-green-500 mb-6">
-              Get Free Months With 6-12 Month Plans
-            </p>
+            <div className="animate-pulse text-xs text-green-500 ">
+              <p className="mb-1 text-center">Stay Longer, Pay Less.</p>
+              <p className="mb-6 text-center">
+                Get Free Months With 6-12 Month Plans
+              </p>
+            </div>
 
             <div className="space-y-4 mb-6">
               <div className="flex justify-between items-center">
