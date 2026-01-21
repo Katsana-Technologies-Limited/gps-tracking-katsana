@@ -125,10 +125,10 @@ const PaymentPage = () => {
                 />
               </div>
               <div className="flex gap-2 ml-3">
-                <button className="px-4 py-2 bg-yellow-400 text-gray-800 rounded-md font-medium hover:bg-yellow-500 transition-colors text-sm">
+                <button className="px-4 py-2 cursor-pointer bg-yellow-400 text-gray-800 rounded-md font-medium hover:bg-yellow-500 transition-colors text-sm">
                   Payment History
                 </button>
-                <button className="px-4 py-2 bg-yellow-400 text-gray-800 rounded-md font-medium hover:bg-yellow-500 transition-colors text-sm">
+                <button className="px-4 py-2 cursor-pointer bg-yellow-400 text-gray-800 rounded-md font-medium hover:bg-yellow-500 transition-colors text-sm">
                   Unpaid Invoices
                 </button>
               </div>
