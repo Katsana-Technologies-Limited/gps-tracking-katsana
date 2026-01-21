@@ -132,12 +132,12 @@ export default function TrackingSidebar({
           <Menu size={24} className="text-gray-600" />
         </button>
         <div
-          className={`flex flex-col items-start mb-6 w-full transition-all duration-300 ${!isOpen && "mt-8"}`}
+          className={`flex flex-col items-start mb-6 w-full transition-all duration-300 lg:duration-400 lg:ease-in-out ${!isOpen && "mt-8"}`}
         >
           <img
             src="/logo.png"
             alt="Katsana Logo"
-            className={`object-contain mb-4 transition-all duration-300 ${isOpen ? "w-28 h-10" : "w-10 h-10"}`}
+            className={`object-contain mb-4 transition-all duration-300 lg:duration-400 lg:ease-in-out ${isOpen ? "w-28 h-10" : "w-10 h-10"}`}
           />
           {isOpen && (
             <div className="text-primary-green font-semibold text-base text-left w-full">
@@ -271,7 +271,7 @@ export default function TrackingSidebar({
 
   return (
     <aside
-      className={`fixed z-50 transition-transform duration-300 transform ${isOpen ? "translate-x-0" : "-translate-x-full"} left-[3vw] right-[3vw] lg:right-auto top-4 bottom-4 w-[94vw] bg-white rounded-2xl flex flex-col items-start py-8 px-4 lg:left-4 lg:top-0 lg:bottom-0 ${desktopWidthClass} ${desktopSizeLimits} lg:rounded-2xl lg:translate-x-0 lg:items-center lg:py-8 lg:pl-2 lg:pr-0 lg:mr-6 lg:mt-4 lg:mb-4 scrollbar-thin`}
+      className={`fixed z-50 transition-transform duration-300 lg:transition-all lg:duration-400 lg:ease-in-out transform ${isOpen ? "translate-x-0" : "-translate-x-full"} left-[3vw] right-[3vw] lg:right-auto top-4 bottom-4 w-[94vw] bg-white rounded-2xl flex flex-col items-start py-8 px-4 lg:left-4 lg:top-0 lg:bottom-0 ${desktopWidthClass} ${desktopSizeLimits} lg:rounded-2xl lg:translate-x-0 lg:items-center lg:py-8 lg:pl-2 lg:pr-0 lg:mr-6 lg:mt-4 lg:mb-4 scrollbar-thin`}
     >
       {isOpen &&
         (() => {
@@ -304,14 +304,14 @@ export default function TrackingSidebar({
         <Menu size={24} className="text-gray-600" />
       </button>
       <div
-        className={`flex flex-col items-center mb-6 w-full transition-all duration-300 ${
+        className={`flex flex-col items-center mb-6 w-full transition-all duration-300 lg:duration-400 lg:ease-in-out ${
           !isOpen && "mt-8"
         }`}
       >
         <img
           src="/logo.png"
           alt="Katsana Logo"
-          className={`object-contain mb-4 transition-all duration-300 ${
+          className={`object-contain mb-4 transition-all duration-300 lg:duration-400 lg:ease-in-out ${
             isOpen ? "w-28 h-10" : "w-10 h-10"
           }`}
         />
@@ -380,7 +380,7 @@ export default function TrackingSidebar({
 
                 {isOpen && (
                   <div
-                    className="overflow-hidden transition-all duration-300"
+                    className="overflow-hidden transition-all duration-300 lg:duration-400 lg:ease-in-out"
                     style={{
                       maxHeight: isExpanded ? subroutes.length * 38 + 16 : 0,
                       opacity: isExpanded ? 1 : 0,
