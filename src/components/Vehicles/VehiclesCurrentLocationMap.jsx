@@ -37,8 +37,10 @@ const VehiclesLiveMap = () => {
   const startTime = useRef({});
   const routeCoords = useRef({});
   const rafId = useRef(null);
-  const filteredDevicesRef = useRef([]);
-  const lastMarkTime = useRef({});
+
+  console.log("lastPos", lastPos.current);
+  console.log("nextPos", nextPos.current);
+  console.log("routeCoords", routeCoords.current);
 
   const { filteredDevices } = useVtsAllDevices();
   const { data: customerVehicles = [] } = useCustomerVehicle();
@@ -72,33 +74,6 @@ const VehiclesLiveMap = () => {
       Math.abs(La) <= 90
     );
   };
-
-  // useEffect(() => {
-  //   let mounted = true;
-  //   (async () => {
-  //     try {
-  //       const res = await fetch(MAP_STYLE_URL);
-  //       if (!res.ok) return;
-  //       const style = await res.json();
-  //       const availableSources = style.sources
-  //         ? Object.keys(style.sources)
-  //         : [];
-  //       if (Array.isArray(style.layers)) {
-  //         style.layers = style.layers.filter((layer) => {
-  //           if (layer.source && !availableSources.includes(layer.source))
-  //             return false;
-  //           return true;
-  //         });
-  //       }
-  //       if (mounted) setMapStyleObj(style);
-  //     } catch (e) {
-  //       console.warn("Failed to fetch/sanitize map style", e);
-  //     }
-  //   })();
-  //   return () => {
-  //     mounted = false;
-  //   };
-  // }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -181,21 +156,17 @@ const VehiclesLiveMap = () => {
           "line-color": "#ef4444",
           "line-width": 4,
         },
-        layout: {
-          "line-cap": "round",
-          "line-join": "round",
-        },
       });
     }
 
-    // only initialise positions/route if not already present (preserve any existing route history)
-    if (!Array.isArray(lastPos.current[imei]))
-      lastPos.current[imei] = [lng, lat];
-    if (!Array.isArray(nextPos.current[imei]))
-      nextPos.current[imei] = [lng, lat];
-    if (!Array.isArray(routeCoords.current[imei]))
-      routeCoords.current[imei] = [[lng, lat]];
-    if (!lastMarkTime.current[imei]) lastMarkTime.current[imei] = Date.now();
+    lastPos.current[imei] = [lng, lat];
+    nextPos.current[imei] = [lng, lat];
+    routeCoords.current[imei] = [[lng, lat]];
+
+    console.log(" Initialized sources for", imei);
+    console.log("lastPos", lastPos.current[imei]);
+    console.log("nextPos", nextPos.current[imei]);
+    console.log("routeCoords", routeCoords.current[imei]);
   };
 
   const onMarkerClick = (device) => {
@@ -303,74 +274,35 @@ const VehiclesLiveMap = () => {
   useEffect(() => {
     const animate = () => {
       const imei = selectedImeiRef.current;
-      if (!imei) {
+      if (
+        !imei ||
+        !startTime.current[imei] ||
+        !Array.isArray(lastPos.current[imei]) ||
+        !Array.isArray(nextPos.current[imei])
+      ) {
         rafId.current = requestAnimationFrame(animate);
         return;
       }
 
-      const start = startTime.current[imei];
-      const from = lastPos.current[imei];
-      const to = nextPos.current[imei];
+      const now = Date.now();
+      const t = Math.min((now - startTime.current[imei]) / GPS_DURATION, 1);
+
+      const [lng1, lat1] = lastPos.current[imei];
+      const [lng2, lat2] = nextPos.current[imei];
+
+      if (!isValidCoord(lng1, lat1) || !isValidCoord(lng2, lat2)) {
+        rafId.current = requestAnimationFrame(animate);
+        return;
+      }
+
+      const lng = lng1 + (lng2 - lng1) * t;
+      const lat = lat1 + (lat2 - lat1) * t;
 
       const map = mapRef.current?.getMap();
       if (!map) {
         rafId.current = requestAnimationFrame(animate);
         return;
       }
-
-      // ensure sources/layers were created if device & map available
-      const device = filteredDevicesRef.current.find(
-        (d) => (d.device_data?.imei ?? d.imei) === imei,
-      );
-      if (device && !map.getSource("active-vehicle")) {
-        initSources(device);
-      }
-
-      if (!from || !to) {
-        // try to initialize positions from device if possible
-        if (device) {
-          const lng0 = Number(device.lng);
-          const lat0 = Number(device.lat);
-          if (isValidCoord(lng0, lat0)) {
-            lastPos.current[imei] = [lng0, lat0];
-            nextPos.current[imei] = [lng0, lat0];
-            routeCoords.current[imei] = [[lng0, lat0]];
-            startTime.current[imei] = Date.now();
-            lastMarkTime.current[imei] = Date.now();
-          }
-        }
-        rafId.current = requestAnimationFrame(animate);
-        return;
-      }
-
-      const now = Date.now();
-      const rawT = start ? Math.min((now - start) / GPS_DURATION, 1) : 1;
-      const easeInOutQuad = (x) =>
-        x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
-      const t = easeInOutQuad(rawT);
-
-      // determine movement by distance delta (fallback to speed if available)
-      const dxTotal = to[0] - from[0];
-      const dyTotal = to[1] - from[1];
-      const distSq = dxTotal * dxTotal + dyTotal * dyTotal;
-      const DIST_THRESHOLD = 0.0000005;
-      const speed = Number(device?.speed ?? device?.speed_kmph ?? 0);
-      const isMoving = distSq > DIST_THRESHOLD || speed > 0.5;
-
-      let lng, lat;
-
-      if (!isMoving) {
-        // snapped position when stopped
-        lng = to[0];
-        lat = to[1];
-        lastPos.current[imei] = [lng, lat];
-      } else {
-        lng = from[0] + (to[0] - from[0]) * t;
-        lat = from[1] + (to[1] - from[1]) * t;
-        if (rawT >= 1) lastPos.current[imei] = [to[0], to[1]];
-      }
-
-      // update marker
       map.getSource("active-vehicle")?.setData({
         type: "Feature",
         geometry: {
@@ -379,48 +311,11 @@ const VehiclesLiveMap = () => {
         },
       });
 
-      // ensure route array exists
-      routeCoords.current[imei] = routeCoords.current[imei] || [[lng, lat]];
-      const route = routeCoords.current[imei];
-      const last = route[route.length - 1] || [lng, lat];
-      const dx = lng - last[0];
-      const dy = lat - last[1];
-      const addThreshold = 0.0000005;
-      const lastMark = lastMarkTime.current[imei] || 0;
-      const shouldMarkInterval = now - lastMark >= GPS_DURATION;
-
-      // add a route mark every GPS_DURATION (30s) when moving, or when we reach destination
-      if (
-        (isMoving && shouldMarkInterval && dx * dx + dy * dy > addThreshold) ||
-        rawT >= 1
-      ) {
-        route.push([lng, lat]);
-        lastMarkTime.current[imei] = now;
-        map.getSource("active-route")?.setData({
-          type: "Feature",
-          geometry: {
-            type: "LineString",
-            coordinates: route,
-          },
-        });
-      } else {
-        // even if not moving, keep route visible for selected vehicle
-        map.getSource("active-route")?.setData({
-          type: "Feature",
-          geometry: {
-            type: "LineString",
-            coordinates: route,
-          },
-        });
-      }
-
       rafId.current = requestAnimationFrame(animate);
     };
 
     animate();
-    return () => {
-      if (rafId.current) cancelAnimationFrame(rafId.current);
-    };
+    return () => cancelAnimationFrame(rafId.current);
   }, []);
 
   const styleReady = satellite ? satStyleObj : mapStyleObj;
@@ -466,9 +361,7 @@ const VehiclesLiveMap = () => {
     >
       <Map
         ref={mapRef}
-        // mapStyle={mapStyleObj}
         mapStyle={styleReady}
-        // onLoad={onMapLoad}
         initialViewState={{
           longitude: 90.3563,
           latitude: 23.685,
