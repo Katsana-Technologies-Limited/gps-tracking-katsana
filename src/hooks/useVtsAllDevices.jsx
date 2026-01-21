@@ -9,7 +9,7 @@ const useVtsAllDevices = () => {
     error: errorDevices,
     refetch: refetchDevices,
   } = useDataQuery(["vts-all-devices"], "/api/vts/devices-proxy", true, {
-    refetchInterval: 10000,
+    refetchInterval: 30000,
     refetchIntervalInBackground: true,
     staleTime: 0,
   });
@@ -32,7 +32,7 @@ const useVtsAllDevices = () => {
   const selectedImeisRaw = useSelectedImeis();
   const selectedImeis = useMemo(
     () => selectedImeisRaw || [],
-    [selectedImeisRaw]
+    [selectedImeisRaw],
   );
 
   const filteredDevices = useMemo(() => {

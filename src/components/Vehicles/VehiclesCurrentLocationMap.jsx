@@ -23,8 +23,7 @@ import {
 import VehicleStatusLegend from "./VehicleStatusLegend";
 
 const BARIKOI_KEY = import.meta.env.VITE_BARIKOI_API_KEY;
-// const MAP_STYLE_URL = `https://map.barikoi.com/styles/osm-liberty/style.json?key=${BARIKOI_KEY}`;
-const GPS_DURATION = 10000;
+const GPS_DURATION = 30000;
 /* ✅ USE STABLE STYLE ONLY */
 const MAP_STYLE = `https://map.barikoi.com/styles/osm-liberty/style.json?key=${BARIKOI_KEY}`;
 const SATELLITE_STYLE = `https://map.barikoi.com/styles/barikoi_satellite/style.json?key=${BARIKOI_KEY}`;
@@ -38,6 +37,10 @@ const VehiclesLiveMap = () => {
   const startTime = useRef({});
   const routeCoords = useRef({});
   const rafId = useRef(null);
+
+  console.log("lastPos", lastPos.current);
+  console.log("nextPos", nextPos.current);
+  console.log("routeCoords", routeCoords.current);
 
   const { filteredDevices } = useVtsAllDevices();
   const { data: customerVehicles = [] } = useCustomerVehicle();
@@ -71,33 +74,6 @@ const VehiclesLiveMap = () => {
       Math.abs(La) <= 90
     );
   };
-
-  // useEffect(() => {
-  //   let mounted = true;
-  //   (async () => {
-  //     try {
-  //       const res = await fetch(MAP_STYLE_URL);
-  //       if (!res.ok) return;
-  //       const style = await res.json();
-  //       const availableSources = style.sources
-  //         ? Object.keys(style.sources)
-  //         : [];
-  //       if (Array.isArray(style.layers)) {
-  //         style.layers = style.layers.filter((layer) => {
-  //           if (layer.source && !availableSources.includes(layer.source))
-  //             return false;
-  //           return true;
-  //         });
-  //       }
-  //       if (mounted) setMapStyleObj(style);
-  //     } catch (e) {
-  //       console.warn("Failed to fetch/sanitize map style", e);
-  //     }
-  //   })();
-  //   return () => {
-  //     mounted = false;
-  //   };
-  // }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -186,6 +162,11 @@ const VehiclesLiveMap = () => {
     lastPos.current[imei] = [lng, lat];
     nextPos.current[imei] = [lng, lat];
     routeCoords.current[imei] = [[lng, lat]];
+
+    console.log(" Initialized sources for", imei);
+    console.log("lastPos", lastPos.current[imei]);
+    console.log("nextPos", nextPos.current[imei]);
+    console.log("routeCoords", routeCoords.current[imei]);
   };
 
   const onMarkerClick = (device) => {
@@ -380,9 +361,7 @@ const VehiclesLiveMap = () => {
     >
       <Map
         ref={mapRef}
-        // mapStyle={mapStyleObj}
         mapStyle={styleReady}
-        // onLoad={onMapLoad}
         initialViewState={{
           longitude: 90.3563,
           latitude: 23.685,
