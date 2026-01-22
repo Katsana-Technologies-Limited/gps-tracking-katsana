@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { Search, Check } from "lucide-react";
+import { Link } from "react-router-dom";
 import useCustomerVehicle from "../../hooks/useCustomerVehicle";
 import LottieLoading from "../../components/utils/LottieLoading";
 
@@ -101,7 +102,6 @@ const PaymentPage = () => {
         Vehicle Payment
       </h1>
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-        {/* Left Section - Vehicle List */}
         <div className="lg:col-span-3">
           <Card>
             <div className="flex items-center justify-between mb-3">
@@ -124,8 +124,6 @@ const PaymentPage = () => {
                 </button>
               </div>
             </div>
-
-            {/* Header Row */}
             <div className="bg-yellow-100 rounded-md p-3 grid grid-cols-12 gap-3 items-center mb-3 font-semibold text-gray-700 text-sm">
               <div className="col-span-1 flex items-center">
                 <button
@@ -143,7 +141,7 @@ const PaymentPage = () => {
               </div>
               <div className="col-span-6">Vehicle (x {vehicles.length})</div>
               <div className="col-span-3">Due</div>
-              <div className="col-span-2">Subscription Fee</div>
+              <div className="col-span-2 text-right">Subscription Fee</div>
             </div>
 
             {/* Vehicle Rows */}
@@ -193,8 +191,8 @@ const PaymentPage = () => {
                     )}
                   </div>
                   <div className="col-span-2 text-right">
-                    <div className="text-base font-semibold text-gray-800">
-                      {formatCurrency(vehicle.subscriptionFee)} ৳
+                    <div className="text-sm font-semibold text-gray-800">
+                      {formatCurrency(vehicle.subscriptionFee)}
                     </div>
                     <div className="text-[11px] text-red-500">
                       No Privilege Gained
@@ -257,23 +255,23 @@ const PaymentPage = () => {
               </div>
             )}
 
-            <div className="mb-4">
-              <label className="flex items-start gap-2 cursor-pointer">
+            <div className="mx-5 mb-4">
+              <label className="flex items-start gap-3 font-medium max-w-4/5 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={agreeTerms}
                   onChange={(e) => setAgreeTerms(e.target.checked)}
-                  className="mt-1 cursor-pointer"
+                  className="mt-1 cursor-pointer h-4 w-7"
                 />
-                <span className="text-xs text-gray-600">
+                <span className="text-xs">
                   By checking you agree to our{" "}
-                  <a href="#" className="text-blue-500 underline">
+                  <Link to="/refund-policy" className="text-blue-500 underline">
                     Refund Policy
-                  </a>{" "}
+                  </Link>{" "}
                   and{" "}
-                  <a href="#" className="text-blue-500 underline">
+                  <Link to="/terms-conditions" className="text-blue-500 underline">
                     Terms & Conditions
-                  </a>
+                  </Link>
                 </span>
               </label>
             </div>
