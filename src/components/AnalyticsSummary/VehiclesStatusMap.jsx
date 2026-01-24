@@ -27,7 +27,7 @@ import LottieLoading from "../utils/LottieLoading";
 
 const BARIKOI_KEY = import.meta.env.VITE_BARIKOI_API_KEY;
 
-const GPS_DURATION = 10000;
+const GPS_DURATION = 10000; //10s
 
 /* ✅ USE STABLE STYLE ONLY */
 const MAP_STYLE = `https://map.barikoi.com/styles/osm-liberty/style.json?key=${BARIKOI_KEY}`;

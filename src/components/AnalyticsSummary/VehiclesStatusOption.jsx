@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useMemo, useState, useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   setSelectedImeis,
   setSelectedLastImei,
@@ -20,9 +20,13 @@ const statusStyle = {
 
 const VehiclesStatusOption = ({ onStatsChange }) => {
   const dispatch = useDispatch();
+  const selectedLastImei = useSelector(
+    (state) => state.vehicles.selectedLastImei,
+  );
   const [activeTab, setActiveTab] = useState("All");
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState([]);
+  const [hasInitialized, setHasInitialized] = useState(false);
 
   const { data: customerVehicles = [], isLoading } = useCustomerVehicle();
   const { allDevices } = useVtsAllDevices();
@@ -71,16 +75,12 @@ const VehiclesStatusOption = ({ onStatsChange }) => {
   }, [VEHICLES, activeTab, query]);
 
   useEffect(() => {
-    setSelected(
-      filteredVehicles.length > 0 ? filteredVehicles.map((v) => v.id) : [],
-    );
-  }, [activeTab, query]);
-
-  useEffect(() => {
-    if (filteredVehicles.length > 0 && selected.length === 0) {
-      setSelected(filteredVehicles.map((v) => v.id));
+    if (!hasInitialized && filteredVehicles.length > 0) {
+      setSelected([filteredVehicles[0].id]);
+      dispatch(setSelectedLastImei(filteredVehicles[0].imei));
+      setHasInitialized(true);
     }
-  }, [filteredVehicles]);
+  }, [filteredVehicles, hasInitialized, dispatch]);
 
   useEffect(() => {
     const imeis = filteredVehicles
@@ -90,6 +90,21 @@ const VehiclesStatusOption = ({ onStatsChange }) => {
 
     dispatch(setSelectedImeis(imeis));
   }, [filteredVehicles, selected, dispatch]);
+
+  useEffect(() => {
+    const selectedImeis = filteredVehicles
+      .filter((v) => selected.includes(v.id))
+      .map((v) => v.imei)
+      .filter(Boolean);
+
+    if (selectedLastImei && !selectedImeis.includes(selectedLastImei)) {
+      const lastSelected =
+        selectedImeis.length > 0
+          ? selectedImeis[selectedImeis.length - 1]
+          : null;
+      dispatch(setSelectedLastImei(lastSelected));
+    }
+  }, [selected, filteredVehicles, selectedLastImei, dispatch]);
 
   useEffect(() => {
     if (typeof onStatsChange === "function") {
