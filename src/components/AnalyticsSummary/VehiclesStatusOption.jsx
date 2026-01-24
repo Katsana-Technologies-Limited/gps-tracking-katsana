@@ -76,8 +76,11 @@ const VehiclesStatusOption = ({ onStatsChange }) => {
 
   useEffect(() => {
     if (!hasInitialized && filteredVehicles.length > 0) {
-      setSelected([filteredVehicles[0].id]);
-      dispatch(setSelectedLastImei(filteredVehicles[0].imei));
+      const allIds = filteredVehicles.map((v) => v.id);
+      setSelected(allIds);
+      const lastImei =
+        filteredVehicles[filteredVehicles.length - 1]?.imei ?? null;
+      dispatch(setSelectedLastImei(lastImei));
       setHasInitialized(true);
     }
   }, [filteredVehicles, hasInitialized, dispatch]);
