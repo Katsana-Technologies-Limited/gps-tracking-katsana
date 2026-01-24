@@ -103,6 +103,9 @@ export default function VehiclesDashboard() {
           speedStatus = "Engine Idle";
           speedValue = 0;
         }
+      } else if (ignitionOn === false) {
+        speedStatus = "Engine Off";
+        speedValue = 0;
       } else {
         speedStatus = "Engine Off";
         speedValue = 0;
