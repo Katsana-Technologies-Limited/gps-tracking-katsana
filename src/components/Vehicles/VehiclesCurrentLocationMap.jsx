@@ -24,12 +24,9 @@ import {
 import VehicleStatusLegend from "./VehicleStatusLegend";
 
 const BARIKOI_KEY = import.meta.env.VITE_BARIKOI_API_KEY;
-const GPS_DURATION = 10000; //10s
-/* ✅ USE STABLE STYLE ONLY */
+const GPS_DURATION = 10000;
 const MAP_STYLE = `https://map.barikoi.com/styles/osm-liberty/style.json?key=${BARIKOI_KEY}`;
 const SATELLITE_STYLE = `https://map.barikoi.com/styles/barikoi_satellite/style.json?key=${BARIKOI_KEY}`;
-
-// Minimal fallback style (OSM raster) used when external style fetch fails
 const FALLBACK_STYLE = {
   version: 8,
   sources: {
@@ -53,9 +50,9 @@ const VehiclesLiveMap = () => {
   const routeCoords = useRef({});
   const rafId = useRef(null);
 
-  console.log("lastPos", lastPos.current);
-  console.log("nextPos", nextPos.current);
-  console.log("routeCoords", routeCoords.current);
+  // console.log("lastPos", lastPos.current);
+  // console.log("nextPos", nextPos.current);
+  // console.log("routeCoords", routeCoords.current);
 
   const { filteredDevices } = useVtsAllDevices();
   const { data: customerVehicles = [] } = useCustomerVehicle();
@@ -277,7 +274,6 @@ const VehiclesLiveMap = () => {
     const lat = Number(device.lat);
     if (!isValidCoord(lng, lat)) return;
 
-    // 👉 FIRST TIME INIT
     if (!lastPos.current[imei]) {
       lastPos.current[imei] = [lng, lat];
       nextPos.current[imei] = [lng, lat];
@@ -285,8 +281,6 @@ const VehiclesLiveMap = () => {
       startTime.current[imei] = Date.now();
       return;
     }
-
-    // 👉 NEW GPS POINT
 
     routeCoords.current[imei] = routeCoords.current[imei] ?? [];
     nextPos.current[imei] = [lng, lat];
@@ -321,7 +315,6 @@ const VehiclesLiveMap = () => {
       }
 
       const t = Math.min((Date.now() - start) / GPS_DURATION, 1);
-
       const lng = from[0] + (to[0] - from[0]) * t;
       const lat = from[1] + (to[1] - from[1]) * t;
 
@@ -393,7 +386,6 @@ const VehiclesLiveMap = () => {
           const lng = Number(d.lng);
           const lat = Number(d.lat);
           if (!isValidCoord(lng, lat)) return null;
-
           const vehicleImage = vehicleImageMap[imei] || "/car-icon.svg";
           const waveColor = getVehicleWaveColor(d);
 
@@ -449,7 +441,6 @@ const VehiclesLiveMap = () => {
           );
         })}
       </Map>
-
       <div className="absolute top-3 left-3 z-20 bg-white rounded-lg shadow  flex">
         <button
           onClick={() => setSatellite(false)}
@@ -468,8 +459,6 @@ const VehiclesLiveMap = () => {
           Satellite
         </button>
       </div>
-
-      {/* Fullscreen Button (Top Right) */}
       <button
         onClick={() => {
           const el = wrapperRef.current;
@@ -477,39 +466,25 @@ const VehiclesLiveMap = () => {
             ? el.requestFullscreen()
             : document.exitFullscreen();
         }}
-        className="
-    absolute top-3 right-3 z-20
-    w-9 h-9 md:w-11 md:h-11
-    bg-white rounded-full shadow
-    flex items-center justify-center
-    hover:bg-gray-50 transition cursor-pointer
-  "
+        className="absolute top-3 right-3 z-20 w-9 h-9 md:w-11 md:h-11 bg-white rounded-full shadow flex items-center justify-center hover:bg-gray-50 transition cursor-pointer"
       >
         <Scan className="w-4 h-4 md:w-5 md:h-5" />
       </button>
-
-      {/* Map Controls Wrapper */}
       <div className="absolute bottom-4 right-3 z-20 pointer-events-none">
-        {/* === EXPANDED CONTROLS (ABOVE SCAN, NEVER AFFECT SCAN) === */}
         {controlsOpen && (
           <div className="mb-14 flex flex-col items-center gap-2 pointer-events-auto">
-            {/* Zoom In */}
             <button
               onClick={zoomIn}
               className="w-8 h-8 md:w-10 md:h-10 bg-white cursor-pointer rounded-full shadow flex items-center justify-center"
             >
               <Plus className="w-4 h-4 md:w-5 md:h-5" />
             </button>
-
-            {/* Zoom Out */}
             <button
               onClick={zoomOut}
               className="w-8 h-8 md:w-10 md:h-10 bg-white cursor-pointer rounded-full shadow flex items-center justify-center"
             >
               <Minus className="w-4 h-4 md:w-5 md:h-5" />
             </button>
-
-            {/* Pan Controls */}
             <div className="relative w-20 h-20 md:w-28 md:h-28">
               <button
                 onClick={() => mapRef.current?.panBy([-120, 0])}
@@ -517,21 +492,18 @@ const VehiclesLiveMap = () => {
               >
                 <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
               </button>
-
               <button
                 onClick={() => mapRef.current?.panBy([120, 0])}
                 className="absolute right-0 top-1/2 -translate-y-1/2 w-7 h-7 md:w-10 md:h-10 bg-white cursor-pointer rounded-full shadow flex items-center justify-center"
               >
                 <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
               </button>
-
               <button
                 onClick={() => mapRef.current?.panBy([0, -120])}
                 className="absolute top-0 left-1/2 -translate-x-1/2 w-7 h-7 md:w-10 md:h-10 bg-white cursor-pointer rounded-full shadow flex items-center justify-center"
               >
                 <ChevronUp className="w-4 h-4 md:w-5 md:h-5" />
               </button>
-
               <button
                 onClick={() => mapRef.current?.panBy([0, 120])}
                 className="absolute bottom-0 left-1/2 -translate-x-1/2 w-7 h-7 md:w-10 md:h-10 bg-white cursor-pointer rounded-full shadow flex items-center justify-center"
@@ -541,59 +513,26 @@ const VehiclesLiveMap = () => {
             </div>
           </div>
         )}
-
-        {/* === SCAN BUTTON (ABSOLUTELY FIXED, NEVER MOVES) === */}
         <button
           onClick={() => setControlsOpen((p) => !p)}
-          className="
-      pointer-events-auto
-      absolute bottom-0 right-0
-      w-10 h-10 md:w-12 md:h-12
-      bg-white cursor-pointer rounded-full shadow
-      flex items-center justify-center
-      hover:bg-gray-50 transition
-    "
+          className="pointer-events-auto absolute bottom-0 right-0 w-10 h-10 md:w-12 md:h-12 bg-white cursor-pointer rounded-full shadow flex items-center justify-center hover:bg-gray-50 transition"
         >
           <Scan className="w-4 h-4 md:w-5 md:h-5" />
         </button>
       </div>
-
-      {/* 📤 Share / Print  / status */}
       <div>
-        {/* VehicleStatusLegend */}
         <VehicleStatusLegend />
-
-        {/* Share + Print */}
         <div className="absolute bottom-4 left-3 z-10 flex gap-2">
-          {/* Share Button */}
           <button
             onClick={handleShare}
-            className="
-        flex items-center justify-center gap-2 cursor-pointer
-        bg-amber-50 hover:bg-amber-100
-        rounded-full md:rounded-2xl
-        px-2 md:px-4
-        h-8 md:h-11
-        shadow
-        transition
-      "
+            className="flex items-center justify-center gap-2 cursor-pointer bg-amber-50 hover:bg-amber-100 rounded-full md:rounded-2xl px-2 md:px-4 h-8 md:h-11 shadow transition"
           >
             <Share2 className="w-4 h-4 md:w-5 md:h-5" />
             <span className="hidden md:inline text-sm font-medium">Share</span>
           </button>
-
-          {/* Print Button */}
           <button
             onClick={handlePrint}
-            className="
-        flex items-center justify-center gap-2 cursor-pointer
-        bg-amber-50 hover:bg-amber-100
-        rounded-full md:rounded-2xl
-        px-2 md:px-4
-        h-8 md:h-11
-        shadow
-        transition
-      "
+            className="flex items-center justify-center gap-2 cursor-pointer bg-amber-50 hover:bg-amber-100 rounded-full md:rounded-2xl px-2 md:px-4 h-8 md:h-11 shadow transition"
           >
             <Printer className="w-4 h-4 md:w-5 md:h-5" />
             <span className="hidden md:inline text-sm font-medium">Print</span>
