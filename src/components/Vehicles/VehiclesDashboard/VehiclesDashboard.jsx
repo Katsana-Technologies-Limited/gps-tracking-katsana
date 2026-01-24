@@ -71,10 +71,8 @@ export default function VehiclesDashboard() {
         deviceStatus = "Offline";
       }
 
-      const ignitionOn = (() => {
-        if (!liveDevice?.sensors || !Array.isArray(liveDevice.sensors))
-          return null;
-
+      let ignitionOn = false;
+      if (liveDevice?.sensors && Array.isArray(liveDevice.sensors)) {
         const ignitionSensor = liveDevice.sensors.find(
           (s) =>
             s.type === "ignition" ||
@@ -82,24 +80,27 @@ export default function VehiclesDashboard() {
             s.name?.toLowerCase() === "ignition",
         );
 
-        if (!ignitionSensor) return null;
+        if (ignitionSensor) {
+          const valOn = ignitionSensor.val === true;
+          const valueOn = ignitionSensor.value?.toLowerCase() === "on";
+          const valOff = ignitionSensor.val === false;
+          const valueOff = ignitionSensor.value?.toLowerCase() === "off";
 
-        const valOk = ignitionSensor.val === true;
-        const valueOk = ignitionSensor.value?.toLowerCase() === "on";
-        return valOk && valueOk
-          ? true
-          : ignitionSensor.val === false ||
-              ignitionSensor.value?.toLowerCase() === "off"
-            ? false
-            : null;
-      })();
+          if (valOn || valueOn) ignitionOn = true;
+          else if (valOff || valueOff) ignitionOn = false;
+          else ignitionOn = false;
+        } else {
+          ignitionOn = false; 
+        }
+      } else {
+        ignitionOn = false;
+      }
 
+      const speedNum = Number(liveDevice?.speed || 0);
       let speedStatus = "Engine Off";
       let speedValue = 0;
 
-      const speedNum = Number(liveDevice?.speed || 0);
-
-      if (ignitionOn === true) {
+      if (ignitionOn) {
         if (speedNum > 0) {
           speedStatus = `${speedNum} km/h`;
           speedValue = speedNum;
@@ -107,9 +108,6 @@ export default function VehiclesDashboard() {
           speedStatus = "Engine Idle";
           speedValue = 0;
         }
-      } else if (ignitionOn === false) {
-        speedStatus = "Engine Off";
-        speedValue = 0;
       } else {
         speedStatus = "Engine Off";
         speedValue = 0;
