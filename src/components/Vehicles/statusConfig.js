@@ -21,7 +21,7 @@ export const STATUS_CONFIG = [
     label: "Recently Off",
     title: "Engine has been turned off recently",
     color: "#F0C695", // Orange/Tan
-    condition: (v) => v.engine === "off" && v.online === "online", // আপনার API অনুযায়ী লজিক বদলাতে পারেন
+    condition: (v) => v.engine === "off" && v.online === "online",
   },
   {
     key: "off",
@@ -40,6 +40,7 @@ export const STATUS_CONFIG = [
 ];
 
 export const getVehicleWaveColor = (vehicle) => {
+  // console.log(vehicle);
   const speed = Number(vehicle?.speed ?? vehicle?.device_data?.speed ?? 0);
   const online = vehicle?.online ?? vehicle?.device_data?.online ?? "offline";
 
