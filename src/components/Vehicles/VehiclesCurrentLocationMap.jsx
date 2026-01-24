@@ -6,7 +6,8 @@ import "react-bkoi-gl/styles";
 import useVtsAllDevices from "../../hooks/useVtsAllDevices";
 import useCustomerVehicle from "../../hooks/useCustomerVehicle";
 import VehicleInfoCard from "../Vehicles/VehicleInfoCard";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { setSelectedLastImei } from "../../slices/vehiclesSlice";
 import { getVehicleWaveColor } from "./statusConfig";
 import jsPDF from "jspdf";
 import {
@@ -67,6 +68,7 @@ const VehiclesLiveMap = () => {
   const lastSelectedImei = useSelector(
     (state) => state.vehicles.selectedLastImei,
   );
+  const dispatch = useDispatch();
 
   const vehicleImageMap = React.useMemo(() => {
     const map = {};
@@ -199,22 +201,18 @@ const VehiclesLiveMap = () => {
     nextPos.current[imei] = [lng, lat];
     routeCoords.current[imei] = [[lng, lat]];
 
-    console.log(" Initialized sources for", imei);
-    console.log("lastPos", lastPos.current[imei]);
-    console.log("nextPos", nextPos.current[imei]);
-    console.log("routeCoords", routeCoords.current[imei]);
+    // console.log(" Initialized sources for", imei);
+    // console.log("lastPos", lastPos.current[imei]);
+    // console.log("nextPos", nextPos.current[imei]);
+    // console.log("routeCoords", routeCoords.current[imei]);
   };
 
   const onMarkerClick = (device) => {
     const imei = device.device_data?.imei ?? device.imei;
-    if (selectedImeiRef.current === imei) {
-      selectedImeiRef.current = null;
-      setSelectedVehicleId(null);
-      return;
-    }
 
     selectedImeiRef.current = imei;
     setSelectedVehicleId(imei);
+    dispatch(setSelectedLastImei(imei));
 
     const lng = Number(device.lng);
     const lat = Number(device.lat);
@@ -238,7 +236,8 @@ const VehiclesLiveMap = () => {
     const device = filteredDevices.find(
       (d) => (d.device_data?.imei ?? d.imei) === lastSelectedImei,
     );
-    if (!device) return;
+    if (!device || (device.online !== "online" && device.online !== "ack"))
+      return;
     try {
       onMarkerClick(device);
     } catch (e) {

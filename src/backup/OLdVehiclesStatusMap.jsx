@@ -1,520 +1,661 @@
-// /* eslint-disable react-hooks/exhaustive-deps */
-// import React, { useRef, useState, useMemo, useEffect } from "react";
-// import { Map, Marker } from "react-bkoi-gl";
-// import maplibregl from "maplibre-gl";
-// // import bkoigl from "bkoi-gl";
-// import "bkoi-gl/dist/style/bkoi-gl.css";
-// import "react-bkoi-gl/styles";
-// import {
-//   Share2,
-//   Printer,
-//   Scan,
-//   ChevronLeft,
-//   ChevronRight,
-//   ChevronUp,
-//   ChevronDown,
-//   Plus,
-//   Minus,
-// } from "lucide-react";
-// import jsPDF from "jspdf";
-// import useCustomerVehicle from "../../hooks/useCustomerVehicle";
-// import { VehicleMarker } from "../Vehicles/VehicleMarker";
-// import useVtsAllDevices from "../../hooks/useVtsAllDevices";
-// import VehicleInfoCard from "../Vehicles/VehicleInfoCard";
-// import { getVehicleWaveColor } from "../Vehicles/statusConfig";
-// import VehicleStatusLegend from "../Vehicles/VehicleStatusLegend";
+/* eslint-disable no-unused-vars */
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useRef, useState, useMemo, useEffect } from "react";
+import { Map, Marker } from "react-bkoi-gl";
+import maplibregl, { visit } from "maplibre-gl";
+import "react-bkoi-gl/styles";
+import {
+  Share2,
+  Printer,
+  Scan,
+  ChevronLeft,
+  ChevronRight,
+  ChevronUp,
+  ChevronDown,
+  Plus,
+  Minus,
+} from "lucide-react";
+import jsPDF from "jspdf";
+import useCustomerVehicle from "../../hooks/useCustomerVehicle";
+import { useSelector } from "react-redux";
+import { VehicleMarker } from "../Vehicles/VehicleMarker";
+import useVtsAllDevices from "../../hooks/useVtsAllDevices";
+import VehicleInfoCard from "../Vehicles/VehicleInfoCard";
+import { getVehicleWaveColor } from "../Vehicles/statusConfig";
+import VehicleStatusLegend from "../Vehicles/VehicleStatusLegend";
+import LottieLoading from "../utils/LottieLoading";
 
-// const BARIKOI_KEY = import.meta.env.VITE_BARIKOI_API_KEY;
+const BARIKOI_KEY = import.meta.env.VITE_BARIKOI_API_KEY;
 
-// /* ✅ USE STABLE STYLE ONLY */
-// const MAP_STYLE = `https://map.barikoi.com/styles/osm-liberty/style.json?key=${BARIKOI_KEY}`;
-// const SATELLITE_STYLE = `https://map.barikoi.com/styles/barikoi_satellite/style.json?key=${BARIKOI_KEY}`;
+const GPS_DURATION = 10000; //10s
 
-// const MemoMap = React.memo(Map);
+/* ✅ USE STABLE STYLE ONLY */
+const MAP_STYLE = `https://map.barikoi.com/styles/osm-liberty/style.json?key=${BARIKOI_KEY}`;
+const SATELLITE_STYLE = `https://map.barikoi.com/styles/barikoi_satellite/style.json?key=${BARIKOI_KEY}`;
 
-// const VehiclesCurrentLocationMap = () => {
-//   const mapRef = useRef(null);
-//   const wrapperRef = useRef(null);
+// Minimal fallback style (OSM raster) used when external style fetch fails
+const FALLBACK_STYLE = {
+  version: 8,
+  sources: {
+    osm: {
+      type: "raster",
+      tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
+      tileSize: 256,
+      attribution: "© OpenStreetMap contributors",
+    },
+  },
+  layers: [{ id: "osm", type: "raster", source: "osm" }],
+};
 
-//   // 🔥 Smooth animation refs
-//   const lastPos = useRef([0, 0]);
-//   const nextPos = useRef([0, 0]);
-//   const startTime = useRef(null);
-//   const routeCoords = useRef([]);
-//   const animationFrameId = useRef(null);
+const MemoMap = React.memo(Map);
 
-//   // constant varaible
-//   const initialViewState = {
-//     longitude: 90.3563,
-//     latitude: 23.685,
-//     zoom: 6,
-//     bearing: 0,
-//     pitch: 0,
-//   };
-//   //   state
-//   const [satellite, setSatellite] = useState(false);
-//   const [controlsOpen, setControlsOpen] = useState(false);
-//   const [coords, setCoords] = useState("Initializing…");
+const VehiclesStatusMap = () => {
+  const mapRef = useRef(null);
+  const lastPos = useRef({});
+  const nextPos = useRef({});
+  const startTime = useRef({});
+  const routeCoords = useRef({});
+  const rafId = useRef(null);
+  const wrapperRef = useRef(null);
+  const [satellite, setSatellite] = useState(false);
+  const [controlsOpen, setControlsOpen] = useState(false);
+  const [mapStyleObj, setMapStyleObj] = useState(null);
+  const [satStyleObj, setSatStyleObj] = useState(null);
 
-//   const { data: vehiclesData } = useCustomerVehicle();
+  const { data: vehiclesData } = useCustomerVehicle();
+  const { filteredDevices, allDevices } = useVtsAllDevices();
+  const lastSelectedImei = useSelector((s) => s.vehicles.selectedLastImei);
+  const [mode, setMode] = useState("INIT");
 
-//   const [mode, setMode] = useState("INIT");
+  const [selectedVehicleId, setSelectedVehicleId] = useState(null);
+  const baseDevices =
+    filteredDevices && filteredDevices.length
+      ? filteredDevices
+      : allDevices || [];
 
-//   // INIT | CLUSTER | SINGLE | VEHICLE
-//   const [selectedVehicleId, setSelectedVehicleId] = useState(null);
-//   const { filteredDevices } = useVtsAllDevices();
-//   console.log(filteredDevices);
+  const mapDevices = useMemo(() => {
+    if (!baseDevices?.length) return [];
+    if (lastSelectedImei) {
+      const found = baseDevices.find(
+        (d) => (d.device_data?.imei ?? d.imei) === lastSelectedImei,
+      );
+      return found ? [found] : [];
+    }
 
-//   // online device check
-//   const onlineDevices = useMemo(() => {
-//     if (!filteredDevices?.length) return [];
+    return baseDevices.filter(
+      (d) =>
+        d.online === "online" &&
+        d.lat &&
+        d.lng &&
+        Number(d.lat) !== 0 &&
+        Number(d.lng) !== 0,
+    );
+  }, [baseDevices, lastSelectedImei]);
 
-//     return filteredDevices.filter(
-//       (d) =>
-//         d.online === "online" &&
-//         d.lat &&
-//         d.lng &&
-//         Number(d.lat) !== 0 &&
-//         Number(d.lng) !== 0
-//     );
-//   }, [filteredDevices]);
+  const onlineCount = mapDevices.length;
 
-//   //   online device length
-//   const onlineCount = onlineDevices.length;
+  const flyToVehicle = (v) => {
+    const lng = Number(v.lng);
+    const lat = Number(v.lat);
+    if (!Number.isFinite(lng) || !Number.isFinite(lat)) return;
+    mapRef.current?.flyTo({
+      center: [lng, lat],
+      zoom: 15,
+      speed: 1.2,
+      curve: 1.4,
+    });
+  };
 
-//   //   fly to vehicle
-//   const flyToVehicle = (v) => {
-//     mapRef.current?.flyTo({
-//       center: [v.lng, v.lat],
-//       zoom: 15,
-//       speed: 1.2,
-//       curve: 1.4,
-//     });
-//   };
-//   // fit to all vehicles check
-//   const fitToAllVehicles = (devices) => {
-//     if (!devices.length || !mapRef.current) return;
+  const initSources = (device) => {
+    const lng = Number(device.lng);
+    const lat = Number(device.lat);
+    if (!Number.isFinite(lng) || !Number.isFinite(lat)) return;
 
-//     const map = mapRef.current.getMap();
-//     const bounds = devices.reduce(
-//       (b, d) => b.extend([d.lng, d.lat]),
-//       new maplibregl.LngLatBounds(
-//         [devices[0].lng, devices[0].lat],
-//         [devices[0].lng, devices[0].lat]
-//       )
-//     );
+    const map = mapRef.current?.getMap();
+    const imei = device.device_data?.imei ?? device.imei;
+    if (!map) return;
 
-//     map.fitBounds(bounds, {
-//       padding: 80,
-//       duration: 600,
-//     });
-//   };
+    if (!map.getSource("active-vehicle")) {
+      map.addSource("active-vehicle", {
+        type: "geojson",
+        data: {
+          type: "Feature",
+          geometry: {
+            type: "Point",
+            coordinates: [lng, lat],
+          },
+        },
+      });
 
-//   //   check the online vehicel mode
-//   useEffect(() => {
-//     if (onlineCount > 1 && mode !== "CLUSTER") setMode("CLUSTER");
-//   }, [onlineCount]);
+      map.addLayer({
+        id: "active-vehicle-layer",
+        type: "symbol",
+        source: "active-vehicle",
+        layout: {
+          "icon-image": "vehicle-icon",
+          "icon-size": 0.5,
+          "icon-allow-overlap": true,
+        },
+      });
+    }
 
-//   //   user selected vehicleInfo and deviceInfo
-//   const selectedVehicleFUll = useMemo(() => {
-//     if (!selectedVehicleId) return null;
-//     const vehicleInfo = vehiclesData?.find((v) => v.imei === selectedVehicleId);
-//     const deviceInfo = filteredDevices?.find(
-//       (d) => (d.device_data?.imei ?? d.imei) === selectedVehicleId
-//     );
-//     if (!vehicleInfo && !deviceInfo) return null;
-//     return {
-//       ...vehicleInfo,
-//       ...deviceInfo,
-//     };
-//   }, [vehiclesData, filteredDevices, selectedVehicleId]);
+    if (!map.getSource("active-route")) {
+      map.addSource("active-route", {
+        type: "geojson",
+        data: {
+          type: "Feature",
+          geometry: { type: "LineString", coordinates: [] },
+        },
+      });
 
-//   /* =====================================================
-//      MAP LOAD → ADD VEHICLE + ROUTE
-//      ===================================================== */
-//   useEffect(() => {
-//     if (!mapRef.current) return;
-//     const map = mapRef.current.getMap();
+      map.addLayer({
+        id: "active-route-layer",
+        type: "line",
+        source: "active-route",
+        paint: {
+          "line-color": "#ef4444",
+          "line-width": 4,
+        },
+      });
+    }
 
-//     map.on("load", async () => {
-//       const img = await map.loadImage(
-//         "https://cdn-icons-png.flaticon.com/512/7893/7893979.png"
-//       );
-//       map.addImage("vehicle-icon", img.data, { pixelRatio: 2 });
-//       map.addSource("vehicle", {
-//         type: "geojson",
-//         data: {
-//           type: "Feature",
-//           geometry: { type: "Point", coordinates: [0, 0] },
-//         },
-//       });
-//       map.addLayer({
-//         id: "vehicle-layer",
-//         type: "symbol",
-//         source: "vehicle",
-//         layout: {
-//           "icon-image": "vehicle-icon",
-//           "icon-size": 0.4,
-//           "icon-allow-overlap": true,
-//         },
-//       });
-//       map.addSource("route", {
-//         type: "geojson",
-//         data: {
-//           type: "Feature",
-//           geometry: { type: "LineString", coordinates: [] },
-//         },
-//       });
-//       map.addLayer({
-//         id: "route-layer",
-//         type: "line",
-//         source: "route",
-//         paint: {
-//           "line-color": "#ef4444",
-//           "line-width": 4,
-//         },
-//       });
-//     });
-//   }, []);
+    lastPos.current[imei] = [lng, lat];
+    nextPos.current[imei] = [lng, lat];
+    routeCoords.current[imei] = [[lng, lat]];
+  };
 
-//   const onMapLoad = (e) => {
-//     const map = e.target; // map instance
+  useEffect(() => {
+    if (!lastSelectedImei) return;
+    const device = baseDevices.find(
+      (d) => (d.device_data?.imei ?? d.imei) === lastSelectedImei,
+    );
+    if (!device || !mapRef.current) return;
+    setSelectedVehicleId(lastSelectedImei);
+    flyToVehicle(device);
+  }, [lastSelectedImei, baseDevices]);
 
-//     // রুট সোর্স
-//     if (!map.getSource("route")) {
-//       map.addSource("route", {
-//         type: "geojson",
-//         data: {
-//           type: "Feature",
-//           geometry: { type: "LineString", coordinates: [] },
-//         },
-//       });
-//       map.addLayer({
-//         id: "route-layer",
-//         type: "line",
-//         source: "route",
-//         paint: { "line-color": "#ef4444", "line-width": 4 },
-//       });
-//     }
+  useEffect(() => {
+    if (!selectedVehicleId) return;
 
-//     // এনিমেশন শুরু
-//     startAnimationLoop();
-//   };
+    const device = filteredDevices.find(
+      (d) => (d.device_data?.imei ?? d.imei) === selectedVehicleId,
+    );
+    if (!device) return;
 
-//   /* =====================================================
-//      GPS UPDATE (API DATA → NEXT POSITION)
-//      ===================================================== */
+    const imei = selectedVehicleId;
+    const lng = Number(device.lng);
+    const lat = Number(device.lat);
+    if (!Number.isFinite(lng) || !Number.isFinite(lat)) return;
 
-//   useEffect(() => {
-//     if (!selectedVehicleFUll?.lat || !selectedVehicleFUll?.lng) return;
+    if (!Array.isArray(nextPos.current[imei])) {
+      lastPos.current[imei] = [lng, lat];
+      nextPos.current[imei] = [lng, lat];
+      routeCoords.current[imei] = [[lng, lat]];
+      startTime.current[imei] = Date.now();
+    } else {
+      const now = Date.now();
+      const prevStart = startTime.current[imei] || now;
+      const elapsed = Math.max(0, now - prevStart);
+      const progress = Math.min(elapsed / GPS_DURATION, 1);
 
-//     const lng = Number(selectedVehicleFUll.lng);
-//     const lat = Number(selectedVehicleFUll.lat);
+      const [lng1, lat1] = lastPos.current[imei] || nextPos.current[imei];
+      const [lng2, lat2] = nextPos.current[imei] || [lng1, lat1];
 
-//     // প্রথমবার ডাটা সেট করা
-//     if (lastPos.current[0] === 0) {
-//       lastPos.current = [lng, lat];
-//       nextPos.current = [lng, lat];
-//       routeCoords.current = [[lng, lat]];
-//       return;
-//     }
+      const currentLng = lng1 + (lng2 - lng1) * progress;
+      const currentLat = lat1 + (lat2 - lat1) * progress;
 
-//     // পজিশন পরিবর্তন হলে এনিমেশন স্টার্ট করা
-//     if (nextPos.current[0] !== lng || nextPos.current[1] !== lat) {
-//       lastPos.current = [...nextPos.current];
-//       nextPos.current = [lng, lat];
-//       startTime.current = Date.now();
+      lastPos.current[imei] = [currentLng, currentLat];
+      nextPos.current[imei] = [lng, lat];
+      routeCoords.current[imei] = routeCoords.current[imei] || [];
+      routeCoords.current[imei].push([lng, lat]);
+      startTime.current[imei] = Date.now();
+    }
 
-//       // রুট ট্রেইল আপডেট (নতুন স্টপ যোগ করা)
-//       routeCoords.current.push([lng, lat]);
-//       const map = mapRef.current?.getMap();
-//       if (map && map.getSource("route")) {
-//         map.getSource("route").setData({
-//           type: "Feature",
-//           geometry: { type: "LineString", coordinates: routeCoords.current },
-//         });
-//       }
-//     }
-//   }, [selectedVehicleFUll?.lat, selectedVehicleFUll?.lng]);
+    const map = mapRef.current?.getMap();
+    if (!map) return;
+    map.getSource("active-route")?.setData({
+      type: "Feature",
+      geometry: {
+        type: "LineString",
+        coordinates: routeCoords.current[imei],
+      },
+    });
+  }, [filteredDevices, selectedVehicleId]);
 
-//   /* =====================================================
-//      SMOOTH ANIMATION LOOP 
-//      ===================================================== */
-//   const startAnimationLoop = () => {
-//     const DURATION = 5000; // আপনার API ডাটা আসার ইন্টারভল
+  useEffect(() => {
+    const animate = () => {
+      const imei = selectedVehicleId;
+      if (
+        !imei ||
+        !startTime.current[imei] ||
+        !Array.isArray(lastPos.current[imei]) ||
+        !Array.isArray(nextPos.current[imei])
+      ) {
+        rafId.current = requestAnimationFrame(animate);
+        return;
+      }
 
-//     const animate = () => {
-//       if (startTime.current && mapRef.current) {
-//         const now = Date.now();
-//         const progress = Math.min((now - startTime.current) / DURATION, 1);
+      const now = Date.now();
+      const t = Math.min((now - startTime.current[imei]) / GPS_DURATION, 1);
 
-//         const lng =
-//           lastPos.current[0] +
-//           (nextPos.current[0] - lastPos.current[0]) * progress;
-//         const lat =
-//           lastPos.current[1] +
-//           (nextPos.current[1] - lastPos.current[1]) * progress;
+      const [lng1, lat1] = lastPos.current[imei];
+      const [lng2, lat2] = nextPos.current[imei];
 
-//         // বর্তমান এনিমেটেড পজিশনটি ম্যাপে রিফ্লেক্ট করানো
-//         // নোট: আপনি যদি Marker ব্যবহার করেন, তবে একটি State আপডেট করতে হবে।
-//         // আর যদি Source ব্যবহার করেন তবে সরাসরি setData করবেন।
-//         setAnimatedCoords([lng, lat]);
-//       }
-//       animationFrameId.current = requestAnimationFrame(animate);
-//     };
-//     animate();
-//   };
+      if (
+        !Number.isFinite(lng1) ||
+        !Number.isFinite(lat1) ||
+        !Number.isFinite(lng2) ||
+        !Number.isFinite(lat2)
+      ) {
+        rafId.current = requestAnimationFrame(animate);
+        return;
+      }
 
-//   // এনিমেশনের জন্য আলাদা স্টেট (যাতে আইকন নড়ে)
-//   const [animatedCoords, setAnimatedCoords] = useState([0, 0]);
+      const lng = lng1 + (lng2 - lng1) * t;
+      const lat = lat1 + (lat2 - lat1) * t;
 
-//   useEffect(() => {
-//     return () => cancelAnimationFrame(animationFrameId.current);
-//   }, []);
+      const map = mapRef.current?.getMap();
+      if (!map) {
+        rafId.current = requestAnimationFrame(animate);
+        return;
+      }
+      map.getSource("active-vehicle")?.setData({
+        type: "Feature",
+        geometry: {
+          type: "Point",
+          coordinates: [lng, lat],
+        },
+      });
 
-//   /* ---------------- Actions ---------------- */
-//   const zoomIn = () => mapRef.current?.zoomIn();
-//   const zoomOut = () => mapRef.current?.zoomOut();
+      rafId.current = requestAnimationFrame(animate);
+    };
 
-//   //   hadle share
-//   const handleShare = () => {
-//     navigator.clipboard.writeText(window.location.href);
-//     alert("Map link copied");
-//   };
+    animate();
+    return () => cancelAnimationFrame(rafId.current);
+  }, [selectedVehicleId]);
 
-//   //  handel print
-//   const handlePrint = async () => {
-//     const map = mapRef.current;
-//     if (!map) return;
+  const fitToAllVehicles = (devices) => {
+    if (!devices.length || !mapRef.current) return;
+    const valid = devices.filter(
+      (d) => Number.isFinite(Number(d.lng)) && Number.isFinite(Number(d.lat)),
+    );
+    if (!valid.length) return;
 
-//     await new Promise((r) => setTimeout(r, 200));
-//     const canvas = map.getCanvas();
-//     const image = canvas.toDataURL("image/png");
+    const map = mapRef.current.getMap();
+    const bounds = valid.reduce(
+      (b, d) => b.extend([Number(d.lng), Number(d.lat)]),
+      new maplibregl.LngLatBounds(
+        [Number(valid[0].lng), Number(valid[0].lat)],
+        [Number(valid[0].lng), Number(valid[0].lat)],
+      ),
+    );
 
-//     const pdf = new jsPDF({
-//       orientation: "landscape",
-//       unit: "px",
-//       format: [canvas.width, canvas.height],
-//     });
+    map.fitBounds(bounds, {
+      padding: 80,
+      duration: 600,
+    });
+  };
 
-//     pdf.addImage(image, "PNG", 0, 0, canvas.width, canvas.height);
-//     pdf.save("vehicle-map.pdf");
-//   };
+  useEffect(() => {
+    if (onlineCount > 1 && mode !== "CLUSTER") setMode("CLUSTER");
+  }, [onlineCount]);
 
-//   return (
-//     <>
-//       {/* main map container */}
-//       <div
-//         ref={wrapperRef}
-//         className="relative w-full h-160 rounded-2xl overflow-hidden bg-white"
-//       >
-//         <MemoMap
-//           ref={mapRef}
-//           onLoad={onMapLoad}
-//           mapStyle={satellite ? SATELLITE_STYLE : MAP_STYLE}
-//           style={{ width: "100%", height: "100%" }}
-//           initialViewState={initialViewState}
-//           doubleClickZoom={false}
-//           dragRotate={false}
-//           attributionControl={false}
-//         >
-//           {/* 🚗 VEHICLE MARKERS */}
-//           {mode === "CLUSTER" && (
-//             <Marker
-//               longitude={onlineDevices[0]?.lng}
-//               latitude={onlineDevices[0]?.lat}
-//               //   longitude={animatedCoords[0] || Number(selectedVehicleFUll?.lng)}
-//               //   latitude={animatedCoords[1] || Number(selectedVehicleFUll?.lat)}
-//               anchor="center"
-//               onClick={() => {
-//                 setSelectedVehicleId(null);
-//                 setMode("SINGLE");
-//                 fitToAllVehicles(onlineDevices);
-//               }}
-//             >
-//               <VehicleMarker count={onlineCount} />
-//             </Marker>
-//           )}
+  const selectedVehicleFUll = useMemo(() => {
+    if (!selectedVehicleId) return null;
+    const vehicleInfo = vehiclesData?.find((v) => v.imei === selectedVehicleId);
+    const deviceInfo = filteredDevices?.find(
+      (d) => (d.device_data?.imei ?? d.imei) === selectedVehicleId,
+    );
+    if (!vehicleInfo && !deviceInfo) return null;
+    return {
+      ...vehicleInfo,
+      ...deviceInfo,
+    };
+  }, [vehiclesData, filteredDevices, selectedVehicleId]);
 
-//           {mode !== "CLUSTER" &&
-//             onlineDevices.map((v) => {
-//               const id = v.device_data?.imei ?? v.id;
-//               const waveColor = getVehicleWaveColor(v);
-//               const filterImages = vehiclesData.find((vId) => vId?.imei === id);
-//               return (
-//                 <Marker
-//                   key={id}
-//                   longitude={v.lng}
-//                   latitude={v.lat}
-//                   anchor="bottom"
-//                 >
-//                   <div
-//                     className="relative flex items-center justify-center cursor-pointer"
-//                     onClick={() => {
-//                       setSelectedVehicleId((prev) => {
-//                         if (prev === id) return null;
-//                         flyToVehicle(v);
-//                         return id;
-//                       });
-//                     }}
-//                   >
-//                     {/* 🌊 Dynamic Wave Animation Rings */}
-//                     <div
-//                       className="car-status-circle"
-//                       style={{ backgroundColor: waveColor }}
-//                     ></div>
+  const initialViewState = {
+    longitude: 90.3563,
+    latitude: 23.685,
+    zoom: 6,
+    bearing: 0,
+    pitch: 0,
+  };
 
-//                     <div className="car-wave-container">
-//                       <div
-//                         className="car-wave-ring"
-//                         style={{ backgroundColor: waveColor }}
-//                       ></div>
-//                       <div
-//                         className="car-wave-ring wave-2"
-//                         style={{ backgroundColor: waveColor }}
-//                       ></div>
-//                       <div
-//                         className="car-wave-ring wave-3"
-//                         style={{ backgroundColor: waveColor }}
-//                       ></div>
-//                     </div>
+  useEffect(() => {
+    let mounted = true;
+    const fetchAndSanitize = async (url, setter) => {
+      // If key is missing, immediately use fallback to avoid network waits
+      if (!BARIKOI_KEY) {
+        if (mounted) setter(FALLBACK_STYLE);
+        return;
+      }
 
-//                     {/* 🚗 Vehicle Icon (No vibration, just static or simple hover scale) */}
-//                     <img
-//                       // src="/car-icon.svg"
-//                       src={
-//                         filterImages?.vehicle_type_image
-//                           ? `${import.meta.env.VITE_API_URL}${
-//                               filterImages?.vehicle_type_image
-//                             }`
-//                           : "/car-icon.svg"
-//                       }
-//                       className="w-10 h-10 z-10 hover:scale-110 transition-transform duration-300"
-//                       alt="car"
-//                     />
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 5000); // 5s
 
-//                     {/* 🔥 CARD POPUP WITH TOOLTIP POINTER */}
-//                     {selectedVehicleId === id && (
-//                       <div className="absolute bottom-[45px] left-1/2 -translate-x-1/2 z-50 flex flex-col items-center">
-//                         <div className="relative shadow-2xl">
-//                           <VehicleInfoCard
-//                             vehicle={selectedVehicleFUll}
-//                             onClose={() => setSelectedVehicleId(null)}
-//                           />
-//                         </div>
-//                         {/* Tooltip Triangle Pointer */}
-//                         <div className="w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent  border-t-[15px] border-t-white  drop-shadow-lg"></div>
-//                       </div>
-//                     )}
-//                   </div>
-//                 </Marker>
-//               );
-//             })}
-//         </MemoMap>
+      try {
+        const res = await fetch(url, { signal: controller.signal });
+        clearTimeout(timeout);
+        if (!res.ok) {
+          console.warn(
+            "Map style fetch returned non-OK, using fallback",
+            res.status,
+          );
+          if (mounted) setter(FALLBACK_STYLE);
+          return;
+        }
+        const style = await res.json();
+        const availableSources = style.sources
+          ? Object.keys(style.sources)
+          : [];
+        if (Array.isArray(style.layers)) {
+          style.layers = style.layers.filter((layer) => {
+            if (layer.source && !availableSources.includes(layer.source))
+              return false;
+            return true;
+          });
+        }
+        if (mounted) setter(style);
+      } catch (e) {
+        if (e.name === "AbortError") {
+          console.warn("Map style fetch aborted (timeout), using fallback");
+        } else {
+          console.warn("Failed to fetch/sanitize map style, using fallback", e);
+        }
+        if (mounted) setter(FALLBACK_STYLE);
+      } finally {
+        clearTimeout(timeout);
+      }
+    };
 
-//         {/* 🗺️ Map / Satellite Toggle */}
-//         <div className="absolute top-3 left-3 z-20 bg-white rounded-lg shadow  flex">
-//           <button
-//             onClick={() => setSatellite(false)}
-//             className={`px-4 py-1 cursor-pointer ${
-//               !satellite && "bg-gray-100 font-medium"
-//             }`}
-//           >
-//             Map
-//           </button>
-//           <button
-//             onClick={() => setSatellite(true)}
-//             className={`px-4 py-1 cursor-pointer ${
-//               satellite && "bg-gray-100 font-medium"
-//             }`}
-//           >
-//             Satellite
-//           </button>
-//         </div>
-//         {/* 🖥 Fullscreen */}
-//         <button
-//           onClick={() => {
-//             const el = wrapperRef.current;
-//             !document.fullscreenElement
-//               ? el.requestFullscreen()
-//               : document.exitFullscreen();
-//           }}
-//           className="absolute top-3 right-4 z-20 w-11 h-11 cursor-pointer bg-white rounded-full shadow flex items-center justify-center"
-//         >
-//           <Scan />
-//         </button>
-//         <div className="absolute bottom-8 right-4 z-20">
-//           <button
-//             onClick={() => setControlsOpen((p) => !p)}
-//             className="w-12 h-12 rounded-full cursor-pointer bg-white shadow flex items-center justify-center"
-//           >
-//             <Scan />
-//           </button>
-//           {controlsOpen && (
-//             <>
-//               <button
-//                 onClick={zoomIn}
-//                 className="absolute -top-20 right-12.5 cursor-pointer bg-white p-2 rounded-full shadow"
-//               >
-//                 <Plus />
-//               </button>
-//               <button
-//                 onClick={zoomOut}
-//                 className="absolute -bottom-5 right-12.5 cursor-pointer bg-white p-2 rounded-full shadow"
-//               >
-//                 <Minus />
-//               </button>
-//               <button
-//                 onClick={() => mapRef.current?.panBy([-120, 0])}
-//                 className="absolute -left-35 -top-1.75 -translate-y-1/2 cursor-pointer bg-white p-2 rounded-full shadow"
-//               >
-//                 <ChevronLeft />
-//               </button>
-//               <button
-//                 onClick={() => mapRef.current?.panBy([120, 0])}
-//                 className="absolute right-12.5 -top-1.75 -translate-y-1/2 cursor-pointer bg-white p-2 rounded-full shadow"
-//               >
-//                 <ChevronRight />
-//               </button>
-//               <button
-//                 onClick={() => mapRef.current?.panBy([0, -120])}
-//                 className="absolute -top-20 -left-19.5 -translate-x-1/2 cursor-pointer bg-white p-2 rounded-full shadow"
-//               >
-//                 <ChevronUp />
-//               </button>
-//               <button
-//                 onClick={() => mapRef.current?.panBy([0, 120])}
-//                 className="absolute -bottom-5 -left-19.5 -translate-x-1/2 cursor-pointer bg-white p-2 rounded-full shadow"
-//               >
-//                 <ChevronDown />
-//               </button>
-//             </>
-//           )}
-//         </div>
-//         {/* 📤 Share / Print  / status */}
-//         <div>
-//           {/* VehicleStatusLegend left side */}
-//           <VehicleStatusLegend />
+    fetchAndSanitize(MAP_STYLE, setMapStyleObj);
+    fetchAndSanitize(SATELLITE_STYLE, setSatStyleObj);
 
-//           {/* 📤 Share / Print  */}
-//           <div className="absolute bottom-6 left-15 z-10 flex gap-2 h-9 ">
-//             <button
-//               onClick={handleShare}
-//               className="flex gap-2 justify-center items-center bg-amber-50 rounded-2xl px-3 cursor-pointer"
-//             >
-//               <Share2 size={21} /> <span>Share</span>
-//             </button>
-//             <button
-//               onClick={handlePrint}
-//               className="flex gap-2 justify-center items-center bg-amber-50 rounded-2xl px-3 cursor-pointer"
-//             >
-//               <Printer size={21} /> <span>Print</span>
-//             </button>
-//           </div>
-//         </div>
-//       </div>
-//     </>
-//   );
-// };
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
-// export default VehiclesCurrentLocationMap;
+  const styleReady = satellite ? satStyleObj : mapStyleObj;
+
+  if (!styleReady) return <LottieLoading />;
+
+  const zoomIn = () => mapRef.current?.zoomIn();
+  const zoomOut = () => mapRef.current?.zoomOut();
+
+  const handleShare = () => {
+    navigator.clipboard.writeText(window.location.href);
+    alert("Map link copied");
+  };
+
+  const handlePrint = async () => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    await new Promise((r) => setTimeout(r, 200));
+    const canvas = map.getCanvas();
+    const image = canvas.toDataURL("image/png");
+
+    const pdf = new jsPDF({
+      orientation: "landscape",
+      unit: "px",
+      format: [canvas.width, canvas.height],
+    });
+
+    pdf.addImage(image, "PNG", 0, 0, canvas.width, canvas.height);
+    pdf.save("vehicle-map.pdf");
+  };
+
+  return (
+    <div
+      ref={wrapperRef}
+      className="relative w-full h-140 rounded-2xl overflow-hidden bg-white"
+    >
+      <MemoMap
+        ref={mapRef}
+        mapStyle={styleReady}
+        style={{ width: "100%", height: "100%" }}
+        initialViewState={initialViewState}
+        doubleClickZoom={false}
+        dragRotate={false}
+        attributionControl={false}
+      >
+        {/* 🚗 VEHICLE MARKERS */}
+        {mode === "CLUSTER" && mapDevices.length > 0 && (
+          <Marker
+            longitude={Number(mapDevices[0].lng)}
+            latitude={Number(mapDevices[0].lat)}
+            anchor="center"
+            onClick={() => {
+              setSelectedVehicleId(null);
+              setMode("SINGLE");
+              fitToAllVehicles(mapDevices);
+            }}
+          >
+            <VehicleMarker count={onlineCount} />
+          </Marker>
+        )}
+
+        {mode !== "CLUSTER" &&
+          mapDevices.map((v) => {
+            const id = v.device_data?.imei ?? v.id;
+            const lng = Number(v.lng);
+            const lat = Number(v.lat);
+            if (!Number.isFinite(lng) || !Number.isFinite(lat)) return null;
+            const waveColor = getVehicleWaveColor(v);
+            const filterImages = vehiclesData.find((vId) => vId?.imei === id);
+            return (
+              <Marker key={id} longitude={lng} latitude={lat} anchor="bottom">
+                <div
+                  className="relative flex items-center justify-center cursor-pointer"
+                  onClick={() => {
+                    setSelectedVehicleId((prev) => {
+                      if (prev === id) return null;
+                      flyToVehicle(v);
+                      initSources(v);
+                      return id;
+                    });
+                  }}
+                >
+                  {/* 🌊 Dynamic Wave Animation Rings */}
+                  <div
+                    className="car-status-circle"
+                    style={{ backgroundColor: waveColor }}
+                  ></div>
+
+                  <div className="car-wave-container">
+                    <div
+                      className="car-wave-ring"
+                      style={{ backgroundColor: waveColor }}
+                    ></div>
+                    <div
+                      className="car-wave-ring wave-2"
+                      style={{ backgroundColor: waveColor }}
+                    ></div>
+                    <div
+                      className="car-wave-ring wave-3"
+                      style={{ backgroundColor: waveColor }}
+                    ></div>
+                  </div>
+                  <img
+                    src={
+                      filterImages?.vehicle_type_image
+                        ? `${import.meta.env.VITE_API_URL}${
+                            filterImages?.vehicle_type_image
+                          }`
+                        : "/car-icon.svg"
+                    }
+                    className="w-10 h-10 z-10 hover:scale-110 transition-transform duration-300"
+                    alt="car"
+                  />
+                  {selectedVehicleId === id && (
+                    <div className="absolute bottom-11.25 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center">
+                      <div className="relative shadow-2xl">
+                        <VehicleInfoCard
+                          vehicle={selectedVehicleFUll}
+                          onClose={() => setSelectedVehicleId(null)}
+                        />
+                      </div>
+                      <div className="w-0 h-0 border-l-12 border-l-transparent border-r-12 border-r-transparent  border-t-15 border-t-white  drop-shadow-lg"></div>
+                    </div>
+                  )}
+                </div>
+              </Marker>
+            );
+          })}
+      </MemoMap>
+      <div className="absolute top-3 left-3 z-20 bg-white rounded-lg shadow  flex">
+        <button
+          onClick={() => setSatellite(false)}
+          className={`px-2 md:px-4 py-1 cursor-pointer text-[12px] md:text-sm ${
+            !satellite && "bg-gray-100 font-medium"
+          }`}
+        >
+          Map
+        </button>
+        <button
+          onClick={() => setSatellite(true)}
+          className={`px-2 md:px-4 py-1 cursor-pointer text-[12px] md:text-sm  ${
+            satellite && "bg-gray-100 font-medium"
+          }`}
+        >
+          Satellite
+        </button>
+      </div>
+
+      {/* Fullscreen Button (Top Right) */}
+      <button
+        onClick={() => {
+          const el = wrapperRef.current;
+          !document.fullscreenElement
+            ? el.requestFullscreen()
+            : document.exitFullscreen();
+        }}
+        className="
+    absolute top-3 right-3 z-20
+    w-9 h-9 md:w-11 md:h-11
+    bg-white rounded-full shadow
+    flex items-center justify-center
+    hover:bg-gray-50 transition cursor-pointer
+  "
+      >
+        <Scan className="w-4 h-4 md:w-5 md:h-5" />
+      </button>
+
+      {/* Map Controls Wrapper */}
+      <div className="absolute bottom-4 right-3 z-20 pointer-events-none">
+        {/* === EXPANDED CONTROLS (ABOVE SCAN, NEVER AFFECT SCAN) === */}
+        {controlsOpen && (
+          <div className="mb-14 flex flex-col items-center gap-2 pointer-events-auto">
+            {/* Zoom In */}
+            <button
+              onClick={zoomIn}
+              className="w-8 h-8 md:w-10 md:h-10 bg-white cursor-pointer rounded-full shadow flex items-center justify-center"
+            >
+              <Plus className="w-4 h-4 md:w-5 md:h-5" />
+            </button>
+
+            {/* Zoom Out */}
+            <button
+              onClick={zoomOut}
+              className="w-8 h-8 md:w-10 md:h-10 bg-white cursor-pointer rounded-full shadow flex items-center justify-center"
+            >
+              <Minus className="w-4 h-4 md:w-5 md:h-5" />
+            </button>
+
+            {/* Pan Controls */}
+            <div className="relative w-20 h-20 md:w-28 md:h-28">
+              <button
+                onClick={() => mapRef.current?.panBy([-120, 0])}
+                className="absolute left-0 top-1/2 -translate-y-1/2 w-7 h-7 md:w-10 md:h-10 bg-white cursor-pointer rounded-full shadow flex items-center justify-center"
+              >
+                <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
+              </button>
+
+              <button
+                onClick={() => mapRef.current?.panBy([120, 0])}
+                className="absolute right-0 top-1/2 -translate-y-1/2 w-7 h-7 md:w-10 md:h-10 bg-white cursor-pointer rounded-full shadow flex items-center justify-center"
+              >
+                <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
+              </button>
+
+              <button
+                onClick={() => mapRef.current?.panBy([0, -120])}
+                className="absolute top-0 left-1/2 -translate-x-1/2 w-7 h-7 md:w-10 md:h-10 bg-white cursor-pointer rounded-full shadow flex items-center justify-center"
+              >
+                <ChevronUp className="w-4 h-4 md:w-5 md:h-5" />
+              </button>
+
+              <button
+                onClick={() => mapRef.current?.panBy([0, 120])}
+                className="absolute bottom-0 left-1/2 -translate-x-1/2 w-7 h-7 md:w-10 md:h-10 bg-white cursor-pointer rounded-full shadow flex items-center justify-center"
+              >
+                <ChevronDown className="w-4 h-4 md:w-5 md:h-5" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* === SCAN BUTTON (ABSOLUTELY FIXED, NEVER MOVES) === */}
+        <button
+          onClick={() => setControlsOpen((p) => !p)}
+          className="
+      pointer-events-auto
+      absolute bottom-0 right-0
+      w-10 h-10 md:w-12 md:h-12
+      bg-white cursor-pointer rounded-full shadow
+      flex items-center justify-center
+      hover:bg-gray-50 transition
+    "
+        >
+          <Scan className="w-4 h-4 md:w-5 md:h-5" />
+        </button>
+      </div>
+
+      {/* 📤 Share / Print  / status */}
+      <div>
+        {/* VehicleStatusLegend */}
+        <VehicleStatusLegend />
+
+        {/* Share + Print */}
+        <div className="absolute bottom-4 left-3 z-10 flex gap-2">
+          {/* Share Button */}
+          <button
+            onClick={handleShare}
+            className="
+        flex items-center justify-center gap-2 cursor-pointer
+        bg-amber-50 hover:bg-amber-100
+        rounded-full md:rounded-2xl
+        px-2 md:px-4
+        h-8 md:h-11
+        shadow
+        transition
+      "
+          >
+            <Share2 className="w-4 h-4 md:w-5 md:h-5" />
+            <span className="hidden md:inline text-sm font-medium">Share</span>
+          </button>
+
+          {/* Print Button */}
+          <button
+            onClick={handlePrint}
+            className="
+        flex items-center justify-center gap-2 cursor-pointer
+        bg-amber-50 hover:bg-amber-100
+        rounded-full md:rounded-2xl
+        px-2 md:px-4
+        h-8 md:h-11
+        shadow
+        transition
+      "
+          >
+            <Printer className="w-4 h-4 md:w-5 md:h-5" />
+            <span className="hidden md:inline text-sm font-medium">Print</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default VehiclesStatusMap;
