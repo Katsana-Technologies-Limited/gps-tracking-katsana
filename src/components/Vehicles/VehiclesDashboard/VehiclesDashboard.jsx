@@ -207,7 +207,7 @@ export default function VehiclesDashboard() {
         <div className="xl:col-span-3">
           {/* 📋 TABLE */}
           <div className="bg-white border border-gray-300 rounded-xl shadow-sm relative overflow-x-auto scrollbar-thin">
-            <table className="min-w-max text-sm whitespace-nowrap table-auto">
+            <table className="min-w-max w-full text-sm whitespace-nowrap table-auto">
               <thead className="bg-orange-50 text-gray-600">
                 <tr className="border-b border-gray-200">
                   <th className="p-4 text-left">Customer Name</th>
@@ -216,7 +216,9 @@ export default function VehiclesDashboard() {
                   <th className="p-4 text-left">Speed Status</th>
                   <th className="p-4 text-left">Date | Time</th>
                   <th className="p-4 text-left">Device Status</th>
-                  <th className="p-4 text-center">Actions</th>
+                  <th className="p-4 text-center sticky right-0 z-30 min-w-30">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -336,8 +338,8 @@ export default function VehiclesDashboard() {
                             ))}
                         </div>
                       </td>
-                      <td className="p-4">
-                        <div className="flex gap-3">
+                      <td className="p-4 sticky right-0 bg-white z-20 min-w-30">
+                        <div className="flex gap-3 justify-end">
                           <button
                             type="button"
                             aria-label="Show location"
