@@ -338,31 +338,65 @@ export default function VehiclesDashboard() {
                       </td>
                       <td className="p-4">
                         <div className="flex gap-3">
-                          <img
-                            src="/icons/vehicel/location-pin.svg"
-                            className="w-5 h-5"
-                            alt=""
-                          />
-                          <img
-                            src="/icons/vehicel/time-duration.svg"
-                            className="w-5 h-5"
-                            alt=""
-                          />
-                          <img
-                            src="/icons/vehicel/calendar-minimalistic.svg"
-                            className="w-5 h-5"
-                            alt=""
-                          />
-                          <img
-                            src="/icons/vehicel/stop-timer.svg"
-                            className="w-5 h-5"
-                            alt=""
-                          />
-                          <img
-                            src="/icons/vehicel/locations-route.svg"
-                            className="w-5 h-5"
-                            alt=""
-                          />
+                          <button
+                            type="button"
+                            aria-label="Show location"
+                            className="p-1 rounded hover:bg-gray-100 cursor-pointer"
+                          >
+                            <img
+                              src="/icons/vehicle/location-pin.svg"
+                              className="w-5 h-5"
+                              alt="location"
+                            />
+                          </button>
+
+                          <button
+                            type="button"
+                            aria-label="Show duration"
+                            className="p-1 rounded hover:bg-gray-100 cursor-pointer"
+                          >
+                            <img
+                              src="/icons/vehicle/time-duration.svg"
+                              className="w-5 h-5"
+                              alt="duration"
+                            />
+                          </button>
+
+                          <button
+                            type="button"
+                            aria-label="Show calendar"
+                            className="p-1 rounded hover:bg-gray-100 cursor-pointer"
+                          >
+                            <img
+                              src="/icons/vehicle/calendar-minimalistic.svg"
+                              className="w-5 h-5"
+                              alt="calendar"
+                            />
+                          </button>
+
+                          <button
+                            type="button"
+                            aria-label="Stop timer"
+                            className="p-1 rounded hover:bg-gray-100 cursor-pointer"
+                          >
+                            <img
+                              src="/icons/vehicle/stop-timer.svg"
+                              className="w-5 h-5"
+                              alt="stop timer"
+                            />
+                          </button>
+
+                          <button
+                            type="button"
+                            aria-label="Show route"
+                            className="p-1 rounded hover:bg-gray-100 cursor-pointer"
+                          >
+                            <img
+                              src="/icons/vehicle/locations-route.svg"
+                              className="w-5 h-5"
+                              alt="route"
+                            />
+                          </button>
                         </div>
                       </td>
                     </tr>
