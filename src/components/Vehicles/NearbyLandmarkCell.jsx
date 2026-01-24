@@ -1,4 +1,5 @@
 import useBarikoiReverse from "../../hooks/useBarikoiReverse";
+import LottieLoading from "../utils/LottieLoading";
 
 export default function NearbyLandmarkCell({ lat, lng, suspended }) {
   console.log(lat, lng);
@@ -6,7 +7,7 @@ export default function NearbyLandmarkCell({ lat, lng, suspended }) {
 
   if (suspended) {
     return (
-      <span className="inline-block px-2 py-1 bg-[#FFF5F5] text-[#E0677B] text-xs rounded border border-[#FFD6D6]">
+      <span className="inline-block px-2 py-1 bg-[#FFF5F5] text-[#e0546c] text-xs rounded border border-[#FFD6D6]">
         Renew Subscription
       </span>
     );
@@ -16,9 +17,7 @@ export default function NearbyLandmarkCell({ lat, lng, suspended }) {
       <span className="text-xs text-gray-400">Location not available</span>
     );
   }
-  if (loading) {
-    return <span className="text-xs text-gray-400">Loading address...</span>;
-  }
+  if (loading) return <LottieLoading />;
 
   return (
     <div>
