@@ -207,7 +207,7 @@ export default function VehiclesDashboard() {
         <div className="xl:col-span-3">
           {/* 📋 TABLE */}
           <div className="bg-white border border-gray-300 rounded-xl shadow-sm relative overflow-x-auto scrollbar-thin">
-            <table className="min-w-full w-full text-sm">
+            <table className="min-w-max text-sm whitespace-nowrap table-auto">
               <thead className="bg-orange-50 text-gray-600">
                 <tr className="border-b border-gray-200">
                   <th className="p-4 text-left">Customer Name</th>
@@ -216,7 +216,7 @@ export default function VehiclesDashboard() {
                   <th className="p-4 text-left">Speed Status</th>
                   <th className="p-4 text-left">Date | Time</th>
                   <th className="p-4 text-left">Device Status</th>
-                  <th className="p-4 text-left">Actions</th>
+                  <th className="p-4 text-center">Actions</th>
                 </tr>
               </thead>
               <tbody>
