@@ -6,8 +6,7 @@ import "react-bkoi-gl/styles";
 import useVtsAllDevices from "../../hooks/useVtsAllDevices";
 import useCustomerVehicle from "../../hooks/useCustomerVehicle";
 import VehicleInfoCard from "../Vehicles/VehicleInfoCard";
-import { useSelector, useDispatch } from "react-redux";
-import { setSelectedLastImei } from "../../slices/vehiclesSlice";
+import { useSelector } from "react-redux";
 import { getVehicleWaveColor } from "./statusConfig";
 import jsPDF from "jspdf";
 import {
@@ -29,20 +28,6 @@ const GPS_DURATION = 30000;
 const MAP_STYLE = `https://map.barikoi.com/styles/osm-liberty/style.json?key=${BARIKOI_KEY}`;
 const SATELLITE_STYLE = `https://map.barikoi.com/styles/barikoi_satellite/style.json?key=${BARIKOI_KEY}`;
 
-// Minimal fallback style (OSM raster) used when external style fetch fails
-const FALLBACK_STYLE = {
-  version: 8,
-  sources: {
-    osm: {
-      type: "raster",
-      tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
-      tileSize: 256,
-      attribution: "© OpenStreetMap contributors",
-    },
-  },
-  layers: [{ id: "osm", type: "raster", source: "osm" }],
-};
-
 const VehiclesLiveMap = () => {
   const mapRef = useRef(null);
   const wrapperRef = useRef(null);
@@ -52,10 +37,6 @@ const VehiclesLiveMap = () => {
   const startTime = useRef({});
   const routeCoords = useRef({});
   const rafId = useRef(null);
-
-  // console.log("lastPos", lastPos.current);
-  // console.log("nextPos", nextPos.current);
-  // console.log("routeCoords", routeCoords.current);
 
   const { filteredDevices } = useVtsAllDevices();
   const { data: customerVehicles = [] } = useCustomerVehicle();
@@ -68,7 +49,6 @@ const VehiclesLiveMap = () => {
   const lastSelectedImei = useSelector(
     (state) => state.vehicles.selectedLastImei,
   );
-  const dispatch = useDispatch();
 
   const vehicleImageMap = React.useMemo(() => {
     const map = {};
@@ -91,35 +71,46 @@ const VehiclesLiveMap = () => {
     );
   };
 
+  // useEffect(() => {
+  //   let mounted = true;
+  //   (async () => {
+  //     try {
+  //       const res = await fetch(MAP_STYLE_URL);
+  //       if (!res.ok) return;
+  //       const style = await res.json();
+  //       const availableSources = style.sources
+  //         ? Object.keys(style.sources)
+  //         : [];
+  //       if (Array.isArray(style.layers)) {
+  //         style.layers = style.layers.filter((layer) => {
+  //           if (layer.source && !availableSources.includes(layer.source))
+  //             return false;
+  //           return true;
+  //         });
+  //       }
+  //       if (mounted) setMapStyleObj(style);
+  //     } catch (e) {
+  //       console.warn("Failed to fetch/sanitize map style", e);
+  //     }
+  //   })();
+  //   return () => {
+  //     mounted = false;
+  //   };
+  // }, []);
+
   useEffect(() => {
     let mounted = true;
     const fetchAndSanitize = async (url, setter) => {
-      // If key is missing, immediately use fallback to avoid network waits
-      if (!BARIKOI_KEY) {
-        if (mounted) setter(FALLBACK_STYLE);
-        return;
-      }
-
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 5000); // 5s
-
       try {
-        const res = await fetch(url, { signal: controller.signal });
-        clearTimeout(timeout);
-        if (!res.ok) {
-          console.warn(
-            "Map style fetch returned non-OK, using fallback",
-            res.status,
-          );
-          if (mounted) setter(FALLBACK_STYLE);
-          return;
-        }
+        const res = await fetch(url);
+        if (!res.ok) return;
         const style = await res.json();
         const availableSources = style.sources
           ? Object.keys(style.sources)
           : [];
         if (Array.isArray(style.layers)) {
           style.layers = style.layers.filter((layer) => {
+            // drop layers that reference missing sources only
             if (layer.source && !availableSources.includes(layer.source))
               return false;
             return true;
@@ -127,14 +118,7 @@ const VehiclesLiveMap = () => {
         }
         if (mounted) setter(style);
       } catch (e) {
-        if (e.name === "AbortError") {
-          console.warn("Map style fetch aborted (timeout), using fallback");
-        } else {
-          console.warn("Failed to fetch/sanitize map style, using fallback", e);
-        }
-        if (mounted) setter(FALLBACK_STYLE);
-      } finally {
-        clearTimeout(timeout);
+        console.warn("Failed to fetch/sanitize map style", e);
       }
     };
 
@@ -201,19 +185,18 @@ const VehiclesLiveMap = () => {
     lastPos.current[imei] = [lng, lat];
     nextPos.current[imei] = [lng, lat];
     routeCoords.current[imei] = [[lng, lat]];
-
-    // console.log(" Initialized sources for", imei);
-    // console.log("lastPos", lastPos.current[imei]);
-    // console.log("nextPos", nextPos.current[imei]);
-    // console.log("routeCoords", routeCoords.current[imei]);
   };
 
   const onMarkerClick = (device) => {
     const imei = device.device_data?.imei ?? device.imei;
+    if (selectedImeiRef.current === imei) {
+      selectedImeiRef.current = null;
+      setSelectedVehicleId(null);
+      return;
+    }
 
     selectedImeiRef.current = imei;
     setSelectedVehicleId(imei);
-    dispatch(setSelectedLastImei(imei));
 
     const lng = Number(device.lng);
     const lat = Number(device.lat);
@@ -237,8 +220,7 @@ const VehiclesLiveMap = () => {
     const device = filteredDevices.find(
       (d) => (d.device_data?.imei ?? d.imei) === lastSelectedImei,
     );
-    if (!device || (device.online !== "online" && device.online !== "ack"))
-      return;
+    if (!device) return;
     try {
       onMarkerClick(device);
     } catch (e) {
@@ -354,7 +336,7 @@ const VehiclesLiveMap = () => {
     return () => cancelAnimationFrame(rafId.current);
   }, []);
 
-  const styleReady = (satellite ? satStyleObj : mapStyleObj) ?? FALLBACK_STYLE;
+  const styleReady = satellite ? satStyleObj : mapStyleObj;
 
   const zoomIn = () => mapRef.current?.zoomIn();
   const zoomOut = () => mapRef.current?.zoomOut();
@@ -397,7 +379,9 @@ const VehiclesLiveMap = () => {
     >
       <Map
         ref={mapRef}
+        // mapStyle={mapStyleObj}
         mapStyle={styleReady}
+        // onLoad={onMapLoad}
         initialViewState={{
           longitude: 90.3563,
           latitude: 23.685,

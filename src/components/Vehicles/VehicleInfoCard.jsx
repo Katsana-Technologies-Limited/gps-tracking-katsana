@@ -62,9 +62,6 @@ const VehicleInfoCard = ({ vehicle, onClose }) => {
             <Vehiclespeed speed={Math.round(vehicle.speed ?? 0)} />
           </div>
           <div className=" col-span-1 flex flex-col items-start  bg-[#FFF9F4] rounded-sm w-full shadow-sm">
-            {/* <p className="font-medium text-black mb-1">
-            {vehicle.address ?? "Unknown location"}
-          </p> */}
             <NearByLocation vehicleData={vehicle} />
           </div>
         </div>

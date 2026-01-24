@@ -1,8 +1,6 @@
-import React from "react";
-
 const NearByLocation = ({ vehicleData }) => {
-  const lat = vehicleData?.lat?.toFixed(5) || "23.40203";
-  const lng = vehicleData?.lng?.toFixed(5) || "91.17074";
+  const lat = vehicleData?.lat;
+  const lng = vehicleData?.lng;
 
   return (
     <div className=" px-1 py-3 w-full max-w-70 flex flex-col justify-between relative ">

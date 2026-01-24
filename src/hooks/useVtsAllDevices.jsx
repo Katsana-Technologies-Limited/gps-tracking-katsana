@@ -9,7 +9,7 @@ const useVtsAllDevices = () => {
     error: errorDevices,
     refetch: refetchDevices,
   } = useDataQuery(["vts-all-devices"], "/api/vts/devices-proxy", true, {
-    refetchInterval: 30000,
+    refetchInterval: 10000, //10s
     refetchIntervalInBackground: true,
     staleTime: 0,
   });

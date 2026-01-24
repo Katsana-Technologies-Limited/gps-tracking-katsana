@@ -24,7 +24,7 @@ import {
 import VehicleStatusLegend from "./VehicleStatusLegend";
 
 const BARIKOI_KEY = import.meta.env.VITE_BARIKOI_API_KEY;
-const GPS_DURATION = 30000;
+const GPS_DURATION = 10000; //10s
 /* ✅ USE STABLE STYLE ONLY */
 const MAP_STYLE = `https://map.barikoi.com/styles/osm-liberty/style.json?key=${BARIKOI_KEY}`;
 const SATELLITE_STYLE = `https://map.barikoi.com/styles/barikoi_satellite/style.json?key=${BARIKOI_KEY}`;
@@ -53,9 +53,9 @@ const VehiclesLiveMap = () => {
   const routeCoords = useRef({});
   const rafId = useRef(null);
 
-  // console.log("lastPos", lastPos.current);
-  // console.log("nextPos", nextPos.current);
-  // console.log("routeCoords", routeCoords.current);
+  console.log("lastPos", lastPos.current);
+  console.log("nextPos", nextPos.current);
+  console.log("routeCoords", routeCoords.current);
 
   const { filteredDevices } = useVtsAllDevices();
   const { data: customerVehicles = [] } = useCustomerVehicle();
@@ -197,9 +197,18 @@ const VehiclesLiveMap = () => {
       });
     }
 
-    lastPos.current[imei] = [lng, lat];
-    nextPos.current[imei] = [lng, lat];
-    routeCoords.current[imei] = [[lng, lat]];
+    if (!routeCoords.current[imei]) {
+      routeCoords.current[imei] = [[lng, lat]];
+    }
+    if (!lastPos.current[imei]) {
+      lastPos.current[imei] = [lng, lat];
+    }
+    if (!nextPos.current[imei]) {
+      nextPos.current[imei] = [lng, lat];
+    }
+    if (!startTime.current[imei]) {
+      startTime.current[imei] = Date.now();
+    }
 
     // console.log(" Initialized sources for", imei);
     // console.log("lastPos", lastPos.current[imei]);
@@ -214,21 +223,19 @@ const VehiclesLiveMap = () => {
     setSelectedVehicleId(imei);
     dispatch(setSelectedLastImei(imei));
 
-    const lng = Number(device.lng);
-    const lat = Number(device.lat);
-    if (!isValidCoord(lng, lat)) {
-      console.warn("Skipping focus for device with invalid coordinates", imei);
-      return;
-    }
-
     initSources(device);
 
-    mapRef.current.flyTo({
-      center: [lng, lat],
-      zoom: 16,
-      speed: 1.5,
-      curve: 1.4,
-    });
+    const lng = Number(device.lng);
+    const lat = Number(device.lat);
+
+    if (isValidCoord(lng, lat)) {
+      mapRef.current?.getMap()?.flyTo({
+        center: [lng, lat],
+        zoom: 16,
+        speed: 1.4,
+        curve: 1.4,
+      });
+    }
   };
 
   useEffect(() => {
@@ -258,46 +265,37 @@ const VehiclesLiveMap = () => {
   }, [customerVehicles, filteredDevices, selectedVehicleId]);
 
   useEffect(() => {
-    if (!selectedImeiRef.current) return;
+    const imei = selectedImeiRef.current;
+    if (!imei) return;
 
     const device = filteredDevices.find(
-      (d) => (d.device_data?.imei ?? d.imei) === selectedImeiRef.current,
+      (d) => (d.device_data?.imei ?? d.imei) === imei,
     );
-
     if (!device) return;
 
-    const imei = selectedImeiRef.current;
     const lng = Number(device.lng);
     const lat = Number(device.lat);
     if (!isValidCoord(lng, lat)) return;
 
-    if (!Array.isArray(nextPos.current[imei])) {
+    // 👉 FIRST TIME INIT
+    if (!lastPos.current[imei]) {
       lastPos.current[imei] = [lng, lat];
       nextPos.current[imei] = [lng, lat];
       routeCoords.current[imei] = [[lng, lat]];
       startTime.current[imei] = Date.now();
-    } else {
-      const now = Date.now();
-      const prevStart = startTime.current[imei] || now;
-      const elapsed = Math.max(0, now - prevStart);
-      const progress = Math.min(elapsed / GPS_DURATION, 1);
-
-      const [lng1, lat1] = lastPos.current[imei] || nextPos.current[imei];
-      const [lng2, lat2] = nextPos.current[imei] || [lng1, lat1];
-
-      const currentLng = lng1 + (lng2 - lng1) * progress;
-      const currentLat = lat1 + (lat2 - lat1) * progress;
-
-      lastPos.current[imei] = [currentLng, currentLat];
-      nextPos.current[imei] = [lng, lat];
-      routeCoords.current[imei] = routeCoords.current[imei] || [];
-      routeCoords.current[imei].push([lng, lat]);
-      startTime.current[imei] = Date.now();
+      return;
     }
 
+    // 👉 NEW GPS POINT
+
+    routeCoords.current[imei] = routeCoords.current[imei] ?? [];
+    nextPos.current[imei] = [lng, lat];
+    startTime.current[imei] = Date.now();
+
+    routeCoords.current[imei].push([lng, lat]);
+
     const map = mapRef.current?.getMap();
-    if (!map) return;
-    map.getSource("active-route")?.setData({
+    map?.getSource("active-route")?.setData({
       type: "Feature",
       geometry: {
         type: "LineString",
@@ -309,41 +307,28 @@ const VehiclesLiveMap = () => {
   useEffect(() => {
     const animate = () => {
       const imei = selectedImeiRef.current;
-      if (
-        !imei ||
-        !startTime.current[imei] ||
-        !Array.isArray(lastPos.current[imei]) ||
-        !Array.isArray(nextPos.current[imei])
-      ) {
+      if (!imei) {
         rafId.current = requestAnimationFrame(animate);
         return;
       }
 
-      const now = Date.now();
-      const t = Math.min((now - startTime.current[imei]) / GPS_DURATION, 1);
-
-      const [lng1, lat1] = lastPos.current[imei];
-      const [lng2, lat2] = nextPos.current[imei];
-
-      if (!isValidCoord(lng1, lat1) || !isValidCoord(lng2, lat2)) {
+      const start = startTime.current[imei];
+      const from = lastPos.current[imei];
+      const to = nextPos.current[imei];
+      if (!start || !from || !to) {
         rafId.current = requestAnimationFrame(animate);
         return;
       }
 
-      const lng = lng1 + (lng2 - lng1) * t;
-      const lat = lat1 + (lat2 - lat1) * t;
+      const t = Math.min((Date.now() - start) / GPS_DURATION, 1);
+
+      const lng = from[0] + (to[0] - from[0]) * t;
+      const lat = from[1] + (to[1] - from[1]) * t;
 
       const map = mapRef.current?.getMap();
-      if (!map) {
-        rafId.current = requestAnimationFrame(animate);
-        return;
-      }
-      map.getSource("active-vehicle")?.setData({
+      map?.getSource("active-vehicle")?.setData({
         type: "Feature",
-        geometry: {
-          type: "Point",
-          coordinates: [lng, lat],
-        },
+        geometry: { type: "Point", coordinates: [lng, lat] },
       });
 
       rafId.current = requestAnimationFrame(animate);
