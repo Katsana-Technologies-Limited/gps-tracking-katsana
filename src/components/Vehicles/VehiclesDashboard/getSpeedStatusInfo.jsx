@@ -1,6 +1,11 @@
 export function getSpeedStatusInfo(vehicle) {
   const isOffline = vehicle.deviceStatus === "Offline";
-  if (vehicle.liveDevice?.online === "ack") {
+  // Determine if the vehicle is explicitly Engine Off (set by upstream logic)
+  const isEngineOff = vehicle.speed === "Engine Off";
+
+  // If device reports ack (engine idle) but the vehicle is explicitly Engine Off,
+  // prefer explicit Engine Off. Otherwise, show Engine Idle for ack.
+  if (vehicle.liveDevice?.online === "ack" && !isEngineOff) {
     return {
       bgColorClass: "bg-orange-100",
       textColorClass: "text-orange-600",
@@ -9,8 +14,6 @@ export function getSpeedStatusInfo(vehicle) {
       isEngineOff: false,
     };
   }
-  const isEngineOff =
-    vehicle.speed === "Engine Off" || vehicle.speedValue === 0;
   const speedVal = vehicle.speedValue;
 
   let bgColorClass = "";

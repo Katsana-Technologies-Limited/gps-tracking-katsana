@@ -9,14 +9,9 @@ import useSelectedImeis from "../../../hooks/useSelectedImeis";
 import LottieLoading from "../../utils/LottieLoading";
 import { MeterIcon } from "./MeterIcon";
 import { getSpeedStatusInfo } from "./getSpeedStatusInfo";
+import { formatDate } from "../../../utilits/formatDate";
 
 const PAGE_SIZE = 5;
-
-function formatDate(dateString) {
-  if (!dateString) return "-";
-  const date = new Date(dateString);
-  return date.toLocaleDateString("en-GB");
-}
 
 function getRenewalInfo(expiryDate) {
   if (!expiryDate) return "";
@@ -56,6 +51,7 @@ export default function VehiclesDashboard() {
               d.imei ||
               d.imei_number ||
               d.device_data?.imei_number;
+
             return (
               deviceImei && deviceImei.toString() === vehicle.imei.toString()
             );
@@ -75,21 +71,41 @@ export default function VehiclesDashboard() {
         deviceStatus = "Offline";
       }
 
+      const ignitionOn = (() => {
+        if (!liveDevice?.sensors || !Array.isArray(liveDevice.sensors))
+          return null;
+
+        const ignitionSensor = liveDevice.sensors.find(
+          (s) =>
+            s.type === "ignition" ||
+            s.tag_name === "ignition" ||
+            s.name?.toLowerCase() === "ignition",
+        );
+
+        if (!ignitionSensor) return null;
+
+        return (
+          ignitionSensor.val === true ||
+          ignitionSensor.value?.toLowerCase() === "on"
+        );
+      })();
+
       let speedStatus = "Engine Off";
       let speedValue = 0;
 
-      if (liveDevice?.online === "ack") {
-        speedStatus = "Engine Idle";
-        speedValue = 0;
-      } else if (
-        liveDevice?.speed !== undefined &&
-        liveDevice?.speed !== null
-      ) {
-        const speedNum = parseFloat(liveDevice.speed);
-        if (!isNaN(speedNum) && speedNum > 0) {
+      const speedNum = Number(liveDevice?.speed || 0);
+
+      if (ignitionOn === true) {
+        if (speedNum > 0) {
           speedStatus = `${speedNum} km/h`;
           speedValue = speedNum;
+        } else {
+          speedStatus = "Engine Idle";
+          speedValue = 0;
         }
+      } else {
+        speedStatus = "Engine Off";
+        speedValue = 0;
       }
 
       const lat = liveDevice?.lat ?? vehicle.lat ?? "-";
@@ -97,6 +113,7 @@ export default function VehiclesDashboard() {
 
       let date = "-";
       let time = "-";
+
       if (liveDevice?.time) {
         const timestamp = new Date(liveDevice.time);
         date = timestamp.toLocaleDateString("en-GB");
@@ -120,7 +137,7 @@ export default function VehiclesDashboard() {
         lat,
         lng,
         speed: speedStatus,
-        speedValue: speedValue,
+        speedValue,
         date,
         time,
         deviceStatus,
@@ -140,10 +157,8 @@ export default function VehiclesDashboard() {
   const handleReload = () => {
     if (isReloading) return;
     setIsReloading(true);
-    // trigger refetch if needed
   };
 
-  // Only show selected vehicles (by IMEI). If none selected, show none.
   const filtered = useMemo(() => {
     const imeis = selectedImeis || [];
     let list =
