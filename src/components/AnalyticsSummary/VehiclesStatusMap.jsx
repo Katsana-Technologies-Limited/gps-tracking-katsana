@@ -59,12 +59,14 @@ const VehiclesStatusMap = () => {
   const wrapperRef = useRef(null);
   const [satellite, setSatellite] = useState(false);
   const [controlsOpen, setControlsOpen] = useState(false);
-  const [mapStyleObj, setMapStyleObj] = useState(null);
-  const [satStyleObj, setSatStyleObj] = useState(null);
+  const [mapStyleObj, setMapStyleObj] = useState(FALLBACK_STYLE);
+  const [satStyleObj, setSatStyleObj] = useState(FALLBACK_STYLE);
 
   const { data: vehiclesData } = useCustomerVehicle();
   const { filteredDevices, allDevices } = useVtsAllDevices();
   const lastSelectedImei = useSelector((s) => s.vehicles.selectedLastImei);
+  const selectedImeis = useSelector((s) => s.vehicles.selectedImeis || []);
+  const [showSummary, setShowSummary] = useState(false);
   const [mode, setMode] = useState("INIT");
 
   const [selectedVehicleId, setSelectedVehicleId] = useState(null);
@@ -75,6 +77,16 @@ const VehiclesStatusMap = () => {
 
   const mapDevices = useMemo(() => {
     if (!baseDevices?.length) return [];
+
+    // If specific imeis are selected via Redux, show those (preserve selection order)
+    if (Array.isArray(selectedImeis) && selectedImeis.length > 0) {
+      return selectedImeis
+        .map((si) =>
+          baseDevices.find((d) => (d.device_data?.imei ?? d.imei) === si),
+        )
+        .filter(Boolean);
+    }
+
     if (lastSelectedImei) {
       const found = baseDevices.find(
         (d) => (d.device_data?.imei ?? d.imei) === lastSelectedImei,
@@ -90,7 +102,7 @@ const VehiclesStatusMap = () => {
         Number(d.lat) !== 0 &&
         Number(d.lng) !== 0,
     );
-  }, [baseDevices, lastSelectedImei]);
+  }, [baseDevices, lastSelectedImei, selectedImeis]);
 
   const onlineCount = mapDevices.length;
 
@@ -322,6 +334,7 @@ const VehiclesStatusMap = () => {
   };
 
   useEffect(() => {
+    if (!showSummary) return;
     let mounted = true;
     const fetchAndSanitize = async (url, setter) => {
       if (!BARIKOI_KEY) {
@@ -373,11 +386,36 @@ const VehiclesStatusMap = () => {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [showSummary]);
 
   const styleReady = satellite ? satStyleObj : mapStyleObj;
 
-  if (!styleReady) return <LottieLoading />;
+  if (!showSummary) {
+    return (
+      <div
+        ref={wrapperRef}
+        className="relative w-full h-140 rounded-2xl overflow-hidden bg-white flex items-center justify-center"
+      >
+        <button
+          onClick={() => setShowSummary(true)}
+          className="px-4 py-2 bg-primary-orange cursor-pointer rounded-lg shadow hover:bg-opacity-80 transition"
+        >
+          View Summary Map
+        </button>
+      </div>
+    );
+  }
+
+  if (!styleReady) {
+    return (
+      <div
+        ref={wrapperRef}
+        className="relative w-full h-140 rounded-2xl overflow-hidden bg-white flex items-center justify-center"
+      >
+        <LottieLoading />
+      </div>
+    );
+  }
 
   const zoomIn = () => mapRef.current?.zoomIn();
   const zoomOut = () => mapRef.current?.zoomOut();

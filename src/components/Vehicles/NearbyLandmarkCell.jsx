@@ -1,6 +1,7 @@
 import useBarikoiReverse from "../../hooks/useBarikoiReverse";
 
 export default function NearbyLandmarkCell({ lat, lng, suspended }) {
+  console.log(lat, lng);
   const { place, loading } = useBarikoiReverse(lat, lng);
 
   if (suspended) {
