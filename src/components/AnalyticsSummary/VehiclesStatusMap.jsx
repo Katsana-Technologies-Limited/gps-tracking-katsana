@@ -324,7 +324,6 @@ const VehiclesStatusMap = () => {
   useEffect(() => {
     let mounted = true;
     const fetchAndSanitize = async (url, setter) => {
-      // If key is missing, immediately use fallback to avoid network waits
       if (!BARIKOI_KEY) {
         if (mounted) setter(FALLBACK_STYLE);
         return;
@@ -527,13 +526,7 @@ const VehiclesStatusMap = () => {
             ? el.requestFullscreen()
             : document.exitFullscreen();
         }}
-        className="
-    absolute top-3 right-3 z-20
-    w-9 h-9 md:w-11 md:h-11
-    bg-white rounded-full shadow
-    flex items-center justify-center
-    hover:bg-gray-50 transition cursor-pointer
-  "
+        className="absolute top-3 right-3 z-20 w-9 h-9 md:w-11 md:h-11 bg-white rounded-full shadow flex items-center justify-center hover:bg-gray-50 transition cursor-pointer"
       >
         <Scan className="w-4 h-4 md:w-5 md:h-5" />
       </button>
@@ -582,55 +575,24 @@ const VehiclesStatusMap = () => {
         )}
         <button
           onClick={() => setControlsOpen((p) => !p)}
-          className="
-      pointer-events-auto
-      absolute bottom-0 right-0
-      w-10 h-10 md:w-12 md:h-12
-      bg-white cursor-pointer rounded-full shadow
-      flex items-center justify-center
-      hover:bg-gray-50 transition
-    "
+          className="pointer-events-auto absolute bottom-0 right-0 w-10 h-10 md:w-12 md:h-12 bg-white cursor-pointer rounded-full shadow flex items-center justify-center hover:bg-gray-50 transition"
         >
           <Scan className="w-4 h-4 md:w-5 md:h-5" />
         </button>
       </div>
-
-      {/* 📤 Share / Print  / status */}
       <div>
-        {/* VehicleStatusLegend */}
         <VehicleStatusLegend />
-
-        {/* Share + Print */}
         <div className="absolute bottom-4 left-3 z-10 flex gap-2">
-          {/* Share Button */}
           <button
             onClick={handleShare}
-            className="
-        flex items-center justify-center gap-2 cursor-pointer
-        bg-amber-50 hover:bg-amber-100
-        rounded-full md:rounded-2xl
-        px-2 md:px-4
-        h-8 md:h-11
-        shadow
-        transition
-      "
+            className="flex items-center justify-center gap-2 cursor-pointer bg-amber-50 hover:bg-amber-100 rounded-full md:rounded-2xl px-2 md:px-4 h-8 md:h-11 shadow transition"
           >
             <Share2 className="w-4 h-4 md:w-5 md:h-5" />
             <span className="hidden md:inline text-sm font-medium">Share</span>
           </button>
-
-          {/* Print Button */}
           <button
             onClick={handlePrint}
-            className="
-        flex items-center justify-center gap-2 cursor-pointer
-        bg-amber-50 hover:bg-amber-100
-        rounded-full md:rounded-2xl
-        px-2 md:px-4
-        h-8 md:h-11
-        shadow
-        transition
-      "
+            className="flex items-center justify-center gap-2 cursor-pointer bg-amber-50 hover:bg-amber-100 rounded-full md:rounded-2xl px-2 md:px-4 h-8 md:h-11 shadow transition"
           >
             <Printer className="w-4 h-4 md:w-5 md:h-5" />
             <span className="hidden md:inline text-sm font-medium">Print</span>
