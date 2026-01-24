@@ -52,9 +52,9 @@ const VehiclesLiveMap = () => {
   const routeCoords = useRef({});
   const rafId = useRef(null);
 
-  console.log("lastPos", lastPos.current);
-  console.log("nextPos", nextPos.current);
-  console.log("routeCoords", routeCoords.current);
+  // console.log("lastPos", lastPos.current);
+  // console.log("nextPos", nextPos.current);
+  // console.log("routeCoords", routeCoords.current);
 
   const { filteredDevices } = useVtsAllDevices();
   const { data: customerVehicles = [] } = useCustomerVehicle();
@@ -92,7 +92,6 @@ const VehiclesLiveMap = () => {
   useEffect(() => {
     let mounted = true;
     const fetchAndSanitize = async (url, setter) => {
-      // If key is missing, immediately use fallback to avoid network waits
       if (!BARIKOI_KEY) {
         if (mounted) setter(FALLBACK_STYLE);
         return;

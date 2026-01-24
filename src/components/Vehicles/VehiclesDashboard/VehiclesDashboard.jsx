@@ -205,7 +205,6 @@ export default function VehiclesDashboard() {
       </div>
       <div className="grid grid-cols-1 xl:grid-cols-4 gap-5">
         <div className="xl:col-span-3">
-          {/* 📋 TABLE */}
           <div className="bg-white border border-gray-300 rounded-xl shadow-sm relative overflow-x-auto scrollbar-thin">
             <table className="min-w-max w-full text-sm whitespace-nowrap table-auto">
               <thead className="bg-orange-50 text-gray-600">
@@ -223,9 +222,7 @@ export default function VehiclesDashboard() {
               </thead>
               <tbody>
                 {paginated.map((vehicle) => {
-                  // const speedMeta = getSpeedMeta(vehicle.speed);
                   const speedStatusInfo = getSpeedStatusInfo(vehicle);
-                  // Color logic for Device Status
                   let statusClass = "bg-gray-100 text-gray-600";
                   if (vehicle.deviceStatus === "Online") {
                     statusClass = "bg-green-100 text-green-700";
