@@ -215,7 +215,7 @@ export default function VehiclesDashboard() {
                   <th className="p-4 text-left">Speed Status</th>
                   <th className="p-4 text-left">Date | Time</th>
                   <th className="p-4 text-left">Device Status</th>
-                  <th className="p-4 text-center sticky right-0 z-30 min-w-30">
+                  <th className="p-4 text-center lg:sticky right-0 z-30 min-w-30">
                     Actions
                   </th>
                 </tr>
@@ -335,7 +335,7 @@ export default function VehiclesDashboard() {
                             ))}
                         </div>
                       </td>
-                      <td className="p-4 sticky right-0 bg-white z-20 min-w-30">
+                      <td className="p-4 lg:sticky right-0 bg-white z-20 min-w-30">
                         <div className="flex gap-3 justify-end">
                           <button
                             type="button"

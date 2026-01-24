@@ -2,7 +2,7 @@ import useBarikoiReverse from "../../hooks/useBarikoiReverse";
 import LottieLoading from "../utils/LottieLoading";
 
 export default function NearbyLandmarkCell({ lat, lng, suspended }) {
-  const { place, loading } = useBarikoiReverse(lat, lng);
+  const { place } = useBarikoiReverse(lat, lng);
 
   if (suspended) {
     return (
@@ -16,8 +16,6 @@ export default function NearbyLandmarkCell({ lat, lng, suspended }) {
       <span className="text-xs text-gray-400">Location not available</span>
     );
   }
-
-  if (loading) return <LottieLoading />;
 
   return (
     <div>
