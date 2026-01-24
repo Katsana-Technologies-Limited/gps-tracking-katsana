@@ -84,10 +84,14 @@ export default function VehiclesDashboard() {
 
         if (!ignitionSensor) return null;
 
-        return (
-          ignitionSensor.val === true ||
-          ignitionSensor.value?.toLowerCase() === "on"
-        );
+        const valOk = ignitionSensor.val === true;
+        const valueOk = ignitionSensor.value?.toLowerCase() === "on";
+        return valOk && valueOk
+          ? true
+          : ignitionSensor.val === false ||
+              ignitionSensor.value?.toLowerCase() === "off"
+            ? false
+            : null;
       })();
 
       let speedStatus = "Engine Off";
