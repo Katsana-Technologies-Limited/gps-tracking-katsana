@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./components/utils/Login/Login";
 import LoginGuest from "./components/utils/Login/LoginGuest";
+import ReloadOrScrollToTop from "./components/utils/ReloadOrScrollToTop";
 import TrackingLayout from "./Pages/Layout/TrackingLayout";
 import AnalyticsSummary from "./Pages/Routes/AnalyticsSummary";
 import Vehicles from "./Pages/Routes/Vehicles";
@@ -39,6 +40,7 @@ const App = () => {
   return (
     <div className="font-hind">
       <BrowserRouter>
+        <ReloadOrScrollToTop />
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/login-guest" element={<LoginGuest />} />
