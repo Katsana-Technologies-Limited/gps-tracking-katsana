@@ -420,7 +420,6 @@ const VehiclesStatusMap = () => {
         dragRotate={false}
         attributionControl={false}
       >
-        {/* 🚗 VEHICLE MARKERS */}
         {mode === "CLUSTER" && mapDevices.length > 0 && (
           <Marker
             longitude={Number(mapDevices[0].lng)}
@@ -457,7 +456,6 @@ const VehiclesStatusMap = () => {
                     });
                   }}
                 >
-                  {/* 🌊 Dynamic Wave Animation Rings */}
                   <div
                     className="car-status-circle"
                     style={{ backgroundColor: waveColor }}
@@ -522,8 +520,6 @@ const VehiclesStatusMap = () => {
           Satellite
         </button>
       </div>
-
-      {/* Fullscreen Button (Top Right) */}
       <button
         onClick={() => {
           const el = wrapperRef.current;
@@ -541,29 +537,21 @@ const VehiclesStatusMap = () => {
       >
         <Scan className="w-4 h-4 md:w-5 md:h-5" />
       </button>
-
-      {/* Map Controls Wrapper */}
       <div className="absolute bottom-4 right-3 z-20 pointer-events-none">
-        {/* === EXPANDED CONTROLS (ABOVE SCAN, NEVER AFFECT SCAN) === */}
         {controlsOpen && (
           <div className="mb-14 flex flex-col items-center gap-2 pointer-events-auto">
-            {/* Zoom In */}
             <button
               onClick={zoomIn}
               className="w-8 h-8 md:w-10 md:h-10 bg-white cursor-pointer rounded-full shadow flex items-center justify-center"
             >
               <Plus className="w-4 h-4 md:w-5 md:h-5" />
             </button>
-
-            {/* Zoom Out */}
             <button
               onClick={zoomOut}
               className="w-8 h-8 md:w-10 md:h-10 bg-white cursor-pointer rounded-full shadow flex items-center justify-center"
             >
               <Minus className="w-4 h-4 md:w-5 md:h-5" />
             </button>
-
-            {/* Pan Controls */}
             <div className="relative w-20 h-20 md:w-28 md:h-28">
               <button
                 onClick={() => mapRef.current?.panBy([-120, 0])}
@@ -571,21 +559,18 @@ const VehiclesStatusMap = () => {
               >
                 <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
               </button>
-
               <button
                 onClick={() => mapRef.current?.panBy([120, 0])}
                 className="absolute right-0 top-1/2 -translate-y-1/2 w-7 h-7 md:w-10 md:h-10 bg-white cursor-pointer rounded-full shadow flex items-center justify-center"
               >
                 <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
               </button>
-
               <button
                 onClick={() => mapRef.current?.panBy([0, -120])}
                 className="absolute top-0 left-1/2 -translate-x-1/2 w-7 h-7 md:w-10 md:h-10 bg-white cursor-pointer rounded-full shadow flex items-center justify-center"
               >
                 <ChevronUp className="w-4 h-4 md:w-5 md:h-5" />
               </button>
-
               <button
                 onClick={() => mapRef.current?.panBy([0, 120])}
                 className="absolute bottom-0 left-1/2 -translate-x-1/2 w-7 h-7 md:w-10 md:h-10 bg-white cursor-pointer rounded-full shadow flex items-center justify-center"
@@ -595,8 +580,6 @@ const VehiclesStatusMap = () => {
             </div>
           </div>
         )}
-
-        {/* === SCAN BUTTON (ABSOLUTELY FIXED, NEVER MOVES) === */}
         <button
           onClick={() => setControlsOpen((p) => !p)}
           className="

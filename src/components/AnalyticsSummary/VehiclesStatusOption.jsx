@@ -27,7 +27,6 @@ const VehiclesStatusOption = ({ onStatsChange }) => {
   const { data: customerVehicles = [], isLoading } = useCustomerVehicle();
   const { allDevices } = useVtsAllDevices();
 
-  // Merge DB vehicles and VTS devices
   const VEHICLES = useMemo(() => {
     return customerVehicles.map((v, index) => {
       const live = Array.isArray(allDevices)
@@ -53,7 +52,6 @@ const VehiclesStatusOption = ({ onStatsChange }) => {
     });
   }, [customerVehicles, allDevices]);
 
-  // Filter by tab & search
   const filteredVehicles = useMemo(() => {
     let list = VEHICLES;
 
@@ -84,7 +82,6 @@ const VehiclesStatusOption = ({ onStatsChange }) => {
     }
   }, [filteredVehicles]);
 
-  // Sync selected IMEIs to Redux
   useEffect(() => {
     const imeis = filteredVehicles
       .filter((v) => selected.includes(v.id))
@@ -104,18 +101,42 @@ const VehiclesStatusOption = ({ onStatsChange }) => {
   }, [selected.length, filteredVehicles.length]);
 
   const toggleVehicle = (id, imei) => {
-    setSelected((prev) =>
-      prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id],
-    );
-    // mark this as the last-selected imei so map can focus it
-    if (imei) dispatch(setSelectedLastImei(imei));
+    setSelected((prev) => {
+      const next = prev.includes(id)
+        ? prev.filter((v) => v !== id)
+        : [...prev, id];
+
+      const nextImeis = next
+        .map((selId) => filteredVehicles.find((v) => v.id === selId))
+        .filter(Boolean)
+        .map((v) => v.imei)
+        .filter(Boolean);
+
+      if (next.includes(id)) {
+        if (imei) dispatch(setSelectedLastImei(imei));
+      } else {
+        if (nextImeis.length > 0) {
+          dispatch(setSelectedLastImei(nextImeis[nextImeis.length - 1]));
+        } else {
+          dispatch(setSelectedLastImei(null));
+        }
+      }
+
+      return next;
+    });
   };
 
   const toggleAll = () => {
     if (selected.length === filteredVehicles.length) {
       setSelected([]);
+      dispatch(setSelectedLastImei(null));
     } else {
-      setSelected(filteredVehicles.map((v) => v.id));
+      const allIds = filteredVehicles.map((v) => v.id);
+      setSelected(allIds);
+      const lastImei = filteredVehicles.length
+        ? filteredVehicles[filteredVehicles.length - 1].imei
+        : null;
+      dispatch(setSelectedLastImei(lastImei));
     }
   };
 
@@ -138,7 +159,6 @@ const VehiclesStatusOption = ({ onStatsChange }) => {
           </button>
         ))}
       </div>
-
       <div className="relative">
         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-orange-500">
           <img src="/icons/vehicle-car-svgrepo-com.png" alt="vehicle-car" />
@@ -154,7 +174,6 @@ const VehiclesStatusOption = ({ onStatsChange }) => {
           className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
         />
       </div>
-
       <div className="flex items-center justify-between text-sm text-gray-600">
         <label className="flex items-center gap-2 cursor-pointer">
           <input
@@ -169,9 +188,7 @@ const VehiclesStatusOption = ({ onStatsChange }) => {
         </label>
         <span>Total Vehicles: {selected.length}</span>
       </div>
-
       <div className="text-xs text-gray-500">Group</div>
-
       <div className="flex flex-col gap-2 max-h-125 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
         {filteredVehicles.map((v) => {
           const isSelected = selected.includes(v.id);
