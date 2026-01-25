@@ -332,20 +332,20 @@ const PaymentPage = () => {
               <div className="flex justify-between items-center">
                 <span className="text-gray-600">Sub Total:</span>
                 <span className="font-semibold text-gray-800">
-                  {formatCurrency(calculateTotal())} ৳
+                  {formatCurrency(calculateTotal())}
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-gray-600">Discount:</span>
                 <span className="font-semibold text-gray-800">
-                  {formatCurrency(0)} ৳
+                  {formatCurrency(0)}
                 </span>
               </div>
               <div className="border-t-2 border-yellow-400 pt-4">
-                <div className="bg-yellow-50 rounded-lg p-3 flex justify-between items-center">
+                <div className="bg-yellow-50 border border-primary-orange rounded-lg p-3 flex justify-between items-center">
                   <span className="font-bold text-gray-800">Total Cost:</span>
                   <span className="font-bold text-xl text-gray-800">
-                    {formatCurrency(calculateTotal())} ৳
+                    {formatCurrency(calculateTotal())}
                   </span>
                 </div>
               </div>
