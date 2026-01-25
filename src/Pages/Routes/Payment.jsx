@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, startTransition } from "react";
+import { useState, useMemo, useEffect, startTransition, useRef } from "react";
 import { Search, Check } from "lucide-react";
 import { Link } from "react-router-dom";
 import useCustomerVehicle from "../../hooks/useCustomerVehicle";
@@ -20,7 +20,9 @@ const PaymentPage = () => {
   const [savePaymentInfo, setSavePaymentInfo] = useState(false);
   const [vehicleDurations, setVehicleDurations] = useState({});
   const { data: customerVehicles = [], isLoading } = useCustomerVehicle();
-
+  console.log(customerVehicles);
+  const hasInitialized = useRef(false);
+  
   const vehicles = useMemo(() => {
     return (customerVehicles || []).map((v) => ({
       id: v.id,
@@ -38,8 +40,9 @@ const PaymentPage = () => {
 
   useEffect(() => {
     if (!vehicles || vehicles.length === 0) return;
-    if (selectedVehicles.length > 0) return;
+    if (hasInitialized.current) return;
 
+    hasInitialized.current = true;
     startTransition(() => {
       setSelectedVehicles(vehicles.map((v) => v.id));
       const initDur = {};
@@ -48,7 +51,7 @@ const PaymentPage = () => {
       });
       setVehicleDurations(initDur);
     });
-  }, [vehicles, selectedVehicles]);
+  }, [vehicles]);
 
   const formatCurrency = (val) => {
     const n = Number(val) || 0;
