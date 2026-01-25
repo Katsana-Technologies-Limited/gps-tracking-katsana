@@ -1,9 +1,10 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, startTransition } from "react";
 import { Search, Check } from "lucide-react";
 import { Link } from "react-router-dom";
 import useCustomerVehicle from "../../hooks/useCustomerVehicle";
 import LottieLoading from "../../components/utils/LottieLoading";
 import { useAxios } from "../../hooks/useAxios";
+import { formatDue } from "../../utilits/formatDate";
 
 const Card = ({ children, className = "" }) => (
   <div className={`${className} bg-white rounded-xl shadow-sm p-4`}>
@@ -11,24 +12,12 @@ const Card = ({ children, className = "" }) => (
   </div>
 );
 
-const formatDue = (dateStr) => {
-  if (!dateStr) return "";
-  const d = new Date(dateStr);
-  d.setDate(d.getDate() - 1);
-  if (Number.isNaN(d.getTime())) return dateStr;
-  const day = d.getDate();
-  const month = d.toLocaleString("en-US", { month: "short" });
-  const year = d.getFullYear();
-  return `${day} ${month}, ${year}`;
-};
-
 const PaymentPage = () => {
   const axiosUrl = useAxios();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedVehicles, setSelectedVehicles] = useState([]);
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [savePaymentInfo, setSavePaymentInfo] = useState(false);
-  // Store duration for each vehicle (vehicleId -> months)
   const [vehicleDurations, setVehicleDurations] = useState({});
   const { data: customerVehicles = [], isLoading } = useCustomerVehicle();
 
@@ -47,6 +36,20 @@ const PaymentPage = () => {
     }));
   }, [customerVehicles]);
 
+  useEffect(() => {
+    if (!vehicles || vehicles.length === 0) return;
+    if (selectedVehicles.length > 0) return;
+
+    startTransition(() => {
+      setSelectedVehicles(vehicles.map((v) => v.id));
+      const initDur = {};
+      vehicles.forEach((v) => {
+        initDur[v.id] = 1;
+      });
+      setVehicleDurations(initDur);
+    });
+  }, [vehicles, selectedVehicles]);
+
   const formatCurrency = (val) => {
     const n = Number(val) || 0;
     return n.toLocaleString("en-BD", {
@@ -55,18 +58,9 @@ const PaymentPage = () => {
     });
   };
 
-  // const toggleVehicle = (vehicleId) => {
-  //   setSelectedVehicles((prev) =>
-  //     prev.includes(vehicleId)
-  //       ? prev.filter((id) => id !== vehicleId)
-  //       : [...prev, vehicleId],
-  //   );
-  // };
-
   const toggleVehicle = (vehicleId) => {
     setSelectedVehicles((prev) => {
       if (prev.includes(vehicleId)) {
-        // ❌ unselect → remove duration
         setVehicleDurations((d) => {
           const copy = { ...d };
           delete copy[vehicleId];
@@ -372,7 +366,7 @@ const PaymentPage = () => {
                   type="checkbox"
                   checked={agreeTerms}
                   onChange={(e) => setAgreeTerms(e.target.checked)}
-                  className="mt-1 cursor-pointer h-4 w-7"
+                  className="mt-1 cursor-pointer h-4 w-7 accent-white bg-white border border-gray-300 rounded"
                 />
                 <span className="text-xs">
                   By checking you agree to our{" "}
@@ -396,7 +390,7 @@ const PaymentPage = () => {
                   type="checkbox"
                   checked={savePaymentInfo}
                   onChange={(e) => setSavePaymentInfo(e.target.checked)}
-                  className="mt-1 cursor-pointer h-4 w-6"
+                  className="mt-1 cursor-pointer h-4 w-6 accent-white bg-white border border-gray-300 rounded"
                 />
                 <span className="text-xs">
                   Save your payment Information for faster payment.
