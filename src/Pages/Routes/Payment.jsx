@@ -24,8 +24,9 @@ const PaymentPage = () => {
   
   const vehicles = useMemo(() => {
     return (customerVehicles || []).map((v) => ({
-      id: v.id,
-      subscriptionNumber: v.subscription_number || `KAT-${v.id}`,
+      id: v.subscription_id,
+      subscriptionId: v.subscription_id,
+      subscriptionNumber: v.subscription_number || `KAT-${v.subscription_id}`,
       vehicleName: v.vehicle_name || "No Name",
       dueDate: v.expire_date || "",
       subscriptionFee: Number(v.subscription_fee || 0),
@@ -121,14 +122,11 @@ const PaymentPage = () => {
     const payload = {
       paymentProvider: "bKash",
       savePaymentInfo,
-      // vehicles: selectedVehicles.map((vehicleId) => ({
-      //   vehicleId,
-      //   duration: getVehicleDuration(vehicleId),
-      // })),
       vehicles: selectedVehicles.map((id) => {
         const v = vehicles.find((x) => x.id === id);
         return {
-          vehicleId: id,
+          vehicleId: v.subscriptionId,
+          subscriptionId: v.subscriptionId,
           duration: vehicleDurations[id] || 1,
           amount: v.subscriptionFee * (vehicleDurations[id] || 1),
         };
