@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Search, Check } from "lucide-react";
 import { Link } from "react-router-dom";
 import useCustomerVehicle from "../../hooks/useCustomerVehicle";
@@ -52,6 +52,17 @@ const PaymentPage = () => {
     });
   };
 
+  useEffect(() => {
+    if (!vehicles || vehicles.length === 0) return;
+    setDurations((prev) => {
+      const next = { ...prev };
+      vehicles.forEach((v) => {
+        if (!next[v.id]) next[v.id] = 1;
+      });
+      return next;
+    });
+  }, [vehicles]);
+
   const toggleVehicle = (vehicleId) => {
     setSelectedVehicles((prev) =>
       prev.includes(vehicleId)
@@ -71,7 +82,7 @@ const PaymentPage = () => {
   const calculateTotal = () => {
     return selectedVehicles.reduce((total, vehicleId) => {
       const vehicle = vehicles.find((v) => v.id === vehicleId);
-      const months = durations[vehicleId] || 1;
+      const months = Number(durations[vehicleId] || 1);
       return total + vehicle.subscriptionFee * months;
     }, 0);
   };
@@ -129,8 +140,14 @@ const PaymentPage = () => {
                 </button>
               </div>
             </div>
-            <div className="bg-yellow-100 rounded-md p-3 grid grid-cols-12 gap-3 items-center mb-3 font-semibold text-gray-700 text-sm">
-              <div className="col-span-1 flex items-center">
+            <div
+              className="bg-yellow-100 rounded-md p-3 gap-3 items-center mb-3 font-semibold text-gray-700 text-sm"
+              style={{
+                display: "grid",
+                gridTemplateColumns: "48px 1fr 300px 160px 160px",
+              }}
+            >
+              <div className="flex items-center">
                 <button
                   onClick={selectAllVehicles}
                   className={`w-5 h-5 rounded border-2 flex items-center justify-center cursor-pointer transition-colors ${
@@ -144,10 +161,10 @@ const PaymentPage = () => {
                   )}
                 </button>
               </div>
-              <div className="col-span-5">Vehicle (x {vehicles.length})</div>
-              <div className="col-span-2">Duration (Month)</div>
-              <div className="col-span-3">Due</div>
-              <div className="col-span-1 text-right">Subscription Fee</div>
+              <div className="">Vehicle (x {vehicles.length})</div>
+              <div className="">Duration (Month)</div>
+              <div className="">Due</div>
+              <div className="text-right">Subscription Fee</div>
             </div>
 
             {/* Vehicle Rows */}
@@ -155,9 +172,13 @@ const PaymentPage = () => {
               {filteredVehicles.map((vehicle) => (
                 <div
                   key={vehicle.id}
-                  className="bg-yellow-50 rounded-md p-3 grid grid-cols-12 gap-3 items-start hover:bg-yellow-100 transition-colors"
+                  className="bg-yellow-50 rounded-md p-3 gap-3 items-start hover:bg-yellow-100 transition-colors"
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "48px 1fr 300px 160px 160px",
+                  }}
                 >
-                  <div className="col-span-1 flex items-center">
+                  <div className="flex items-center">
                     <button
                       onClick={() => toggleVehicle(vehicle.id)}
                       className={`w-5 h-5 rounded border-2 flex items-center justify-center cursor-pointer transition-colors ${
@@ -171,7 +192,7 @@ const PaymentPage = () => {
                       )}
                     </button>
                   </div>
-                  <div className="col-span-5">
+                  <div>
                     <div className="font-medium text-gray-800 text-sm">
                       {vehicle.vehicleName}
                     </div>
@@ -179,29 +200,50 @@ const PaymentPage = () => {
                       {vehicle.subscriptionNumber}
                     </div>
                   </div>
-                  <div className="col-span-2">
+                  <div>
+                    <div className="text-xs text-gray-600 mb-2">
+                      Choose Plan
+                    </div>
                     <div className="flex items-center gap-2">
-                      {[1, 6, 12].map((m) => (
-                        <button
-                          key={m}
-                          onClick={() =>
-                            setDurations((prev) => ({
-                              ...prev,
-                              [vehicle.id]: m,
-                            }))
-                          }
-                          className={`px-2 py-1 text-xs rounded-full border transition ${
-                            (durations[vehicle.id] || 1) === m
-                              ? "bg-yellow-400 text-gray-800 border-yellow-400"
-                              : "bg-white text-gray-700 border-gray-300"
-                          }`}
-                        >
-                          {m === 12 ? "1 Year" : `${m} Month`}
-                        </button>
-                      ))}
+                      <button
+                        onClick={() =>
+                          setDurations((p) => ({ ...p, [vehicle.id]: 1 }))
+                        }
+                        className={`px-2 py-1 text-xs rounded-full border ${durations[vehicle.id] === 1 ? "bg-yellow-300 border-yellow-400" : "bg-white border-yellow-200"}`}
+                      >
+                        1 Month
+                      </button>
+                      <button
+                        onClick={() =>
+                          setDurations((p) => ({ ...p, [vehicle.id]: 6 }))
+                        }
+                        className={`px-2 py-1 text-xs rounded-full border ${durations[vehicle.id] === 6 ? "bg-yellow-300 border-yellow-400" : "bg-white border-yellow-200"}`}
+                      >
+                        6 Month
+                      </button>
+                      <button
+                        onClick={() =>
+                          setDurations((p) => ({ ...p, [vehicle.id]: 12 }))
+                        }
+                        className={`px-2 py-1 text-xs rounded-full border ${durations[vehicle.id] === 12 ? "bg-yellow-300 border-yellow-400" : "bg-white border-yellow-200"}`}
+                      >
+                        1 Year
+                      </button>
+                      <input
+                        type="number"
+                        min={1}
+                        value={durations[vehicle.id] ?? 1}
+                        onChange={(e) =>
+                          setDurations((p) => ({
+                            ...p,
+                            [vehicle.id]: Number(e.target.value || 1),
+                          }))
+                        }
+                        className="ml-2 w-12 text-center text-xs rounded border border-gray-300"
+                      />
                     </div>
                   </div>
-                  <div className="col-span-3">
+                  <div>
                     <div className="text-sm font-medium text-gray-800">
                       {vehicle.dueDate
                         ? formatDue(vehicle.dueDate)
@@ -218,14 +260,19 @@ const PaymentPage = () => {
                       </div>
                     )}
                   </div>
-                  <div className="col-span-1 text-right">
+                  <div className="text-right">
                     <div className="text-sm font-semibold text-gray-800">
-                      {formatCurrency(
-                        vehicle.subscriptionFee * (durations[vehicle.id] || 1),
-                      )}
+                      {formatCurrency(vehicle.subscriptionFee)} ৳ /mo
                     </div>
-                    <div className="text-[11px] text-red-500">
-                      No Privilege Gained
+                    <div className="text-xs text-gray-600">
+                      Total:{" "}
+                      <span className="font-semibold">
+                        {formatCurrency(
+                          (vehicle.subscriptionFee || 0) *
+                            (durations[vehicle.id] || 1),
+                        )}{" "}
+                        ৳
+                      </span>
                     </div>
                   </div>
                 </div>
