@@ -20,7 +20,6 @@ const PaymentPage = () => {
   const [savePaymentInfo, setSavePaymentInfo] = useState(false);
   const [vehicleDurations, setVehicleDurations] = useState({});
   const { data: customerVehicles = [], isLoading } = useCustomerVehicle();
-  console.log(customerVehicles);
   const hasInitialized = useRef(false);
   
   const vehicles = useMemo(() => {
