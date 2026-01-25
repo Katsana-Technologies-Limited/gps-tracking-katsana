@@ -21,11 +21,12 @@ const formatDue = (dateStr) => {
   return `${day} ${month}, ${year}`;
 };
 
-
 const PaymentPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedVehicles, setSelectedVehicles] = useState([]);
   const [agreeTerms, setAgreeTerms] = useState(false);
+  const [savePaymentInfo, setSavePaymentInfo] = useState(false);
+  const [durations, setDurations] = useState({});
   const { data: customerVehicles = [], isLoading } = useCustomerVehicle();
 
   const vehicles = useMemo(() => {
@@ -70,7 +71,8 @@ const PaymentPage = () => {
   const calculateTotal = () => {
     return selectedVehicles.reduce((total, vehicleId) => {
       const vehicle = vehicles.find((v) => v.id === vehicleId);
-      return total + vehicle.subscriptionFee;
+      const months = durations[vehicleId] || 1;
+      return total + vehicle.subscriptionFee * months;
     }, 0);
   };
 
@@ -142,9 +144,10 @@ const PaymentPage = () => {
                   )}
                 </button>
               </div>
-              <div className="col-span-6">Vehicle (x {vehicles.length})</div>
+              <div className="col-span-5">Vehicle (x {vehicles.length})</div>
+              <div className="col-span-2">Duration (Month)</div>
               <div className="col-span-3">Due</div>
-              <div className="col-span-2 text-right">Subscription Fee</div>
+              <div className="col-span-1 text-right">Subscription Fee</div>
             </div>
 
             {/* Vehicle Rows */}
@@ -168,7 +171,7 @@ const PaymentPage = () => {
                       )}
                     </button>
                   </div>
-                  <div className="col-span-6">
+                  <div className="col-span-5">
                     <div className="font-medium text-gray-800 text-sm">
                       {vehicle.vehicleName}
                     </div>
@@ -176,7 +179,26 @@ const PaymentPage = () => {
                       {vehicle.subscriptionNumber}
                     </div>
                   </div>
-                  <div className="col-span-3">
+                    <div className="col-span-2">
+                      <div className="flex items-center gap-2">
+                        {[1, 6, 12].map((m) => (
+                          <button
+                            key={m}
+                            onClick={() =>
+                              setDurations((prev) => ({ ...prev, [vehicle.id]: m }))
+                            }
+                            className={`px-2 py-1 text-xs rounded-full border transition ${
+                              (durations[vehicle.id] || 1) === m
+                                ? "bg-yellow-400 text-gray-800 border-yellow-400"
+                                : "bg-white text-gray-700 border-gray-300"
+                            }`}
+                          >
+                            {m === 12 ? "1 Year" : `${m} Month`}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="col-span-3">
                     <div className="text-sm font-medium text-gray-800">
                       {vehicle.dueDate
                         ? formatDue(vehicle.dueDate)
@@ -193,9 +215,11 @@ const PaymentPage = () => {
                       </div>
                     )}
                   </div>
-                  <div className="col-span-2 text-right">
+                  <div className="col-span-1 text-right">
                     <div className="text-sm font-semibold text-gray-800">
-                      {formatCurrency(vehicle.subscriptionFee)}
+                      {formatCurrency(
+                        vehicle.subscriptionFee * (durations[vehicle.id] || 1),
+                      )}
                     </div>
                     <div className="text-[11px] text-red-500">
                       No Privilege Gained
@@ -278,6 +302,20 @@ const PaymentPage = () => {
                   >
                     Terms & Conditions
                   </Link>
+                </span>
+              </label>
+            </div>
+
+            <div className="mx-5 mb-4">
+              <label className="flex items-start gap-2 font-medium max-w-4/5 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={savePaymentInfo}
+                  onChange={(e) => setSavePaymentInfo(e.target.checked)}
+                  className="mt-1 cursor-pointer h-4 w-6"
+                />
+                <span className="text-xs">
+                  Save your payment Information for faster payment.
                 </span>
               </label>
             </div>
