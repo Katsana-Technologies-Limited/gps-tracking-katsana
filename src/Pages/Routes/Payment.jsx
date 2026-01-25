@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { Search, Check } from "lucide-react";
 import { Link } from "react-router-dom";
 import useCustomerVehicle from "../../hooks/useCustomerVehicle";
@@ -26,7 +26,8 @@ const PaymentPage = () => {
   const [selectedVehicles, setSelectedVehicles] = useState([]);
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [savePaymentInfo, setSavePaymentInfo] = useState(false);
-  const [durations, setDurations] = useState({});
+  // Store duration for each vehicle (vehicleId -> months)
+  const [vehicleDurations, setVehicleDurations] = useState({});
   const { data: customerVehicles = [], isLoading } = useCustomerVehicle();
 
   const vehicles = useMemo(() => {
@@ -47,21 +48,10 @@ const PaymentPage = () => {
   const formatCurrency = (val) => {
     const n = Number(val) || 0;
     return n.toLocaleString("en-BD", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
     });
   };
-
-  useEffect(() => {
-    if (!vehicles || vehicles.length === 0) return;
-    setDurations((prev) => {
-      const next = { ...prev };
-      vehicles.forEach((v) => {
-        if (!next[v.id]) next[v.id] = 1;
-      });
-      return next;
-    });
-  }, [vehicles]);
 
   const toggleVehicle = (vehicleId) => {
     setSelectedVehicles((prev) =>
@@ -79,11 +69,26 @@ const PaymentPage = () => {
     }
   };
 
+  const getVehicleDuration = (vehicleId) => {
+    return vehicleDurations[vehicleId] || 1;
+  };
+
+  const setVehicleDuration = (vehicleId, months) => {
+    setVehicleDurations((prev) => ({
+      ...prev,
+      [vehicleId]: months,
+    }));
+  };
+
+  const calculateVehicleTotal = (vehicle) => {
+    const duration = getVehicleDuration(vehicle.id);
+    return vehicle.subscriptionFee * duration;
+  };
+
   const calculateTotal = () => {
     return selectedVehicles.reduce((total, vehicleId) => {
       const vehicle = vehicles.find((v) => v.id === vehicleId);
-      const months = Number(durations[vehicleId] || 1);
-      return total + vehicle.subscriptionFee * months;
+      return total + calculateVehicleTotal(vehicle);
     }, 0);
   };
 
@@ -92,11 +97,13 @@ const PaymentPage = () => {
   const onConfirmPayment = () => {
     if (!canPay) return;
     console.log("Processing payment for vehicles:", selectedVehicles);
+    console.log("Vehicle durations:", vehicleDurations);
   };
 
   const onBkashPayment = () => {
     if (!canPay) return;
     console.log("Processing bKash payment for vehicles:", selectedVehicles);
+    console.log("Vehicle durations:", vehicleDurations);
   };
 
   const filteredVehicles = vehicles.filter((v) => {
@@ -140,14 +147,8 @@ const PaymentPage = () => {
                 </button>
               </div>
             </div>
-            <div
-              className="bg-yellow-100 rounded-md p-3 gap-3 items-center mb-3 font-semibold text-gray-700 text-sm"
-              style={{
-                display: "grid",
-                gridTemplateColumns: "48px 1fr 300px 160px 160px",
-              }}
-            >
-              <div className="flex items-center">
+            <div className="bg-yellow-100 rounded-md p-3 grid grid-cols-12 gap-4 items-center mb-3 font-semibold text-gray-700 text-sm">
+              <div className="col-span-1 flex items-center">
                 <button
                   onClick={selectAllVehicles}
                   className={`w-5 h-5 rounded border-2 flex items-center justify-center cursor-pointer transition-colors ${
@@ -161,24 +162,18 @@ const PaymentPage = () => {
                   )}
                 </button>
               </div>
-              <div className="">Vehicle (x {vehicles.length})</div>
-              <div className="">Duration (Month)</div>
-              <div className="">Due</div>
-              <div className="text-right">Subscription Fee</div>
+              <div className="col-span-3">Vehicle (x {vehicles.length})</div>
+              <div className="col-span-4">Duration (Month)</div>
+              <div className="col-span-2">Due</div>
+              <div className="col-span-2 text-center">Subscription Fee</div>
             </div>
-
-            {/* Vehicle Rows */}
-            <div className="space-y-3">
+            <div className="space-y-2">
               {filteredVehicles.map((vehicle) => (
                 <div
                   key={vehicle.id}
-                  className="bg-yellow-50 rounded-md p-3 gap-3 items-start hover:bg-yellow-100 transition-colors"
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "48px 1fr 300px 160px 160px",
-                  }}
+                  className="bg-yellow-50 rounded-md p-3 grid grid-cols-12 gap-4 items-center transition-colors"
                 >
-                  <div className="flex items-center">
+                  <div className="col-span-1 flex items-center">
                     <button
                       onClick={() => toggleVehicle(vehicle.id)}
                       className={`w-5 h-5 rounded border-2 flex items-center justify-center cursor-pointer transition-colors ${
@@ -192,58 +187,65 @@ const PaymentPage = () => {
                       )}
                     </button>
                   </div>
-                  <div>
-                    <div className="font-medium text-gray-800 text-sm">
-                      {vehicle.vehicleName}
-                    </div>
-                    <div className="text-xs text-gray-600">
+
+                  <div className="col-span-3">
+                    <div className="font-semibold text-gray-800 text-sm">
                       {vehicle.subscriptionNumber}
                     </div>
-                  </div>
-                  <div>
-                    <div className="text-xs text-gray-600 mb-2">
-                      Choose Plan
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() =>
-                          setDurations((p) => ({ ...p, [vehicle.id]: 1 }))
-                        }
-                        className={`px-2 py-1 text-xs rounded-full border ${durations[vehicle.id] === 1 ? "bg-yellow-300 border-yellow-400" : "bg-white border-yellow-200"}`}
-                      >
-                        1 Month
-                      </button>
-                      <button
-                        onClick={() =>
-                          setDurations((p) => ({ ...p, [vehicle.id]: 6 }))
-                        }
-                        className={`px-2 py-1 text-xs rounded-full border ${durations[vehicle.id] === 6 ? "bg-yellow-300 border-yellow-400" : "bg-white border-yellow-200"}`}
-                      >
-                        6 Month
-                      </button>
-                      <button
-                        onClick={() =>
-                          setDurations((p) => ({ ...p, [vehicle.id]: 12 }))
-                        }
-                        className={`px-2 py-1 text-xs rounded-full border ${durations[vehicle.id] === 12 ? "bg-yellow-300 border-yellow-400" : "bg-white border-yellow-200"}`}
-                      >
-                        1 Year
-                      </button>
-                      <input
-                        type="number"
-                        min={1}
-                        value={durations[vehicle.id] ?? 1}
-                        onChange={(e) =>
-                          setDurations((p) => ({
-                            ...p,
-                            [vehicle.id]: Number(e.target.value || 1),
-                          }))
-                        }
-                        className="ml-2 w-12 text-center text-xs rounded border border-gray-300"
-                      />
+                    <div className="text-xs text-gray-600">
+                      {vehicle.vehicleName}
                     </div>
                   </div>
-                  <div>
+                  <div className="col-span-4">
+                    <div className="border border-[#f1db79] rounded-md p-2">
+                      <div className="text-[10px] mb-1.5 font-medium">
+                        Choose Plan
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={() => setVehicleDuration(vehicle.id, 1)}
+                          className={`px-2 py-0.5 text-xs rounded-full cursor-pointer border transition-colors ${
+                            getVehicleDuration(vehicle.id) === 1
+                              ? "bg-yellow-400 border-yellow-500 text-gray-800 font-semibold"
+                              : "border-gray-300 text-gray-700 hover:border-yellow-400"
+                          }`}
+                        >
+                          1 Month
+                        </button>
+                        <button
+                          onClick={() => setVehicleDuration(vehicle.id, 6)}
+                          className={`px-2 py-0.5 text-xs rounded-full cursor-pointer border transition-colors ${
+                            getVehicleDuration(vehicle.id) === 6
+                              ? "bg-yellow-400 border-yellow-500 text-gray-800 font-semibold"
+                              : "border-gray-300 text-gray-700 hover:border-yellow-400"
+                          }`}
+                        >
+                          6 Month
+                        </button>
+                        <button
+                          onClick={() => setVehicleDuration(vehicle.id, 12)}
+                          className={`px-2 py-0.5 text-xs rounded-full cursor-pointer border transition-colors ${
+                            getVehicleDuration(vehicle.id) === 12
+                              ? "bg-yellow-400 border-yellow-500 text-gray-800 font-semibold"
+                              : "border-gray-300 text-gray-700 hover:border-yellow-400"
+                          }`}
+                        >
+                          1 Year
+                        </button>
+                        <input
+                          type="number"
+                          min="1"
+                          value={getVehicleDuration(vehicle.id)}
+                          onChange={(e) => {
+                            const val = parseInt(e.target.value) || 1;
+                            setVehicleDuration(vehicle.id, Math.max(1, val));
+                          }}
+                          className="w-14 px-2 py-1 text-xs text-center border border-gray-300 rounded focus:outline-none focus:border-yellow-400"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-span-2">
                     <div className="text-sm font-medium text-gray-800">
                       {vehicle.dueDate
                         ? formatDue(vehicle.dueDate)
@@ -260,19 +262,9 @@ const PaymentPage = () => {
                       </div>
                     )}
                   </div>
-                  <div className="text-right">
-                    <div className="text-sm font-semibold text-gray-800">
-                      {formatCurrency(vehicle.subscriptionFee)} ৳ /mo
-                    </div>
-                    <div className="text-xs text-gray-600">
-                      Total:{" "}
-                      <span className="font-semibold">
-                        {formatCurrency(
-                          (vehicle.subscriptionFee || 0) *
-                            (durations[vehicle.id] || 1),
-                        )}{" "}
-                        ৳
-                      </span>
+                  <div className="col-span-2 text-center">
+                    <div className="text-base font-bold text-gray-800">
+                      {formatCurrency(calculateVehicleTotal(vehicle))}
                     </div>
                   </div>
                 </div>
@@ -280,11 +272,9 @@ const PaymentPage = () => {
             </div>
           </Card>
         </div>
-
-        {/* Right Section - Cost Summary */}
         <div className="lg:col-span-1">
           <Card>
-            <h2 className="text-xl font-bold text-orange-500 mb-2">
+            <h2 className="text-xl font-bold text-center text-orange-500 mb-2">
               Cost Summary
             </h2>
             <div className="animate-pulse text-xs text-green-500 ">
