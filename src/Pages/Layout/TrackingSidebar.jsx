@@ -180,7 +180,9 @@ export default function TrackingSidebar({
                     <Icon
                       size={20}
                       className={
-                        isSubActive ? "text-[#fe8e1c]" : "text-[#fe8e1c]"
+                        isSubActive
+                          ? "text-primary-orange"
+                          : "text-primary-orange"
                       }
                     />
                     {isOpen && (
@@ -200,7 +202,6 @@ export default function TrackingSidebar({
                       </>
                     )}
                   </button>
-
                   {isOpen && (
                     <div
                       className="overflow-hidden transition-all duration-300"
@@ -213,7 +214,7 @@ export default function TrackingSidebar({
                         {subroutes.map((sub) => (
                           <li key={sub.to} className="flex items-center w-full">
                             <span
-                              className="text-[#fe8e1c] text-lg mr-2"
+                              className="text-primary-orange text-lg mr-2"
                               style={{ lineHeight: "1" }}
                             >
                               &#8226;
@@ -223,8 +224,8 @@ export default function TrackingSidebar({
                               onClick={() => handleRouteClick(label)}
                               className={`flex items-center w-full px-0 py-1.5 rounded-md text-[15px] transition font-medium cursor-pointer ${
                                 pathname.startsWith(sub.to)
-                                  ? "text-[#fe8e1c] bg-transparent"
-                                  : "text-gray-700 hover:text-[#fe8e1c]"
+                                  ? "text-primary-orange bg-transparent"
+                                  : "text-gray-700 hover:text-primary-orange"
                               }`}
                               style={{ minWidth: 0 }}
                             >
@@ -245,7 +246,7 @@ export default function TrackingSidebar({
                 onClick={() => handleRouteClick(label)}
                 className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition font-medium text-[15px] cursor-pointer ${
                   isActive
-                    ? "bg-[#fe8e1c] text-white shadow-sm"
+                    ? "bg-primary-orange text-white shadow-sm"
                     : "text-primary-green hover:bg-[#f5f6fa]"
                 } ${!isOpen ? "flex justify-center px-0" : ""}`}
                 style={{ fontFamily: "Inter, Arial, Helvetica, sans-serif" }}
@@ -253,7 +254,7 @@ export default function TrackingSidebar({
               >
                 <Icon
                   size={20}
-                  className={isActive ? "text-white" : "text-[#fe8e1c]"}
+                  className={isActive ? "text-white" : "text-primary-orange"}
                 />
                 {isOpen && <span className="truncate">{label}</span>}
               </Link>
@@ -353,7 +354,9 @@ export default function TrackingSidebar({
                   <Icon
                     size={20}
                     className={
-                      isSubActive ? "text-[#fe8e1c]" : "text-[#fe8e1c]"
+                      isSubActive
+                        ? "text-primary-orange"
+                        : "text-primary-orange"
                     }
                   />
                   {isOpen && (
@@ -392,7 +395,7 @@ export default function TrackingSidebar({
                         return (
                           <li key={sub.to} className="flex items-center w-full">
                             <span
-                              className="text-[#fe8e1c] text-lg mr-2"
+                              className="text-primary-orange text-lg mr-2"
                               style={{ lineHeight: "1" }}
                             >
                               &#8226;
@@ -402,8 +405,8 @@ export default function TrackingSidebar({
                               onClick={() => handleRouteClick(label)}
                               className={`flex items-center w-full px-0 py-1.5 rounded-md text-[15px] transition font-medium cursor-pointer ${
                                 isSubRouteActive
-                                  ? "text-[#fe8e1c] bg-transparent"
-                                  : "text-gray-700 hover:text-[#fe8e1c]"
+                                  ? "text-primary-orange bg-transparent"
+                                  : "text-gray-700 hover:text-primary-orange"
                               }`}
                               style={{ minWidth: 0 }}
                             >
@@ -426,7 +429,7 @@ export default function TrackingSidebar({
               onClick={() => handleRouteClick(label)}
               className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition font-medium text-[15px] cursor-pointer ${
                 isActive
-                  ? "bg-[#fe8e1c] text-white shadow-sm"
+                  ? "bg-primary-orange text-white shadow-sm"
                   : "text-primary-green hover:bg-[#f5f6fa]"
               } ${!isOpen ? "flex justify-center px-0" : ""}`}
               style={{ fontFamily: "Inter, Arial, Helvetica, sans-serif" }}
@@ -434,7 +437,7 @@ export default function TrackingSidebar({
             >
               <Icon
                 size={20}
-                className={isActive ? "text-white" : "text-[#fe8e1c]"}
+                className={isActive ? "text-white" : "text-primary-orange"}
               />
               {isOpen && <span className="truncate">{label}</span>}
             </Link>

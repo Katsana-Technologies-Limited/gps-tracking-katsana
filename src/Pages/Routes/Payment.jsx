@@ -117,6 +117,9 @@ const PaymentPage = () => {
               </div>
               <div className="flex gap-2 ml-3">
                 <button className="px-4 py-2 cursor-pointer bg-yellow-400 text-gray-800 rounded-md font-medium hover:bg-yellow-500 transition-colors text-sm">
+                  Saved Payment Method
+                </button>
+                <button className="px-4 py-2 cursor-pointer bg-yellow-400 text-gray-800 rounded-md font-medium hover:bg-yellow-500 transition-colors text-sm">
                   Payment History
                 </button>
                 <button className="px-4 py-2 cursor-pointer bg-yellow-400 text-gray-800 rounded-md font-medium hover:bg-yellow-500 transition-colors text-sm">
@@ -211,7 +214,7 @@ const PaymentPage = () => {
               Cost Summary
             </h2>
             <div className="animate-pulse text-xs text-green-500 ">
-              <p className="mb-1 text-center">Stay Longer, Pay Less.</p>
+              <p className="mb-0.5 text-center">Stay Longer, Pay Less.</p>
               <p className="mb-6 text-center">
                 Get Free Months With 6-12 Month Plans
               </p>
@@ -269,7 +272,10 @@ const PaymentPage = () => {
                     Refund Policy
                   </Link>{" "}
                   and{" "}
-                  <Link to="/terms-conditions" className="text-blue-500 underline">
+                  <Link
+                    to="/terms-conditions"
+                    className="text-blue-500 underline"
+                  >
                     Terms & Conditions
                   </Link>
                 </span>

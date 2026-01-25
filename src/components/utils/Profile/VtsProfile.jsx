@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { useAxios } from "../../../hooks/useAxios";
 import useCustomer from "../../../hooks/useCustomer";
 import { ProfileField } from "./ProfileField";
+import LottieLoading from "../LottieLoading";
 
 const VtsProfile = () => {
   const axiosUrl = useAxios();
@@ -56,12 +57,8 @@ const VtsProfile = () => {
     setShowPassword((prev) => ({ ...prev, [field]: !prev[field] }));
   };
 
-  if (isLoading)
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-sm text-[#2c5364]">Loading profile...</div>
-      </div>
-    );
+  if (isLoading) return <LottieLoading />;
+
   if (error)
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -70,8 +67,7 @@ const VtsProfile = () => {
     );
 
   return (
-    <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
-      {/* Main Profile Content */}
+    <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 overflow-x-hidden">
       <div
         className={`bg-white rounded-xl shadow-sm border border-gray-100 transition-all duration-300 ${
           showChangePass ? "lg:w-2/3" : "w-full"
@@ -89,7 +85,7 @@ const VtsProfile = () => {
               </p>
             </div>
             <button
-              className="bg-linear-to-r from-[#fe8e1c] to-[#ff6b00] text-white font-medium px-4 py-2.5 text-xs md:text-sm rounded-lg shadow hover:shadow-md hover:scale-[1.02] cursor-pointer transition-all duration-200 flex items-center gap-2 self-start sm:self-center w-full sm:w-auto justify-center"
+              className="bg-linear-to-r from-primary-orange to-[#ff6b00] text-white font-medium px-4 py-2.5 text-xs md:text-sm rounded-lg shadow hover:shadow-md hover:scale-[1.02] cursor-pointer transition-all duration-200 flex items-center gap-2 self-start sm:self-center w-full sm:w-auto justify-center"
               onClick={() => setShowChangePass(!showChangePass)}
             >
               <svg
@@ -465,7 +461,7 @@ const VtsProfile = () => {
               <div className="relative">
                 <input
                   type={showPassword.old ? "text" : "password"}
-                  className="w-full px-3 md:px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#fe8e1c] focus:border-transparent transition"
+                  className="w-full px-3 md:px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-orange focus:border-transparent transition"
                   autoComplete="current-password"
                   placeholder="Enter current password"
                   {...register("oldPassword", {
@@ -544,7 +540,7 @@ const VtsProfile = () => {
               <div className="relative">
                 <input
                   type={showPassword.new ? "text" : "password"}
-                  className="w-full px-3 md:px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#fe8e1c] focus:border-transparent transition"
+                  className="w-full px-3 md:px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-orange focus:border-transparent transition"
                   autoComplete="new-password"
                   placeholder="Enter new password"
                   {...register("newPassword", {
@@ -623,7 +619,7 @@ const VtsProfile = () => {
               <div className="relative">
                 <input
                   type={showPassword.confirm ? "text" : "password"}
-                  className="w-full px-3 md:px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#fe8e1c] focus:border-transparent transition"
+                  className="w-full px-3 md:px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-orange focus:border-transparent transition"
                   autoComplete="new-password"
                   placeholder="Confirm new password"
                   {...register("confirmPassword", {
@@ -697,7 +693,7 @@ const VtsProfile = () => {
             <div className="pt-2">
               <button
                 type="submit"
-                className="w-full bg-linear-to-r from-[#fe8e1c] to-[#ff6b00] text-white font-medium text-sm py-2.5 md:py-3 rounded-lg shadow hover:shadow-md hover:scale-[1.02] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                className="w-full bg-linear-to-r from-primary-orange to-[#ff6b00] text-white font-medium text-sm py-2.5 md:py-3 rounded-lg shadow hover:shadow-md hover:scale-[1.02] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                 disabled={isSubmitting || mutation.isLoading}
               >
                 {mutation.isLoading ? (

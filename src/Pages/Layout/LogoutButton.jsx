@@ -30,7 +30,7 @@ export default function LogoutButton({ collapsed = false }) {
   `}
       style={{ fontFamily: "Inter, Arial, Helvetica, sans-serif" }}
     >
-      <LogOut size={20} className="text-[#fe8e1c]" />
+      <LogOut size={20} className="text-primary-orange" />
       {!collapsed && <span className="truncate">Log Out</span>}
     </button>
   );
