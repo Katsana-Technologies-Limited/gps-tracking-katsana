@@ -31,15 +31,15 @@ const Login = () => {
     setLoading(true);
     try {
       const payload = {
-        email: data.username,
+        username: data.username,
         mobile: data.username,
         password: data.password,
         remember: data.remember,
       };
       const res = await login(payload);
       if (res && res.loginStatus) {
-        const { id, email, company } = res.vtsInfo || {};
-        const vtsAuth = { id, email, company };
+        const { id, username, company } = res.vtsInfo || {};
+        const vtsAuth = { id, username, company };
         try {
           window.localStorage.setItem("vts_auth", JSON.stringify(vtsAuth));
         } catch (error) {
@@ -56,7 +56,7 @@ const Login = () => {
         error?.response?.data?.message ||
         error?.response?.data?.msg;
       toast.error(
-        backendMsg || error?.message || "Login failed. Please try again."
+        backendMsg || error?.message || "Login failed. Please try again.",
       );
     } finally {
       setLoading(false);
@@ -95,9 +95,9 @@ const Login = () => {
                 <div className="space-y-4">
                   <input
                     type="text"
-                    placeholder="Email or mobile"
+                    placeholder="username or mobile"
                     {...register("username", {
-                      required: "Email or mobile is required",
+                      required: "username or mobile is required",
                     })}
                     className="w-full px-3 py-2.5 rounded-xl border border-gray-300 bg-white focus:outline-none focus:ring focus:ring-orange-400"
                   />
