@@ -3,6 +3,7 @@ import { Search, Check } from "lucide-react";
 import { Link } from "react-router-dom";
 import useCustomerVehicle from "../../hooks/useCustomerVehicle";
 import LottieLoading from "../../components/utils/LottieLoading";
+import { useAxios } from "../../hooks/useAxios";
 
 const Card = ({ children, className = "" }) => (
   <div className={`${className} bg-white rounded-xl shadow-sm p-4`}>
@@ -22,6 +23,7 @@ const formatDue = (dateStr) => {
 };
 
 const PaymentPage = () => {
+  const axiosUrl = useAxios();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedVehicles, setSelectedVehicles] = useState([]);
   const [agreeTerms, setAgreeTerms] = useState(false);
@@ -53,12 +55,28 @@ const PaymentPage = () => {
     });
   };
 
+  // const toggleVehicle = (vehicleId) => {
+  //   setSelectedVehicles((prev) =>
+  //     prev.includes(vehicleId)
+  //       ? prev.filter((id) => id !== vehicleId)
+  //       : [...prev, vehicleId],
+  //   );
+  // };
+
   const toggleVehicle = (vehicleId) => {
-    setSelectedVehicles((prev) =>
-      prev.includes(vehicleId)
-        ? prev.filter((id) => id !== vehicleId)
-        : [...prev, vehicleId],
-    );
+    setSelectedVehicles((prev) => {
+      if (prev.includes(vehicleId)) {
+        // ❌ unselect → remove duration
+        setVehicleDurations((d) => {
+          const copy = { ...d };
+          delete copy[vehicleId];
+          return copy;
+        });
+        return prev.filter((id) => id !== vehicleId);
+      } else {
+        return [...prev, vehicleId];
+      }
+    });
   };
 
   const selectAllVehicles = () => {
@@ -74,6 +92,9 @@ const PaymentPage = () => {
   };
 
   const setVehicleDuration = (vehicleId, months) => {
+    console.log(vehicleId);
+    if (!selectedVehicles.includes(vehicleId)) return;
+
     setVehicleDurations((prev) => ({
       ...prev,
       [vehicleId]: months,
@@ -100,10 +121,32 @@ const PaymentPage = () => {
     console.log("Vehicle durations:", vehicleDurations);
   };
 
-  const onBkashPayment = () => {
+  const onBkashPayment = async () => {
     if (!canPay) return;
     console.log("Processing bKash payment for vehicles:", selectedVehicles);
     console.log("Vehicle durations:", vehicleDurations);
+    const payload = {
+      paymentProvider: "bKash",
+      savePaymentInfo,
+      // vehicles: selectedVehicles.map((vehicleId) => ({
+      //   vehicleId,
+      //   duration: getVehicleDuration(vehicleId),
+      // })),
+      vehicles: selectedVehicles.map((id) => {
+        const v = vehicles.find((x) => x.id === id);
+        return {
+          vehicleId: id,
+          duration: vehicleDurations[id] || 1,
+          amount: v.subscriptionFee * (vehicleDurations[id] || 1),
+        };
+      }),
+      totalAmount: calculateTotal(),
+    };
+    console.log("bKash Payment Payload:", payload);
+    // Implement bKash payment integration here
+    await axiosUrl.post("/api/vts/payment/bkash/init", payload, {
+      withCredentials: true,
+    });
   };
 
   const filteredVehicles = vehicles.filter((v) => {
@@ -235,6 +278,7 @@ const PaymentPage = () => {
                         <input
                           type="number"
                           min="1"
+                          disabled={!selectedVehicles.includes(vehicle.id)}
                           value={getVehicleDuration(vehicle.id)}
                           onChange={(e) => {
                             const val = parseInt(e.target.value) || 1;
