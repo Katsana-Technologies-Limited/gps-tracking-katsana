@@ -125,7 +125,6 @@ const PaymentPage = () => {
       vehicles: selectedVehicles.map((id) => {
         const v = vehicles.find((x) => x.id === id);
         return {
-          vehicleId: v.subscriptionId,
           subscriptionId: v.subscriptionId,
           duration: vehicleDurations[id] || 1,
           amount: v.subscriptionFee * (vehicleDurations[id] || 1),
