@@ -90,7 +90,7 @@ export default function VehiclesDashboard() {
           else if (valOff || valueOff) ignitionOn = false;
           else ignitionOn = false;
         } else {
-          ignitionOn = false; 
+          ignitionOn = false;
         }
       } else {
         ignitionOn = false;
