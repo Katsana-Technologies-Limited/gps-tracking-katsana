@@ -133,7 +133,6 @@ const PaymentPage = () => {
       totalAmount: calculateTotal(),
     };
     console.log("bKash Payment Payload:", payload);
-    // Implement bKash payment integration here
     await axiosUrl.post("/api/vts/payment/bkash/init", payload, {
       withCredentials: true,
     });
