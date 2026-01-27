@@ -8,11 +8,16 @@ const useVtsAllDevices = () => {
     isLoading: isLoadingDevices,
     error: errorDevices,
     refetch: refetchDevices,
-  } = useDataQuery(["vts-all-devices"], "/api/vts/customer/subscriptions", true, {
-    refetchInterval: 10000, //10s
-    refetchIntervalInBackground: true,
-    staleTime: 0,
-  });
+  } = useDataQuery(
+    ["vts-all-devices"],
+    "/api/vts/customer/subscriptions",
+    true,
+    {
+      refetchInterval: 10000, //10s
+      refetchIntervalInBackground: true,
+      staleTime: 0,
+    },
+  );
 
   // allDevices: all vts_device objects from subscriptions that have vts_device
   const allDevices = useMemo(() => {
