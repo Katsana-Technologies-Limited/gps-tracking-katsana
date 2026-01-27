@@ -429,7 +429,7 @@ const VehiclesStatusMap = () => {
       >
         <button
           onClick={() => setShowSummary(true)}
-          className="px-6 py-3 bg-linear-to-r from-orange-400 to-orange-500 text-white cursor-pointer rounded-lg shadow-lg hover:shadow-xl hover:from-orange-500 hover:to-orange-600 transition-all duration-300 font-medium"
+          className="px-4 py-2.5 bg-linear-to-r from-orange-400 to-orange-500 text-white cursor-pointer rounded-lg shadow-lg hover:shadow-xl hover:from-orange-500 hover:to-orange-600 transition-all duration-300 font-medium"
         >
           View Summary Map
         </button>
