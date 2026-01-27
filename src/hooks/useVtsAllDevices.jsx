@@ -4,30 +4,23 @@ import useSelectedImeis from "./useSelectedImeis";
 
 const useVtsAllDevices = () => {
   const {
-    data: allDevicesData,
+    data: allSubsData,
     isLoading: isLoadingDevices,
     error: errorDevices,
     refetch: refetchDevices,
-  } = useDataQuery(["vts-all-devices"], "/api/vts/devices-proxy", true, {
+  } = useDataQuery(["vts-all-devices"], "/api/vts/customer/subscriptions", true, {
     refetchInterval: 10000, //10s
     refetchIntervalInBackground: true,
     staleTime: 0,
   });
 
+  // allDevices: all vts_device objects from subscriptions that have vts_device
   const allDevices = useMemo(() => {
-    if (!Array.isArray(allDevicesData)) return [];
-
-    if (allDevicesData.length && Array.isArray(allDevicesData[0].items)) {
-      return allDevicesData.reduce((acc, group) => {
-        if (Array.isArray(group.items)) {
-          acc.push(...group.items);
-        }
-        return acc;
-      }, []);
-    }
-
-    return allDevicesData;
-  }, [allDevicesData]);
+    if (!Array.isArray(allSubsData)) return [];
+    return allSubsData
+      .map((sub) => sub.vts_device)
+      .filter((d) => d && typeof d === "object");
+  }, [allSubsData]);
 
   const selectedImeisRaw = useSelectedImeis();
   const selectedImeis = useMemo(
@@ -50,9 +43,7 @@ const useVtsAllDevices = () => {
         refetchDevices();
       }
     };
-
     document.addEventListener("visibilitychange", handleVisibilityChange);
-
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };

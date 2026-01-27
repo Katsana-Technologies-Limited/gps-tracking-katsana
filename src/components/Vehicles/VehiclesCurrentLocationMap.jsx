@@ -5,6 +5,7 @@ import "bkoi-gl/dist/style/bkoi-gl.css";
 import "react-bkoi-gl/styles";
 import useVtsAllDevices from "../../hooks/useVtsAllDevices";
 import useCustomerVehicle from "../../hooks/useCustomerVehicle";
+import useSelectedImeis from "../../hooks/useSelectedImeis";
 import VehicleInfoCard from "../Vehicles/VehicleInfoCard";
 import { useSelector, useDispatch } from "react-redux";
 import { setSelectedLastImei } from "../../slices/vehiclesSlice";
@@ -54,9 +55,19 @@ const VehiclesLiveMap = () => {
   // console.log("nextPos", nextPos.current);
   // console.log("routeCoords", routeCoords.current);
 
-  const { filteredDevices } = useVtsAllDevices();
+  const { allDevices } = useVtsAllDevices();
+  const selectedImeis = useSelectedImeis();
   const { data: customerVehicles = [] } = useCustomerVehicle();
   const [selectedVehicleId, setSelectedVehicleId] = useState(null);
+  // Filter devices by selectedImeis
+  const filteredDevices = React.useMemo(() => {
+    if (!Array.isArray(allDevices) || !Array.isArray(selectedImeis)) return [];
+    const imeiSet = new Set(selectedImeis);
+    return allDevices.filter((device) => {
+      const imei = device?.device_data?.imei ?? device?.imei ?? null;
+      return imei && imeiSet.has(imei);
+    });
+  }, [allDevices, selectedImeis]);
   const [satellite, setSatellite] = useState(false);
   const [mapStyleObj, setMapStyleObj] = useState(null);
   const [satStyleObj, setSatStyleObj] = useState(null);
