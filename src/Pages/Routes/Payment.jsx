@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect, startTransition, useRef } from "react";
 import { Search, Check } from "lucide-react";
 import { Link } from "react-router-dom";
 import useCustomerVehicle from "../../hooks/useCustomerVehicle";
+import SavedPaymentMethodModal from "../../components/Payment/SavedPaymentMethodModal";
 import LottieLoading from "../../components/utils/LottieLoading";
 import { useAxios } from "../../hooks/useAxios";
 import { formatDue } from "../../utilits/formatDate";
@@ -19,6 +20,7 @@ const PaymentPage = () => {
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [savePaymentInfo, setSavePaymentInfo] = useState(false);
   const [vehicleDurations, setVehicleDurations] = useState({});
+  const [showSavedPaymentModal, setShowSavedPaymentModal] = useState(false);
   const { data: customerVehicles = [], isLoading } = useCustomerVehicle();
   const hasInitialized = useRef(false);
 
@@ -209,7 +211,10 @@ const PaymentPage = () => {
                 />
               </div>
               <div className="flex gap-2 ml-3">
-                <button className="px-4 py-2 cursor-pointer bg-yellow-400 text-gray-800 rounded-md font-medium hover:bg-yellow-500 transition-colors text-sm">
+                <button
+                  className="px-4 py-2 cursor-pointer bg-yellow-400 text-gray-800 rounded-md font-medium hover:bg-yellow-500 transition-colors text-sm"
+                  onClick={() => setShowSavedPaymentModal(true)}
+                >
                   Saved Payment Method
                 </button>
                 <button className="px-4 py-2 cursor-pointer bg-yellow-400 text-gray-800 rounded-md font-medium hover:bg-yellow-500 transition-colors text-sm">
@@ -473,6 +478,11 @@ const PaymentPage = () => {
           </Card>
         </div>
       </div>
+      {/* Saved Payment Method Modal */}
+      <SavedPaymentMethodModal
+        isOpen={showSavedPaymentModal}
+        onClose={() => setShowSavedPaymentModal(false)}
+      />
     </div>
   );
 };
