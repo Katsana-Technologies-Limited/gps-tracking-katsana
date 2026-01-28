@@ -26,7 +26,6 @@ const VehiclesStatusOption = ({ onStatsChange }) => {
   const [activeTab, setActiveTab] = useState("All");
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState([]);
-  const [hasInitialized, setHasInitialized] = useState(false);
 
   const { data: customerVehicles = [], isLoading } = useCustomerVehicle();
   const { allDevices } = useVtsAllDevices();
@@ -75,15 +74,17 @@ const VehiclesStatusOption = ({ onStatsChange }) => {
   }, [VEHICLES, activeTab, query]);
 
   useEffect(() => {
-    if (!hasInitialized && filteredVehicles.length > 0) {
+    if (filteredVehicles.length > 0) {
       const allIds = filteredVehicles.map((v) => v.id);
       setSelected(allIds);
       const lastImei =
         filteredVehicles[filteredVehicles.length - 1]?.imei ?? null;
       dispatch(setSelectedLastImei(lastImei));
-      setHasInitialized(true);
+    } else {
+      setSelected([]);
+      dispatch(setSelectedLastImei(null));
     }
-  }, [filteredVehicles, hasInitialized, dispatch]);
+  }, [filteredVehicles]);
 
   useEffect(() => {
     const imeis = filteredVehicles
