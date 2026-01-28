@@ -523,7 +523,7 @@ const PaymentPage = () => {
                   {/* bKash Icon Circle */}
                   <div className="w-10 h-10 rounded-full bg-pink-50 flex items-center justify-center border border-pink-100 mr-4">
                     <img
-                      src="https://upload.wikimedia.org/wikipedia/commons/0/0c/BKash_Logo.png"
+                      src="/bkash-logo.webp"
                       alt="bKash"
                       className="w-6 h-6 object-contain"
                     />
@@ -539,7 +539,7 @@ const PaymentPage = () => {
                 {/* Delete Action Section */}
                 <div className="flex items-center px-4 border-l border-gray-100 bg-gray-50/50">
                   <button
-                    className="p-2 text-red-500 hover:bg-red-50 rounded-md transition-colors group/btn relative"
+                    className="p-2 text-red-500 cursor-pointer hover:bg-red-50 rounded-md transition-colors group/btn relative"
                     title="Remove payment method"
                   >
                     <svg
@@ -555,10 +555,6 @@ const PaymentPage = () => {
                       <polyline points="3 6 5 6 21 6"></polyline>
                       <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                     </svg>
-                    {/* Tooltip emulation */}
-                    <span className="absolute hidden group-hover/btn:block right-0 -top-10 bg-white border shadow-md text-[10px] px-2 py-1 rounded whitespace-nowrap z-20">
-                      Remove payment method
-                    </span>
                   </button>
                 </div>
               </div>
@@ -573,14 +569,7 @@ const PaymentPage = () => {
                 {/* Nagad Option */}
                 <button className="w-full flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                   <div className="flex items-center">
-                    <img
-                      src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Nagad_Logo.svg/1200px-Nagad_Logo.svg.png"
-                      alt="Nagad"
-                      className="h-6 mr-4"
-                    />
-                    <span className="text-sm font-medium text-gray-700">
-                      Pay with Nagad
-                    </span>
+                    <img src="/nagad.webp" alt="Nagad" className="h-7 mr-4" />
                   </div>
                   <svg
                     className="w-5 h-5 text-gray-400"
@@ -612,9 +601,6 @@ const PaymentPage = () => {
                         className="h-4"
                       />
                     </div>
-                    <span className="text-sm font-medium text-gray-700">
-                      Pay with Debit / Credit Card
-                    </span>
                   </div>
                   <svg
                     className="w-5 h-5 text-gray-400"
