@@ -479,162 +479,165 @@ const PaymentPage = () => {
         </div>
       </div>
 
-      {/* Saved Payment Method Modal - New Design */}
+      {/* Saved Payment Method Modal */}
       <Modal
         open={showSavedPaymentModal}
         onClose={() => setShowSavedPaymentModal(false)}
         title={null}
-        sizeClass="max-w-lg"
+        sizeClass="max-w-lg" // Adjusted size to match the reference better
       >
-        {/* Header with back button */}
-        <div className="flex items-center mb-6 pb-4 border-b">
-          <button
-            onClick={() => setShowSavedPaymentModal(false)}
-            className="mr-3 text-gray-700 hover:text-gray-900"
-            aria-label="Back"
-          >
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+        <div className="relative">
+          {/* Header */}
+          <div className="flex items-center mb-6">
+            <button
+              onClick={() => setShowSavedPaymentModal(false)}
+              className="p-1 hover:bg-gray-100 rounded-full transition-colors"
             >
-              <path d="M19 12H5M12 19l-7-7 7-7" />
-            </svg>
-          </button>
-          <h2 className="text-lg font-semibold text-gray-800">
-            Payment Methods
-          </h2>
-        </div>
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+              </svg>
+            </button>
+            <h2 className="ml-3 text-lg font-semibold text-gray-800">
+              Payment Methods
+            </h2>
+          </div>
 
-        <div className="space-y-6">
-          {/* Saved Payment Method Section */}
-          <div>
-            <h3 className="text-sm font-semibold text-gray-700 mb-3">
-              Saved Payment Method
-            </h3>
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  {/* bKash Logo */}
-                  <div className="w-10 h-10 bg-pink-500 rounded flex items-center justify-center">
-                    <svg
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="white"
-                    >
-                      <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z" />
-                    </svg>
+          <div className="space-y-6">
+            {/* Section 1: Saved Payment Method */}
+            <div>
+              <h3 className="text-sm font-medium text-gray-700 mb-3">
+                Saved Payment Method
+              </h3>
+              <div className="group relative flex items-center border border-gray-200 rounded-lg overflow-hidden transition-all hover:border-gray-300">
+                <div className="flex-1 flex items-center p-4">
+                  {/* bKash Icon Circle */}
+                  <div className="w-10 h-10 rounded-full bg-pink-50 flex items-center justify-center border border-pink-100 mr-4">
+                    <img
+                      src="https://upload.wikimedia.org/wikipedia/commons/0/0c/BKash_Logo.png"
+                      alt="bKash"
+                      className="w-6 h-6 object-contain"
+                    />
                   </div>
                   <div>
-                    <div className="font-semibold text-gray-800 text-sm">
+                    <div className="font-bold text-gray-800 text-base">
                       019####690
                     </div>
-                    <div className="text-xs text-gray-500">Saved by bkash</div>
+                    <div className="text-xs text-gray-400">Saved by bKash</div>
                   </div>
                 </div>
-                <button className="flex items-center gap-1 px-3 py-1.5 text-xs text-gray-600 hover:text-red-600 hover:bg-red-50 rounded transition-colors">
+
+                {/* Delete Action Section */}
+                <div className="flex items-center px-4 border-l border-gray-100 bg-gray-50/50">
+                  <button
+                    className="p-2 text-red-500 hover:bg-red-50 rounded-md transition-colors group/btn relative"
+                    title="Remove payment method"
+                  >
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polyline points="3 6 5 6 21 6"></polyline>
+                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                    {/* Tooltip emulation */}
+                    <span className="absolute hidden group-hover/btn:block right-0 -top-10 bg-white border shadow-md text-[10px] px-2 py-1 rounded whitespace-nowrap z-20">
+                      Remove payment method
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Section 2: Other Payment Methods */}
+            <div>
+              <h3 className="text-sm font-medium text-gray-700 mb-3">
+                Add Other Payment Methods
+              </h3>
+              <div className="space-y-3">
+                {/* Nagad Option */}
+                <button className="w-full flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                  <div className="flex items-center">
+                    <img
+                      src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Nagad_Logo.svg/1200px-Nagad_Logo.svg.png"
+                      alt="Nagad"
+                      className="h-6 mr-4"
+                    />
+                    <span className="text-sm font-medium text-gray-700">
+                      Pay with Nagad
+                    </span>
+                  </div>
                   <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
+                    className="w-5 h-5 text-gray-400"
                     fill="none"
                     stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+                    viewBox="0 0 24 24"
                   >
-                    <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="9 5l7 7-7 7"
+                    />
                   </svg>
-                  <span>Remove payment method</span>
+                </button>
+
+                {/* Card Option */}
+                <button className="w-full flex items-center justify-between p-4 border border-pink-200 bg-pink-50/30 rounded-lg hover:bg-pink-50 transition-colors">
+                  <div className="flex items-center">
+                    <div className="flex gap-1 mr-4">
+                      <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/d/d6/Visa_2021.svg"
+                        alt="Visa"
+                        className="h-4"
+                      />
+                      <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg"
+                        alt="Mastercard"
+                        className="h-4"
+                      />
+                    </div>
+                    <span className="text-sm font-medium text-gray-700">
+                      Pay with Debit / Credit Card
+                    </span>
+                  </div>
+                  <svg
+                    className="w-5 h-5 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="9 5l7 7-7 7"
+                    />
+                  </svg>
                 </button>
               </div>
             </div>
+
+            {/* Footer Button */}
+            <button className="w-full py-3.5 bg-gray-100 text-gray-400 font-semibold rounded-lg cursor-not-allowed mt-4">
+              Continue
+            </button>
           </div>
-
-          {/* Add Other Payment Methods Section */}
-          <div>
-            <h3 className="text-sm font-semibold text-gray-700 mb-3">
-              Add Other Payment Methods
-            </h3>
-            <div className="space-y-2">
-              {/* Nagad Option */}
-              <button className="w-full bg-white border border-gray-200 rounded-lg p-4 hover:border-orange-300 hover:bg-orange-50 transition-colors flex items-center justify-between group">
-                <div className="flex items-center gap-3">
-                  <img
-                    src="https://seeklogo.com/images/N/nagad-logo-7A70CCFEE1-seeklogo.com.png"
-                    alt="Nagad"
-                    className="w-10 h-10"
-                  />
-                  <span className="font-medium text-gray-800 text-sm">
-                    Pay with Nagad
-                  </span>
-                </div>
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="text-gray-400 group-hover:text-orange-500"
-                >
-                  <path d="M9 18l6-6-6-6" />
-                </svg>
-              </button>
-
-              {/* Card Option */}
-              <button className="w-full bg-white border border-gray-200 rounded-lg p-4 hover:border-blue-300 hover:bg-blue-50 transition-colors flex items-center justify-between group">
-                <div className="flex items-center gap-3">
-                  <div className="flex -space-x-2">
-                    <img
-                      src="https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png"
-                      alt="Visa"
-                      className="w-8 h-5"
-                    />
-                    <img
-                      src="https://upload.wikimedia.org/wikipedia/commons/b/b7/MasterCard_Logo.svg"
-                      alt="Mastercard"
-                      className="w-8 h-5"
-                    />
-                    <img
-                      src="https://upload.wikimedia.org/wikipedia/commons/f/fa/American_Express_logo_%282018%29.svg"
-                      alt="Amex"
-                      className="w-8 h-5"
-                    />
-                  </div>
-                  <span className="font-medium text-gray-800 text-sm">
-                    Pay with Debit / Credit Card
-                  </span>
-                </div>
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="text-gray-400 group-hover:text-blue-500"
-                >
-                  <path d="M9 18l6-6-6-6" />
-                </svg>
-              </button>
-            </div>
-          </div>
-
-          {/* Continue Button */}
-          <button className="w-full bg-gray-200 text-gray-500 py-3 rounded-lg font-medium text-sm cursor-not-allowed">
-            Continue
-          </button>
         </div>
       </Modal>
     </div>
