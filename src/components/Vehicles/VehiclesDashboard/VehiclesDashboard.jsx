@@ -1,5 +1,5 @@
-/* eslint-disable no-unused-vars */
-import React, { useMemo, useState } from "react";
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useEffect, useMemo, useState } from "react";
 import VehiclesStatusOption from "../../AnalyticsSummary/VehiclesStatusOption";
 import { RotateCw, Download } from "lucide-react";
 import useCustomerVehicle from "../../../hooks/useCustomerVehicle";
@@ -37,8 +37,29 @@ export default function VehiclesDashboard() {
   const selectedImeis = useSelectedImeis();
   const [activeTab] = useState("All");
   const [page, setPage] = useState(1);
-  const [reloadTimer, setReloadTimer] = useState(60);
+  const [reloadTimer, setReloadTimer] = useState(10);
   const [isReloading, setIsReloading] = useState(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsReloading(true);
+      setReloadTimer(10);
+    }, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    if (isReloading) {
+      setIsReloading(false);
+    }
+  }, [isLoading]);
+
+  useEffect(() => {
+    if (!isReloading && reloadTimer > 0) {
+      const t = setTimeout(() => setReloadTimer(reloadTimer - 1), 1000);
+      return () => clearTimeout(t);
+    }
+  }, [reloadTimer, isReloading]);
 
   const enrichedDevices = useMemo(() => {
     if (!Array.isArray(customerVehicles)) return [];
