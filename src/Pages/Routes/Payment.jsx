@@ -478,93 +478,163 @@ const PaymentPage = () => {
           </Card>
         </div>
       </div>
-      {/* Saved Payment Method Modal */}
+
+      {/* Saved Payment Method Modal - New Design */}
       <Modal
         open={showSavedPaymentModal}
         onClose={() => setShowSavedPaymentModal(false)}
         title={null}
         sizeClass="max-w-lg"
       >
-        <button
-          onClick={() => setShowSavedPaymentModal(false)}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 z-10"
-          aria-label="Close"
-        >
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+        {/* Header with back button */}
+        <div className="flex items-center mb-6 pb-4 border-b">
+          <button
+            onClick={() => setShowSavedPaymentModal(false)}
+            className="mr-3 text-gray-700 hover:text-gray-900"
+            aria-label="Back"
           >
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-        </button>
-        <div className="flex flex-col items-center py-6">
-          <div className="w-16 h-16 rounded-full bg-yellow-100 flex items-center justify-center mb-2">
             <svg
-              width="40"
-              height="40"
+              width="20"
+              height="20"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="#f59e42"
+              stroke="currentColor"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
             >
-              <circle cx="12" cy="12" r="10" />
-              <path d="M12 16v-4" />
-              <path d="M12 8h.01" />
+              <path d="M19 12H5M12 19l-7-7 7-7" />
             </svg>
-          </div>
-          <h2 className="text-xl font-bold text-orange-500 mb-1">
-            Saved Payment Method
+          </button>
+          <h2 className="text-lg font-semibold text-gray-800">
+            Payment Methods
           </h2>
-          <p className="text-xs text-gray-500 mb-4">
-            Manage your saved payment options for quick checkout.
-          </p>
-          <div className="w-full space-y-4">
-            <div className="flex items-center bg-yellow-50 p-4 rounded-lg shadow">
-              <img
-                src="https://upload.wikimedia.org/wikipedia/commons/0/0c/BKash_Logo.png"
-                alt="bKash"
-                className="w-10 h-10 rounded-full mr-4 border border-pink-200"
-              />
-              <div className="flex-1">
-                <div className="font-semibold text-gray-800">bKash</div>
-                <div className="text-xs text-gray-600">
-                  Account: 01XXXXXXXXX
+        </div>
+
+        <div className="space-y-6">
+          {/* Saved Payment Method Section */}
+          <div>
+            <h3 className="text-sm font-semibold text-gray-700 mb-3">
+              Saved Payment Method
+            </h3>
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  {/* bKash Logo */}
+                  <div className="w-10 h-10 bg-pink-500 rounded flex items-center justify-center">
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="white"
+                    >
+                      <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <div className="font-semibold text-gray-800 text-sm">
+                      019####690
+                    </div>
+                    <div className="text-xs text-gray-500">Saved by bkash</div>
+                  </div>
                 </div>
-                <div className="text-xs text-gray-600">
-                  Last Used: 2026-01-15
-                </div>
+                <button className="flex items-center gap-1 px-3 py-1.5 text-xs text-gray-600 hover:text-red-600 hover:bg-red-50 rounded transition-colors">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+                  </svg>
+                  <span>Remove payment method</span>
+                </button>
               </div>
-              <button className="ml-4 px-3 py-1 text-xs rounded bg-pink-100 text-pink-700 font-semibold hover:bg-pink-200">
-                Use
-              </button>
             </div>
-            <div className="flex items-center bg-yellow-50 p-4 rounded-lg shadow">
-              <img
-                src="https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png"
-                alt="Visa"
-                className="w-10 h-10 rounded-full mr-4 border border-blue-200"
-              />
-              <div className="flex-1">
-                <div className="font-semibold text-gray-800">Visa Card</div>
-                <div className="text-xs text-gray-600">**** 1234</div>
-                <div className="text-xs text-gray-600">
-                  Last Used: 2026-01-10
+          </div>
+
+          {/* Add Other Payment Methods Section */}
+          <div>
+            <h3 className="text-sm font-semibold text-gray-700 mb-3">
+              Add Other Payment Methods
+            </h3>
+            <div className="space-y-2">
+              {/* Nagad Option */}
+              <button className="w-full bg-white border border-gray-200 rounded-lg p-4 hover:border-orange-300 hover:bg-orange-50 transition-colors flex items-center justify-between group">
+                <div className="flex items-center gap-3">
+                  <img
+                    src="https://seeklogo.com/images/N/nagad-logo-7A70CCFEE1-seeklogo.com.png"
+                    alt="Nagad"
+                    className="w-10 h-10"
+                  />
+                  <span className="font-medium text-gray-800 text-sm">
+                    Pay with Nagad
+                  </span>
                 </div>
-              </div>
-              <button className="ml-4 px-3 py-1 text-xs rounded bg-blue-100 text-blue-700 font-semibold hover:bg-blue-200">
-                Use
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="text-gray-400 group-hover:text-orange-500"
+                >
+                  <path d="M9 18l6-6-6-6" />
+                </svg>
+              </button>
+
+              {/* Card Option */}
+              <button className="w-full bg-white border border-gray-200 rounded-lg p-4 hover:border-blue-300 hover:bg-blue-50 transition-colors flex items-center justify-between group">
+                <div className="flex items-center gap-3">
+                  <div className="flex -space-x-2">
+                    <img
+                      src="https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png"
+                      alt="Visa"
+                      className="w-8 h-5"
+                    />
+                    <img
+                      src="https://upload.wikimedia.org/wikipedia/commons/b/b7/MasterCard_Logo.svg"
+                      alt="Mastercard"
+                      className="w-8 h-5"
+                    />
+                    <img
+                      src="https://upload.wikimedia.org/wikipedia/commons/f/fa/American_Express_logo_%282018%29.svg"
+                      alt="Amex"
+                      className="w-8 h-5"
+                    />
+                  </div>
+                  <span className="font-medium text-gray-800 text-sm">
+                    Pay with Debit / Credit Card
+                  </span>
+                </div>
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="text-gray-400 group-hover:text-blue-500"
+                >
+                  <path d="M9 18l6-6-6-6" />
+                </svg>
               </button>
             </div>
           </div>
+
+          {/* Continue Button */}
+          <button className="w-full bg-gray-200 text-gray-500 py-3 rounded-lg font-medium text-sm cursor-not-allowed">
+            Continue
+          </button>
         </div>
       </Modal>
     </div>
