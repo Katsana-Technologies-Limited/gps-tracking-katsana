@@ -42,10 +42,6 @@ export default function VehiclesDashboard() {
   const [page, setPage] = useState(1);
   const [isReloading, setIsReloading] = useState(false);
 
-  // Removed auto-refresh interval. Reload will only happen on button click.
-
-  // No reload timer or auto state needed
-
   const enrichedDevices = useMemo(() => {
     if (!Array.isArray(customerVehicles)) return [];
 
