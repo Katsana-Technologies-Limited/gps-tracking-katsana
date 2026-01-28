@@ -13,13 +13,12 @@ const useVtsAllDevices = () => {
     "/api/vts/customer/subscriptions",
     true,
     {
-      refetchInterval: 10000, //10s
+      refetchInterval: 10000,
       refetchIntervalInBackground: true,
       staleTime: 0,
     },
   );
 
-  // allDevices: all vts_device objects from subscriptions that have vts_device
   const allDevices = useMemo(() => {
     if (!Array.isArray(allSubsData)) return [];
     return allSubsData
