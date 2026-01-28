@@ -1,5 +1,4 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import VehiclesStatusOption from "../../AnalyticsSummary/VehiclesStatusOption";
 import { RotateCw, Download } from "lucide-react";
 import useCustomerVehicle from "../../../hooks/useCustomerVehicle";
@@ -32,34 +31,20 @@ function getRenewalInfo(expiryDate) {
 }
 
 export default function VehiclesDashboard() {
-  const { data: customerVehicles = [], isLoading } = useCustomerVehicle();
-  const { filteredDevices = [] } = useVtsAllDevices();
+  const {
+    data: customerVehicles = [],
+    isLoading,
+    refetch: refetchCustomerVehicles,
+  } = useCustomerVehicle();
+  const { filteredDevices = [], refetch: refetchDevices } = useVtsAllDevices();
   const selectedImeis = useSelectedImeis();
   const [activeTab] = useState("All");
   const [page, setPage] = useState(1);
-  const [reloadTimer, setReloadTimer] = useState(10);
   const [isReloading, setIsReloading] = useState(false);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIsReloading(true);
-      setReloadTimer(10);
-    }, 10000);
-    return () => clearInterval(interval);
-  }, []);
+  // Removed auto-refresh interval. Reload will only happen on button click.
 
-  useEffect(() => {
-    if (isReloading) {
-      setIsReloading(false);
-    }
-  }, [isLoading]);
-
-  useEffect(() => {
-    if (!isReloading && reloadTimer > 0) {
-      const t = setTimeout(() => setReloadTimer(reloadTimer - 1), 1000);
-      return () => clearTimeout(t);
-    }
-  }, [reloadTimer, isReloading]);
+  // No reload timer or auto state needed
 
   const enrichedDevices = useMemo(() => {
     if (!Array.isArray(customerVehicles)) return [];
@@ -180,9 +165,13 @@ export default function VehiclesDashboard() {
     });
   }, [customerVehicles, filteredDevices]);
 
-  const handleReload = () => {
-    if (isReloading) return;
+  const handleReload = async () => {
     setIsReloading(true);
+    try {
+      await Promise.all([refetchDevices(), refetchCustomerVehicles()]);
+    } finally {
+      setIsReloading(false);
+    }
   };
 
   const filtered = useMemo(() => {
@@ -211,19 +200,14 @@ export default function VehiclesDashboard() {
           <button
             onClick={handleReload}
             disabled={isReloading}
-            className={`px-4 py-2 cursor-pointer rounded-lg text-md font-medium flex items-center gap-2 border border-gray-300
-              ${
-                isReloading
-                  ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                  : "bg-[#c1d1de] hover:bg-[#b0c6d6] text-gray-700"
-              }`}
+            className={`px-4 py-2 cursor-pointer rounded-lg text-sm font-medium flex items-center gap-2 border border-gray-300 bg-[#c1d1de] hover:bg-[#b0c6d6] text-gray-700 ${isReloading ? "opacity-70 cursor-not-allowed" : ""}`}
           >
             <RotateCw
               className={`w-4 h-4 ml-auto ${isReloading ? "animate-spin" : ""}`}
             />
-            Reload {isReloading && `(${reloadTimer}s)`}
+            Reload
           </button>
-          <button className="px-4 py-2 cursor-pointer rounded-lg bg-linear-to-r from-orange-400 to-orange-500 text-white font-medium flex items-center gap-2 border border-gray-300 hover:from-orange-500 hover:to-orange-600">
+          <button className="px-4 py-2 cursor-pointer text-sm rounded-lg bg-linear-to-r from-orange-400 to-orange-500 text-white font-medium flex items-center gap-2 border border-gray-300 hover:from-orange-500 hover:to-orange-600">
             <Download className="w-4 h-4" />
             <span>Export</span>
           </button>
