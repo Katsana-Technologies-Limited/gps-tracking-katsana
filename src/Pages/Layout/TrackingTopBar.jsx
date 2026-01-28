@@ -130,7 +130,7 @@ const TrackingTopBar = ({ onMenuClick }) => {
           {showProfile && (
             <div className="absolute right-0 mt-2 w-36 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
               <Link
-                to="/dashboard/profile"
+                to="/dashboard/user-management/your-profile"
                 className="w-full flex items-center gap-2 px-4 py-2.5 hover:bg-orange-50 text-gray-700 font-medium"
                 onClick={() => setShowProfile(false)}
               >

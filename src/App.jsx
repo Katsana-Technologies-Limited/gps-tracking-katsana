@@ -53,7 +53,10 @@ const App = () => {
             }
           >
             <Route index element={<AnalyticsSummary />} />
-            <Route path="profile" element={<VtsProfile />} />
+            <Route
+              path="user-management/your-profile"
+              element={<VtsProfile />}
+            />
             <Route path="vehicles/dashboard" element={<Vehicles />} />
             <Route
               path="vehicles/current-location"
@@ -117,6 +120,7 @@ const App = () => {
             <Route path="maintenance" element={<Maintenance />} />
             <Route path="support" element={<Support />} />
             <Route path="payment" element={<Payment />} />
+            {/* User Management */}
             <Route path="user-management" element={<UserManagement />} />
             <Route path="ai-assistant" element={<AIAssistant />} />
           </Route>
