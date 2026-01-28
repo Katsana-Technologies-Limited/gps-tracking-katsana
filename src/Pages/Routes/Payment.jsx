@@ -21,7 +21,7 @@ const PaymentPage = () => {
   const [vehicleDurations, setVehicleDurations] = useState({});
   const { data: customerVehicles = [], isLoading } = useCustomerVehicle();
   const hasInitialized = useRef(false);
-  
+
   const vehicles = useMemo(() => {
     return (customerVehicles || []).map((v) => ({
       id: v.subscription_id,
@@ -117,25 +117,66 @@ const PaymentPage = () => {
 
   const onBkashPayment = async () => {
     if (!canPay) return;
-    console.log("Processing bKash payment for vehicles:", selectedVehicles);
-    console.log("Vehicle durations:", vehicleDurations);
-    const payload = {
-      paymentProvider: "bKash",
-      savePaymentInfo,
-      vehicles: selectedVehicles.map((id) => {
-        const v = vehicles.find((x) => x.id === id);
-        return {
-          subscriptionId: v.subscriptionId,
-          duration: vehicleDurations[id] || 1,
-          amount: v.subscriptionFee * (vehicleDurations[id] || 1),
-        };
-      }),
-      totalAmount: calculateTotal(),
-    };
-    console.log("bKash Payment Payload:", payload);
-    await axiosUrl.post("/api/vts/payment/bkash/init", payload, {
-      withCredentials: true,
+    // Prepare common payment data
+    const paymentVehicles = selectedVehicles.map((id) => {
+      const v = vehicles.find((x) => x.id === id);
+      return {
+        subscriptionId: v.subscriptionId,
+        duration: vehicleDurations[id] || 1,
+        amount: v.subscriptionFee * (vehicleDurations[id] || 1),
+      };
     });
+    const totalAmount = calculateTotal();
+
+    if (savePaymentInfo) {
+      // 1. Create Agreement API (backend endpoint should handle bKash agreement creation)
+      try {
+        const agreementRes = await axiosUrl.post(
+          "/api/vts/payment/bkash/agreement/create",
+          {
+            vehicles: paymentVehicles,
+            totalAmount,
+          },
+          { withCredentials: true },
+        );
+        // Expecting backend to return { bkashURL, agreementId, ... }
+        if (agreementRes.data && agreementRes.data.bkashURL) {
+          // Redirect user to bKash agreement page
+          window.location.href = agreementRes.data.bkashURL;
+        } else {
+          alert("Failed to initiate bKash agreement. Please try again.");
+        }
+      } catch (err) {
+        alert(
+          err?.response?.data?.errorMessageEn ||
+            "Agreement creation failed. Please try again.",
+        );
+      }
+    } else {
+      // 2. Normal Payment API (without agreement)
+      try {
+        const paymentRes = await axiosUrl.post(
+          "/api/vts/payment/bkash/payment/create",
+          {
+            vehicles: paymentVehicles,
+            totalAmount,
+          },
+          { withCredentials: true },
+        );
+        // Expecting backend to return { bkashURL, paymentId, ... }
+        if (paymentRes.data && paymentRes.data.bkashURL) {
+          // Redirect user to bKash payment page
+          window.location.href = paymentRes.data.bkashURL;
+        } else {
+          alert("Failed to initiate bKash payment. Please try again.");
+        }
+      } catch (err) {
+        alert(
+          err?.response?.data?.errorMessageEn ||
+            "Payment initiation failed. Please try again.",
+        );
+      }
+    }
   };
 
   const filteredVehicles = vehicles.filter((v) => {
