@@ -1,5 +1,3 @@
-import React from "react";
-
 const BkashPaymentError = ({ message }) => (
   <div className="flex flex-col items-center justify-center min-h-[60vh]">
     <div className="bg-red-100 border border-red-400 text-red-700 px-6 py-4 rounded-lg shadow-md">
