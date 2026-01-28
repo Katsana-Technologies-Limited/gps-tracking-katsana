@@ -72,7 +72,6 @@ const VehiclesStatusMap = () => {
     ? filteredDevices
     : allDevices || [];
 
-  // Vehicle image map
   const vehicleImageMap = useMemo(() => {
     const map = {};
     vehiclesData.forEach((vehicle) => {
@@ -83,7 +82,6 @@ const VehiclesStatusMap = () => {
     return map;
   }, [vehiclesData]);
 
-  // Filter devices based on selected IMEIs
   const mapDevices = useMemo(() => {
     if (!baseDevices?.length) return [];
 
@@ -111,7 +109,6 @@ const VehiclesStatusMap = () => {
     );
   };
 
-  // Load map styles
   useEffect(() => {
     if (!showSummary) return;
     let mounted = true;
@@ -168,7 +165,6 @@ const VehiclesStatusMap = () => {
     };
   }, [showSummary]);
 
-  // Initialize sources for selected vehicle
   const initSources = (device) => {
     const lng = Number(device.lng);
     const lat = Number(device.lat);
@@ -236,7 +232,6 @@ const VehiclesStatusMap = () => {
     }
   };
 
-  // Handle marker click
   const onMarkerClick = (device) => {
     const imei = device.device_data?.imei ?? device.imei;
 
@@ -259,7 +254,6 @@ const VehiclesStatusMap = () => {
     }
   };
 
-  // Focus on last selected IMEI
   useEffect(() => {
     if (!lastSelectedImei || !showSummary) return;
     const device = baseDevices.find(
@@ -274,7 +268,6 @@ const VehiclesStatusMap = () => {
     }
   }, [lastSelectedImei, baseDevices, showSummary]);
 
-  // Get full vehicle info
   const selectedVehicleFull = useMemo(() => {
     if (!selectedVehicleId) return null;
     const deviceInfo = baseDevices?.find(
@@ -287,7 +280,6 @@ const VehiclesStatusMap = () => {
     return { ...vehicleInfo, ...deviceInfo };
   }, [vehiclesData, baseDevices, selectedVehicleId]);
 
-  // Update route coordinates
   useEffect(() => {
     const imei = selectedImeiRef.current;
     if (!imei) return;
@@ -325,7 +317,6 @@ const VehiclesStatusMap = () => {
     });
   }, [baseDevices]);
 
-  // Animation loop
   useEffect(() => {
     const animate = () => {
       const imei = selectedImeiRef.current;
@@ -359,7 +350,6 @@ const VehiclesStatusMap = () => {
     return () => cancelAnimationFrame(rafId.current);
   }, []);
 
-  // Fit bounds to show all vehicles
   const fitToAllVehicles = () => {
     if (!mapDevices.length || !mapRef.current) return;
     const valid = mapDevices.filter((d) =>
@@ -382,7 +372,6 @@ const VehiclesStatusMap = () => {
     });
   };
 
-  // Fit to all vehicles when map first shows
   useEffect(() => {
     if (showSummary && mapDevices.length > 0 && mapRef.current) {
       const timer = setTimeout(() => {
@@ -420,7 +409,6 @@ const VehiclesStatusMap = () => {
     pdf.save("vehicle-map.pdf");
   };
 
-  // Show button initially
   if (!showSummary) {
     return (
       <div
@@ -437,7 +425,6 @@ const VehiclesStatusMap = () => {
     );
   }
 
-  // Show loading while styles load
   if (!styleReady) {
     return (
       <div
