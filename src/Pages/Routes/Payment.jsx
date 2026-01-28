@@ -149,6 +149,8 @@ const PaymentPage = () => {
           alert("Failed to initiate bKash agreement. Please try again.");
         }
       } catch (err) {
+        console.log("err message code " + err?.response?.data?.externalCode);
+        console.log("err message " + err?.response?.data?.errorMessageEn);
         alert(
           err?.response?.data?.errorMessageEn ||
             "Agreement creation failed. Please try again.",
