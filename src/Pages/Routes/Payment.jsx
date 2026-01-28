@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect, startTransition, useRef } from "react";
 import { Search, Check } from "lucide-react";
 import { Link } from "react-router-dom";
 import useCustomerVehicle from "../../hooks/useCustomerVehicle";
-import SavedPaymentMethodModal from "../../components/Payment/SavedPaymentMethodModal";
+import Modal from "../../components/utils/Modal";
 import LottieLoading from "../../components/utils/LottieLoading";
 import { useAxios } from "../../hooks/useAxios";
 import { formatDue } from "../../utilits/formatDate";
@@ -479,10 +479,94 @@ const PaymentPage = () => {
         </div>
       </div>
       {/* Saved Payment Method Modal */}
-      <SavedPaymentMethodModal
-        isOpen={showSavedPaymentModal}
+      <Modal
+        open={showSavedPaymentModal}
         onClose={() => setShowSavedPaymentModal(false)}
-      />
+        title={null}
+        sizeClass="max-w-lg"
+      >
+        <button
+          onClick={() => setShowSavedPaymentModal(false)}
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 z-10"
+          aria-label="Close"
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+        <div className="flex flex-col items-center py-6">
+          <div className="w-16 h-16 rounded-full bg-yellow-100 flex items-center justify-center mb-2">
+            <svg
+              width="40"
+              height="40"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#f59e42"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 16v-4" />
+              <path d="M12 8h.01" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-bold text-orange-500 mb-1">
+            Saved Payment Method
+          </h2>
+          <p className="text-xs text-gray-500 mb-4">
+            Manage your saved payment options for quick checkout.
+          </p>
+          <div className="w-full space-y-4">
+            <div className="flex items-center bg-yellow-50 p-4 rounded-lg shadow">
+              <img
+                src="https://upload.wikimedia.org/wikipedia/commons/0/0c/BKash_Logo.png"
+                alt="bKash"
+                className="w-10 h-10 rounded-full mr-4 border border-pink-200"
+              />
+              <div className="flex-1">
+                <div className="font-semibold text-gray-800">bKash</div>
+                <div className="text-xs text-gray-600">
+                  Account: 01XXXXXXXXX
+                </div>
+                <div className="text-xs text-gray-600">
+                  Last Used: 2026-01-15
+                </div>
+              </div>
+              <button className="ml-4 px-3 py-1 text-xs rounded bg-pink-100 text-pink-700 font-semibold hover:bg-pink-200">
+                Use
+              </button>
+            </div>
+            <div className="flex items-center bg-yellow-50 p-4 rounded-lg shadow">
+              <img
+                src="https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png"
+                alt="Visa"
+                className="w-10 h-10 rounded-full mr-4 border border-blue-200"
+              />
+              <div className="flex-1">
+                <div className="font-semibold text-gray-800">Visa Card</div>
+                <div className="text-xs text-gray-600">**** 1234</div>
+                <div className="text-xs text-gray-600">
+                  Last Used: 2026-01-10
+                </div>
+              </div>
+              <button className="ml-4 px-3 py-1 text-xs rounded bg-blue-100 text-blue-700 font-semibold hover:bg-blue-200">
+                Use
+              </button>
+            </div>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };
