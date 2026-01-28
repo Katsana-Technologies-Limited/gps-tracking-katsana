@@ -484,7 +484,7 @@ const PaymentPage = () => {
         open={showSavedPaymentModal}
         onClose={() => setShowSavedPaymentModal(false)}
         title={null}
-        sizeClass="max-w-lg" // Adjusted size to match the reference better
+        sizeClass="max-w-lg"
       >
         <div className="relative">
           {/* Header */}
@@ -541,6 +541,10 @@ const PaymentPage = () => {
                   <button
                     className="p-2 text-red-500 cursor-pointer hover:bg-red-50 rounded-md transition-colors group/btn relative"
                     title="Remove payment method"
+                    onClick={() => {
+                      // Add delete functionality here
+                      console.log("Delete payment method");
+                    }}
                   >
                     <svg
                       width="20"
@@ -567,7 +571,13 @@ const PaymentPage = () => {
               </h3>
               <div className="space-y-3">
                 {/* Nagad Option */}
-                <button className="w-full flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                <button
+                  className="w-full flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                  onClick={() => {
+                    // Handle Nagad payment selection
+                    console.log("Selected Nagad");
+                  }}
+                >
                   <div className="flex items-center">
                     <img src="/nagad.webp" alt="Nagad" className="h-7 mr-4" />
                   </div>
@@ -587,7 +597,13 @@ const PaymentPage = () => {
                 </button>
 
                 {/* Card Option */}
-                <button className="w-full flex items-center justify-between p-4 border border-pink-200 bg-pink-50/30 rounded-lg hover:bg-pink-50 transition-colors">
+                <button
+                  className="w-full flex items-center justify-between p-4 border border-pink-200 bg-pink-50/30 rounded-lg hover:bg-pink-50 transition-colors"
+                  onClick={() => {
+                    // Handle Card payment selection
+                    console.log("Selected Card");
+                  }}
+                >
                   <div className="flex items-center">
                     <div className="flex gap-1 mr-4">
                       <img
@@ -620,7 +636,15 @@ const PaymentPage = () => {
             </div>
 
             {/* Footer Button */}
-            <button className="w-full py-3.5 bg-gray-100 text-gray-400 font-semibold rounded-lg cursor-not-allowed mt-4">
+            <button
+              className="w-full py-3.5 bg-yellow-400 text-gray-800 font-semibold rounded-lg hover:bg-yellow-500 transition-colors mt-4 cursor-pointer"
+              onClick={() => {
+                // Add your payment method selection logic here
+                console.log("Continue with selected payment method");
+                // Close modal after selection
+                setShowSavedPaymentModal(false);
+              }}
+            >
               Continue
             </button>
           </div>
