@@ -1,16 +1,21 @@
-const BkashPaymentError = ({ message }) => (
-  <div className="flex flex-col items-center justify-center min-h-[60vh]">
-    <div className="bg-red-100 border border-red-400 text-red-700 px-6 py-4 rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-2">Payment Failed</h2>
-      <p className="mb-2">
-        {message ||
-          "There was an error processing your bKash payment. Please try again or contact support."}
-      </p>
-      <a href="/" className="text-blue-600 underline">
-        Go to Dashboard
-      </a>
-    </div>
-  </div>
-);
+import React from "react";
 
-export default BkashPaymentError;
+const PaymentError = () => {
+  // You can enhance this with more details or fetch error info via query params
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen bg-red-50">
+      <div className="bg-white p-8 rounded shadow-md text-center">
+        <h1 className="text-2xl font-bold text-red-600 mb-4">Payment Failed</h1>
+        <p className="mb-4">
+          There was an error processing your bKash payment. Please try again or
+          contact support.
+        </p>
+        <a href="/admin/payments" className="text-blue-600 underline">
+          Go to Payments
+        </a>
+      </div>
+    </div>
+  );
+};
+
+export default PaymentError;

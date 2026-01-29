@@ -130,6 +130,11 @@ const PaymentPage = () => {
     });
     const totalAmount = calculateTotal();
 
+    console.log({
+      vehicles: paymentVehicles,
+      totalAmount,
+    });
+
     if (savePaymentInfo) {
       // 1. Create Agreement API (backend endpoint should handle bKash agreement creation)
       try {

@@ -23,6 +23,7 @@ import Alert from "./Pages/Routes/Alert";
 import Maintenance from "./Pages/Routes/Maintenance";
 import Support from "./Pages/Routes/Support";
 import Payment from "./Pages/Routes/Payment";
+import BkashPaymentStatus from "./Pages/Routes/BkashPaymentStatus";
 import UserManagement from "./Pages/Routes/UserManagement";
 import AIAssistant from "./Pages/Routes/AIAssistant";
 import ProtectedRoute from "./services/ProtectedRoute";
@@ -120,6 +121,10 @@ const App = () => {
             <Route path="maintenance" element={<Maintenance />} />
             <Route path="support" element={<Support />} />
             <Route path="payment" element={<Payment />} />
+            <Route
+              path="bkash-payment-status"
+              element={<BkashPaymentStatus />}
+            />
             {/* User Management */}
             <Route path="user-management" element={<UserManagement />} />
             <Route path="ai-assistant" element={<AIAssistant />} />
