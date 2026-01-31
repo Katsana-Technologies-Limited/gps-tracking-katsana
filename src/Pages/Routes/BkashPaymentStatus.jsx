@@ -154,12 +154,12 @@ const BkashPaymentStatus = () => {
   const config = statusConfig[status] || statusConfig["pending"];
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-[#f8f8f8]">
+    <div className="min-h-[85vh] flex items-center justify-center p-6 bg-[#f8f8f8]">
       <div className="bg-white rounded-2xl shadow-lg max-w-md w-full p-8 text-center">
         {/* Icon & Title */}
         <div className="mb-6">
           <div
-            className={`w-20 h-20 ${config.color} rounded-full flex items-center justify-center mx-auto mb-4`}
+            className={`w-16 h-16 ${config.color} rounded-full flex items-center justify-center mx-auto mb-4`}
           >
             {config.icon}
           </div>
