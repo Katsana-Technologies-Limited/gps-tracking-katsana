@@ -4,6 +4,7 @@ import { RotateCw, Download } from "lucide-react";
 import useCustomerVehicle from "../../../hooks/useCustomerVehicle";
 import useVtsAllDevices from "../../../hooks/useVtsAllDevices";
 import NearbyLandmarkCell from "../NearbyLandmarkCell";
+import { useLocation } from "react-router-dom";
 import useSelectedImeis from "../../../hooks/useSelectedImeis";
 import LottieLoading from "../../utils/LottieLoading";
 import { MeterIcon } from "./MeterIcon";
@@ -31,6 +32,9 @@ function getRenewalInfo(expiryDate) {
 }
 
 export default function VehiclesDashboard() {
+  const location = useLocation();
+  const dashboardVisible =
+    location.pathname === "/dashboard/vehicles/dashboard";
   const {
     data: customerVehicles = [],
     isLoading,
@@ -260,6 +264,7 @@ export default function VehiclesDashboard() {
                           lat={vehicle.lat}
                           lng={vehicle.lng}
                           suspended={vehicle.deviceStatus === "Suspended"}
+                          enabled={dashboardVisible}
                         />
                       </td>
                       <td className="p-4 text-nowrap">

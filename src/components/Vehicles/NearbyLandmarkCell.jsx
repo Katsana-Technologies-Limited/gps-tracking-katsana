@@ -1,8 +1,12 @@
 import useBarikoiReverse from "../../hooks/useBarikoiReverse";
-import LottieLoading from "../utils/LottieLoading";
 
-export default function NearbyLandmarkCell({ lat, lng, suspended }) {
-  const { place } = useBarikoiReverse(lat, lng);
+export default function NearbyLandmarkCell({
+  lat,
+  lng,
+  suspended,
+  enabled = true,
+}) {
+  const { place } = useBarikoiReverse(lat, lng, enabled);
 
   if (suspended) {
     return (
