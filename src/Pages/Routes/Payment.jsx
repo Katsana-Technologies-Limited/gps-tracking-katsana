@@ -28,7 +28,7 @@ const PaymentPage = () => {
     return (customerVehicles || []).map((v) => ({
       id: v.subscription_id,
       subscriptionId: v.subscription_id,
-      subscriptionNumber: v.subscription_number || `KAT-${v.subscription_id}`,
+      subscriptionNumber: v.subscription_number || "",
       vehicleName: v.vehicle_name || "No Name",
       dueDate: v.expire_date || "",
       subscriptionFee: Number(v.subscription_fee || 0),
@@ -190,7 +190,7 @@ const PaymentPage = () => {
       v.subscriptionNumber.toLowerCase().includes(searchLower)
     );
   });
-console.log(filteredVehicles);
+  
   if (isLoading) return <LottieLoading />;
 
   return (
