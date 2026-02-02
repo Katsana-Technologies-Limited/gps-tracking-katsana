@@ -23,7 +23,7 @@ const PaymentPage = () => {
   const [showSavedPaymentModal, setShowSavedPaymentModal] = useState(false);
   const { data: customerVehicles = [], isLoading } = useCustomerVehicle();
   const hasInitialized = useRef(false);
-
+  
   const vehicles = useMemo(() => {
     return (customerVehicles || []).map((v) => ({
       id: v.subscription_id,
@@ -113,8 +113,8 @@ const PaymentPage = () => {
 
   const onConfirmPayment = () => {
     if (!canPay) return;
-    console.log("Processing payment for vehicles:", selectedVehicles);
-    console.log("Vehicle durations:", vehicleDurations);
+    // console.log("Processing payment for vehicles:", selectedVehicles);
+    // console.log("Vehicle durations:", vehicleDurations);
   };
 
   const onBkashPayment = async () => {
@@ -136,7 +136,6 @@ const PaymentPage = () => {
     });
 
     if (savePaymentInfo) {
-      // 1. Create Agreement API (backend endpoint should handle bKash agreement creation)
       try {
         const agreementRes = await axiosUrl.post(
           "/api/vts/payment/bkash/agreement/create",
@@ -146,9 +145,7 @@ const PaymentPage = () => {
           },
           { withCredentials: true },
         );
-        // Expecting backend to return { bkashURL, agreementId, ... }
         if (agreementRes.data && agreementRes.data.bkashURL) {
-          // Redirect user to bKash agreement page
           window.location.href = agreementRes.data.bkashURL;
         } else {
           alert("Failed to initiate bKash agreement. Please try again.");
@@ -162,7 +159,6 @@ const PaymentPage = () => {
         );
       }
     } else {
-      // 2. Normal Payment API (without agreement)
       try {
         const paymentRes = await axiosUrl.post(
           "/api/vts/payment/bkash/payment/create",
@@ -174,7 +170,6 @@ const PaymentPage = () => {
         );
         // Expecting backend to return { bkashURL, paymentId, ... }
         if (paymentRes.data && paymentRes.data.bkashURL) {
-          // Redirect user to bKash payment page
           window.location.href = paymentRes.data.bkashURL;
         } else {
           alert("Failed to initiate bKash payment. Please try again.");
@@ -199,7 +194,7 @@ const PaymentPage = () => {
   if (isLoading) return <LottieLoading />;
 
   return (
-    <div className="">
+    <div>
       <h1 className="text-lg font-semibold text-gray-800 mb-2">
         Vehicle Payment
       </h1>
@@ -397,8 +392,6 @@ const PaymentPage = () => {
                 </div>
               </div>
             </div>
-
-            {/* Selection Status Message */}
             {agreeTerms && selectedVehicles.length === 0 && (
               <div className="mb-4 p-2 bg-yellow-50 border border-yellow-200 rounded text-center">
                 <p className="text-sm text-yellow-700">
