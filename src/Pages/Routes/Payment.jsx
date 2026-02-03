@@ -23,14 +23,14 @@ const PaymentPage = () => {
   const [showSavedPaymentModal, setShowSavedPaymentModal] = useState(false);
   const { data: customerVehicles = [], isLoading } = useCustomerVehicle();
   const hasInitialized = useRef(false);
-  
+
   const vehicles = useMemo(() => {
     return (customerVehicles || []).map((v) => ({
       id: v.subscription_id,
       subscriptionId: v.subscription_id,
       subscriptionNumber: v.subscription_number || "",
       vehicleName: v.vehicle_name || "No Name",
-      dueDate: v.expire_date || "",
+      dueDate: v.due_date || "",
       subscriptionFee: Number(v.subscription_fee || 0),
       suspended: Boolean(v.suspended),
       expired:
@@ -190,7 +190,7 @@ const PaymentPage = () => {
       v.subscriptionNumber.toLowerCase().includes(searchLower)
     );
   });
-  
+
   if (isLoading) return <LottieLoading />;
 
   return (
