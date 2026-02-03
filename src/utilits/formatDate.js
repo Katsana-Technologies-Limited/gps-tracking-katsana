@@ -7,10 +7,14 @@ export function formatDate(dateString) {
 export const formatDue = (dateStr) => {
   if (!dateStr) return "";
   const d = new Date(dateStr);
-  d.setDate(d.getDate() - 1);
   if (Number.isNaN(d.getTime())) return dateStr;
-  const day = d.getDate();
-  const month = d.toLocaleString("en-US", { month: "short" });
-  const year = d.getFullYear();
-  return `${day} ${month}, ${year}`;
+  const utcDate = new Date(dateStr);
+  if (Number.isNaN(utcDate.getTime())) return dateStr;
+  const dhakaOffset = 6 * 60;
+  const localDate = new Date(utcDate.getTime() + dhakaOffset * 60 * 1000);
+  return localDate.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
 };
