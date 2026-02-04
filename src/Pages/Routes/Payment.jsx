@@ -119,7 +119,6 @@ const PaymentPage = () => {
 
   const onBkashPayment = async () => {
     if (!canPay) return;
-    // Prepare common payment data
     const paymentVehicles = selectedVehicles.map((id) => {
       const v = vehicles.find((x) => x.id === id);
       return {
@@ -130,11 +129,6 @@ const PaymentPage = () => {
     });
     const totalAmount = calculateTotal();
 
-    console.log({
-      vehicles: paymentVehicles,
-      totalAmount,
-    });
-
     if (savePaymentInfo) {
       try {
         const agreementRes = await axiosUrl.post(
@@ -143,7 +137,6 @@ const PaymentPage = () => {
             vehicles: paymentVehicles,
             totalAmount,
           },
-          { withCredentials: true },
         );
         if (agreementRes.data && agreementRes.data.bkashURL) {
           window.location.href = agreementRes.data.bkashURL;
@@ -166,9 +159,7 @@ const PaymentPage = () => {
             vehicles: paymentVehicles,
             totalAmount,
           },
-          { withCredentials: true },
         );
-        // Expecting backend to return { bkashURL, paymentId, ... }
         if (paymentRes.data && paymentRes.data.bkashURL) {
           window.location.href = paymentRes.data.bkashURL;
         } else {
@@ -190,7 +181,7 @@ const PaymentPage = () => {
       v.subscriptionNumber.toLowerCase().includes(searchLower)
     );
   });
-console.log(filteredVehicles);
+
   if (isLoading) return <LottieLoading />;
 
   return (
@@ -639,9 +630,6 @@ console.log(filteredVehicles);
             <button
               className="w-full py-3.5 bg-yellow-400 text-gray-800 font-semibold rounded-lg hover:bg-yellow-500 transition-colors mt-4 cursor-pointer"
               onClick={() => {
-                // Add your payment method selection logic here
-                console.log("Continue with selected payment method");
-                // Close modal after selection
                 setShowSavedPaymentModal(false);
               }}
             >
