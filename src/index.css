@@ -23,16 +23,52 @@ body {
   scrollbar-color: #fe8e1c #fff7e6;
 }
 
+/* Webkit browsers */
 .scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: #fff7e6;
+  border-radius: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: #fe8e1c !important;
+  border-radius: 6px;
+  border: none;
+  box-shadow: none;
+}
+
+/* Force same color on hover */
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #ff9e3c; /* Slightly lighter color on hover */
+}
+
+/* Force same color on click/active */
+.scrollbar-thin::-webkit-scrollbar-thumb:active {
+  background: #ff9e3c; /* Slightly lighter color when active */
+}
+
+/* Apply global scrollbar styling */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #fe8e1c #fff7e6;
+}
+
+*::-webkit-scrollbar {
   width: 0.5px;
   background: #fff7e6;
   border-radius: 4px;
 }
-.scrollbar-thin::-webkit-scrollbar-thumb {
+
+*::-webkit-scrollbar-thumb {
   background: #fe8e1c;
   border-radius: 4px;
 }
-.scrollbar-thin::-webkit-scrollbar-track {
+
+*::-webkit-scrollbar-track {
   background: #fff7e6;
   border-radius: 4px;
 }
@@ -55,7 +91,9 @@ body {
   align-items: center;
   justify-content: center;
   font-size: 18px;
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    opacity 0.3s ease;
   transform-origin: bottom center;
   opacity: 0;
 }
