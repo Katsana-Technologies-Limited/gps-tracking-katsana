@@ -22,7 +22,7 @@ import useVtsAllDevices from "../../hooks/useVtsAllDevices";
 import VehicleInfoCard from "../Vehicles/VehicleInfoCard";
 import { getVehicleWaveColor } from "../Vehicles/statusConfig";
 import VehicleStatusLegend from "../Vehicles/VehicleStatusLegend";
-import LottieLoading from "../utils/LottieLoading";
+import LoadingSpinner from "../utils/LoadingSpinner";
 
 const BARIKOI_KEY = import.meta.env.VITE_BARIKOI_API_KEY;
 const GPS_DURATION = 10000;
@@ -431,7 +431,7 @@ const VehiclesStatusMap = () => {
         ref={wrapperRef}
         className="relative w-full h-140 rounded-2xl overflow-hidden bg-white flex items-center justify-center"
       >
-        <LottieLoading />
+        <LoadingSpinner />
       </div>
     );
   }

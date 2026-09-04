@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { useAxios } from "../../../hooks/useAxios";
 import useCustomer from "../../../hooks/useCustomer";
 import { ProfileField } from "./ProfileField";
-import LottieLoading from "../LottieLoading";
+import LoadingSpinner from "../LoadingSpinner";
 
 const VtsProfile = () => {
   const axiosUrl = useAxios();
@@ -57,7 +57,7 @@ const VtsProfile = () => {
     setShowPassword((prev) => ({ ...prev, [field]: !prev[field] }));
   };
 
-  if (isLoading) return <LottieLoading />;
+  if (isLoading) return <LoadingSpinner />;
 
   if (error)
     return (

@@ -15,14 +15,10 @@
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/react-query": "^5.90.16",
     "axios": "^1.13.2",
-    "barikoiapis": "^1.0.8",
     "bkoi-gl": "^3.1.0",
-    "dotenv": "^17.2.3",
     "framer-motion": "^12.26.1",
-    "install": "^0.13.0",
     "jspdf": "^4.0.0",
     "leaflet": "^1.9.4",
-    "lottie-react": "^2.4.1",
     "lucide-react": "^0.562.0",
     "maplibre-gl": "^5.15.0",
     "react": "^19.2.0",
@@ -34,7 +30,6 @@
     "react-router-dom": "^7.11.0",
     "recharts": "^3.6.0",
     "sonner": "^2.0.7",
-    "tailwind-scrollbar": "^4.0.2",
     "tailwindcss": "^4.1.18"
   },
   "devDependencies": {

@@ -6,7 +6,7 @@ import {
   setSelectedLastImei,
 } from "../../slices/vehiclesSlice";
 import { Check, Search } from "lucide-react";
-import LottieLoading from "../utils/LottieLoading";
+import LoadingSpinner from "../utils/LoadingSpinner";
 import useCustomerVehicle from "../../hooks/useCustomerVehicle";
 import useVtsAllDevices from "../../hooks/useVtsAllDevices";
 
@@ -159,7 +159,7 @@ const VehiclesStatusOption = ({ onStatsChange }) => {
     }
   };
 
-  if (isLoading) return <LottieLoading />;
+  if (isLoading) return <LoadingSpinner />;
 
   return (
     <div className="h-full flex flex-col gap-3 p-3">

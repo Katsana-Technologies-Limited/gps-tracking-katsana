@@ -3,7 +3,7 @@ import { Search, Check } from "lucide-react";
 import { Link } from "react-router-dom";
 import useCustomerVehicle from "../../hooks/useCustomerVehicle";
 import Modal from "../../components/utils/Modal";
-import LottieLoading from "../../components/utils/LottieLoading";
+import LoadingSpinner from "../../components/utils/LoadingSpinner";
 import { useAxios } from "../../hooks/useAxios";
 import { formatDue } from "../../utilits/formatDate";
 
@@ -182,7 +182,7 @@ const PaymentPage = () => {
     );
   });
 
-  if (isLoading) return <LottieLoading />;
+  if (isLoading) return <LoadingSpinner />;
 
   return (
     <div>

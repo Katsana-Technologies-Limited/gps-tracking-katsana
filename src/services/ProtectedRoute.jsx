@@ -1,6 +1,6 @@
 import { Navigate } from "react-router-dom";
 import useDataQuery from "../hooks/useDataQuery";
-import LottieLoading from "../components/utils/LottieLoading";
+import LoadingSpinner from "../components/utils/LoadingSpinner";
 
 const ProtectedRoute = ({ children }) => {
   const { data, isLoading, error } = useDataQuery(
@@ -9,7 +9,7 @@ const ProtectedRoute = ({ children }) => {
     true,
   );
 
-  if (isLoading) return <LottieLoading />;
+  if (isLoading) return <LoadingSpinner />;
   if (error || !data) return <Navigate to="/" />;
   return children;
 };

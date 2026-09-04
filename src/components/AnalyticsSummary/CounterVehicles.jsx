@@ -3,7 +3,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { motion, AnimatePresence } from "framer-motion";
 import useCustomerVehicle from "../../hooks/useCustomerVehicle";
 import useVtsAllDevices from "../../hooks/useVtsAllDevices";
-import LottieLoading from "../utils/LottieLoading";
+import LoadingSpinner from "../utils/LoadingSpinner";
 
 const CounterVehicles = () => {
   const { data = [], isLoading } = useCustomerVehicle();
@@ -44,7 +44,7 @@ const CounterVehicles = () => {
   ];
 
   const totalVehicles = Array.isArray(data) ? data.length : 0;
-  if (isLoading) return <LottieLoading />;
+  if (isLoading) return <LoadingSpinner />;
 
   const CustomTooltip = ({ active, payload }) => (
     <AnimatePresence>

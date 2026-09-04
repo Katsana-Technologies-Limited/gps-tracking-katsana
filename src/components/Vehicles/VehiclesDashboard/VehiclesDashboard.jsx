@@ -6,7 +6,7 @@ import useVtsAllDevices from "../../../hooks/useVtsAllDevices";
 import NearbyLandmarkCell from "../NearbyLandmarkCell";
 import { useLocation } from "react-router-dom";
 import useSelectedImeis from "../../../hooks/useSelectedImeis";
-import LottieLoading from "../../utils/LottieLoading";
+import LoadingSpinner from "../../utils/LoadingSpinner";
 import { MeterIcon } from "./MeterIcon";
 import { getSpeedStatusInfo } from "./getSpeedStatusInfo";
 import { formatDate } from "../../../utilits/formatDate";
@@ -190,7 +190,7 @@ export default function VehiclesDashboard() {
 
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-  if (isLoading) return <LottieLoading />;
+  if (isLoading) return <LoadingSpinner />;
 
   return (
     <div className="space-y-4 scrollbar-thin">
